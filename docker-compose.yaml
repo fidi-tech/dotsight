@@ -1,0 +1,10 @@
+version: '3'
+services:
+  db:
+    image: postgres:14.2
+    environment:
+      POSTGRES_PASSWORD: s@m3pwd
+      POSTGRES_USER: fidi
+      POSTGRES_DB: fidi
+    ports:
+      - 5433:5432
