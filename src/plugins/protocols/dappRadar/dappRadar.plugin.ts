@@ -1,21 +1,45 @@
+import { ProtocolPlugin, PluginBadConfigError } from '../../protocol.plugin';
+import { Injectable } from '@nestjs/common';
 import { AxiosHeaders } from 'axios';
-import { Injectable, Logger } from '@nestjs/common';
-import { HttpService } from '@nestjs/axios';
 import { EMPTY, expand, filter, mergeMap, Observable } from 'rxjs';
-import { IProtocol, ProtocolId } from '../../interfaces/protocol.interface';
-import { Protocol } from '../../entities/protocol.entity';
+import {
+  IProtocol,
+  ProtocolId,
+} from '../../../models/protocol/interfaces/protocol.interface';
+import { Protocol } from '../../../models/protocol/entities/protocol.entity';
+import { HttpService } from '@nestjs/axios';
+
+type Config = {
+  id: string;
+  key: string;
+  endpoint: string;
+  chain: string;
+};
 
 @Injectable()
-export class DappRadarService {
-  private readonly logger = new Logger(DappRadarService.name);
+export class DappRadarPlugin extends ProtocolPlugin<Config> {
+  static getType() {
+    return 'protocol-plugin-dapp';
+  }
+
   private RESULTS_PER_PAGE = 50;
 
-  constructor(private readonly httpService: HttpService) {}
+  constructor(id: string, config: Config, httpService: HttpService) {
+    super(id, config, httpService);
+    if (!config.chain || typeof config.chain !== 'string') {
+      throw new PluginBadConfigError('Chain was not specified');
+    }
+    if (!config.endpoint || typeof config.endpoint !== 'string') {
+      throw new PluginBadConfigError('Endpoint was not specified');
+    }
+    if (!config.key || typeof config.key !== 'string') {
+      throw new PluginBadConfigError('Key was not specified');
+    }
+  }
 
-  // TODO hide secrets
   private getHeaders() {
     return new AxiosHeaders({
-      'X-BLOBR-KEY': '',
+      'X-BLOBR-KEY': this.config.key,
     });
   }
 
@@ -39,18 +63,18 @@ export class DappRadarService {
       }>;
       page: number;
       pageCount: number;
-    }>('https://api.dappradar.com/4tsxo4vuhotaojtl/dapps', {
+    }>(`${this.config.endpoint}/dapps`, {
       headers: this.getHeaders(),
       params: {
         page,
         resultsPerPage: this.RESULTS_PER_PAGE,
-        chain: 'astar',
+        chain: this.config.chain,
       },
     });
   }
 
   getProtocols(): Observable<IProtocol> {
-    return this.getPaginatedProtocols(0).pipe(
+    return this.getPaginatedProtocols(1).pipe(
       expand((response) => {
         const { page, pageCount } = response.data;
         if (page >= pageCount) {
