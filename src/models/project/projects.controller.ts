@@ -20,13 +20,16 @@ import {
 import { JwtAuthGuard } from '../../common/auth/guards/jwt.guard';
 import { UpdateProjectDto } from './dtos/updateProject.dto';
 import { ProjectId } from './interfaces/project.interface';
+import { ApiOperation, ApiTags } from '@nestjs/swagger';
 
 @Controller('projects')
+@ApiTags('projects')
 export class ProjectsController {
   constructor(private readonly projectsService: ProjectsService) {}
 
   @Post('/')
   @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'create project' })
   async create(@Request() req, @Body() createProjectDto: CreateProjectDto) {
     try {
       return await this.projectsService.create(
@@ -43,6 +46,7 @@ export class ProjectsController {
 
   @Put('/:id')
   @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'update project' })
   async updateProject(
     @Request() req,
     @Param('id') id: ProjectId,
