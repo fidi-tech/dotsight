@@ -6,7 +6,7 @@ import {
   Request,
   UseGuards,
 } from '@nestjs/common';
-import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { CreateProtocolSourceDto } from './dtos/createProtocolSource.dto';
 import { ProtocolSourcesService } from './protocolSources.service';
 import { ProjectsService } from '../project/projects.service';
@@ -22,6 +22,7 @@ export class ProtocolSourcesController {
 
   @Post('/')
   @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
   @ApiOperation({ summary: 'create protocols source instance' })
   async create(
     @Request() req,

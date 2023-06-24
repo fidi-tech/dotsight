@@ -15,7 +15,7 @@ import { ProjectsService } from './projects.service';
 import { JwtAuthGuard } from '../../common/auth/guards/jwt.guard';
 import { UpdateProjectDto } from './dtos/updateProject.dto';
 import { ProjectId } from './interfaces/project.interface';
-import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 
 @Controller('projects')
 @ApiTags('projects')
@@ -24,6 +24,7 @@ export class ProjectsController {
 
   @Post('/')
   @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
   @ApiOperation({ summary: 'create project' })
   async create(@Request() req, @Body() createProjectDto: CreateProjectDto) {
     try {
@@ -41,6 +42,7 @@ export class ProjectsController {
 
   @Put('/:id')
   @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
   @ApiOperation({ summary: 'update project' })
   async updateProject(
     @Request() req,

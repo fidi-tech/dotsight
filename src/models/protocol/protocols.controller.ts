@@ -10,7 +10,7 @@ import {
 } from '@nestjs/common';
 import { ProtocolEntity } from './serializers/protocol.serializer';
 import { ProtocolsService } from './protocols.service';
-import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { ProtocolsQueryDto } from './dtos/protocols.query.dto';
 import { ProtocolQueryDto } from './dtos/protocol.query.dto';
 import { JwtAuthGuard } from '../../common/auth/guards/jwt.guard';
@@ -23,6 +23,7 @@ export class ProtocolsController {
   @Get('/:id')
   @UseInterceptors(ClassSerializerInterceptor)
   @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
   @ApiOperation({ summary: 'get protocol metadata' })
   async get(
     @Request() req,
@@ -39,6 +40,7 @@ export class ProtocolsController {
   @Get('/')
   @UseInterceptors(ClassSerializerInterceptor)
   @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
   @ApiOperation({ summary: 'get all available protocols' })
   async getAll(
     @Request() req,
