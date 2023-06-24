@@ -56,7 +56,7 @@ export class ProjectsService {
       name,
       createdBy: actorId,
     });
-    return this.findById(insert.raw.id);
+    return this.findById(insert.raw[0].id);
   }
 
   async update(id: ProjectId, name: string, actorId: ActorId) {

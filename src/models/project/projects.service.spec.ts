@@ -61,9 +61,11 @@ describe('ProjectsService', () => {
         }
       });
       (repositoryMock.insert as jest.Mock).mockImplementation(() => ({
-        raw: {
-          id: 'newid',
-        },
+        raw: [
+          {
+            id: 'newid',
+          },
+        ],
       }));
 
       await expect(service.create('hello', 'someone')).resolves.toEqual(
