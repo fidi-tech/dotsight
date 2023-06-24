@@ -8,6 +8,8 @@ import {
 } from 'typeorm';
 import { ProjectId } from '../../project/interfaces/project.interface';
 import { Project } from '../../project/entities/project.entity';
+import { ActorId } from '../../actor/interfaces/actor.interface';
+import { Actor } from '../../actor/entities/actor.entity';
 
 @Entity({ name: 'protocol_source' })
 export class ProtocolSource implements IProtocolSource {
@@ -26,4 +28,17 @@ export class ProtocolSource implements IProtocolSource {
   @ManyToOne(() => Project)
   @JoinColumn({ name: 'project_id' })
   project: Project;
+
+  @Column({ name: 'created_at', default: () => 'CURRENT_TIMESTAMP' })
+  createdAt: Date;
+
+  @Column({ name: 'updated_at', default: () => 'CURRENT_TIMESTAMP' })
+  updatedAt: Date;
+
+  @Column({ name: 'created_by' })
+  createdBy: ActorId;
+
+  @ManyToOne(() => Actor)
+  @JoinColumn({ name: 'created_by' })
+  creator: Actor;
 }

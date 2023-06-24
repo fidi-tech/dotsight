@@ -8,6 +8,7 @@ import { HttpService } from '@nestjs/axios';
 import { ProtocolPlugin } from '../../plugins/protocol.plugin';
 import { ProjectsService } from '../project/projects.service';
 import { IProtocolSource } from './interfaces/protocolSource.interface';
+import { ActorId } from '../actor/interfaces/actor.interface';
 
 @Injectable()
 export class ProtocolSourcesService {
@@ -19,6 +20,11 @@ export class ProtocolSourcesService {
   public static ProtocolPluginTypeNotRegisteredError = class ProtocolPluginTypeNotRegisteredError extends Error {
     constructor(type: string) {
       super(`Protocol plugin type "${type}" is not registered`);
+    }
+  };
+  public static ProtocolSourcesAccessDeniedError = class ProtocolSourcesAccessDeniedError extends Error {
+    constructor() {
+      super(`Access denied`);
     }
   };
 
@@ -72,6 +78,7 @@ export class ProtocolSourcesService {
   }
 
   async create(
+    actorId: ActorId,
     projectId: ProjectId,
     type: string,
     config: object,
@@ -85,12 +92,16 @@ export class ProtocolSourcesService {
     // @ts-expect-error typescript does not see that we have this static method
     plugin.validateConfig(config);
 
-    const project = this.projectsService.findById(projectId);
+    const project = await this.projectsService.findById(projectId);
     if (!project) {
       throw new ProjectsService.ProjectNotFoundError(projectId);
     }
+    if (project.createdBy !== actorId) {
+      throw new ProtocolSourcesService.ProtocolSourcesAccessDeniedError();
+    }
 
     const insert = await this.protocolSourcesRepository.insert({
+      createdBy: actorId,
       type,
       config,
       projectId,

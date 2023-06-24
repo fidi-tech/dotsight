@@ -1,9 +1,17 @@
-import { BadRequestException, Body, Controller, Post } from '@nestjs/common';
+import {
+  BadRequestException,
+  Body,
+  Controller,
+  Post,
+  Request,
+  UseGuards,
+} from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { CreateProtocolSourceDto } from './dtos/createProtocolSource.dto';
 import { ProtocolSourcesService } from './protocolSources.service';
 import { ProjectsService } from '../project/projects.service';
 import { PluginBadConfigError } from '../../plugins/protocol.plugin';
+import { JwtAuthGuard } from '../../common/auth/guards/jwt.guard';
 
 @Controller('protocol-sources')
 @ApiTags('protocol-sources')
@@ -13,10 +21,19 @@ export class ProtocolSourcesController {
   ) {}
 
   @Post('/')
+  @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: 'create protocols source instance' })
-  async create(@Body() { projectId, type, config }: CreateProtocolSourceDto) {
+  async create(
+    @Request() req,
+    @Body() { projectId, type, config }: CreateProtocolSourceDto,
+  ) {
     try {
-      return await this.protocolSourcesService.create(projectId, type, config);
+      return await this.protocolSourcesService.create(
+        req.user.id,
+        projectId,
+        type,
+        config,
+      );
     } catch (err) {
       if (
         err instanceof
