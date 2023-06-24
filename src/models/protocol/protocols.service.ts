@@ -1,62 +1,22 @@
-import { Inject, Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
+import { Injectable } from '@nestjs/common';
 import { IProtocol, ProtocolId } from './interfaces/protocol.interface';
 import { Observable, mergeMap, merge, from } from 'rxjs';
-import { ProtocolSource } from './entities/protocolSource.entity';
-import { Repository } from 'typeorm';
-import { ProtocolPlugin } from '../../plugins/protocol.plugin';
-import { protocols as protocolPlugins } from '../../plugins/protocols';
-import { HttpService } from '@nestjs/axios';
-
-class ProtocolPluginTypeCollisionError extends Error {}
-class ProtocolPluginTypeNotRegisteredError extends Error {}
+import { ProjectId } from '../project/interfaces/project.interface';
+import { ProtocolSourcesService } from '../protocolSource/protocolSources.service';
 
 @Injectable()
 export class ProtocolsService {
-  private typeToPlugin = new Map<
-    string,
-    new (
-      id: string,
-      config: any,
-      httpService: HttpService,
-    ) => ProtocolPlugin<any>
-  >();
-
   constructor(
-    @InjectRepository(ProtocolSource)
-    private readonly protocolSourcesRepository: Repository<ProtocolSource>,
-    private readonly httpService: HttpService,
-  ) {
-    for (const protocolPlugin of protocolPlugins) {
-      const type = protocolPlugin.getType();
-      if (this.typeToPlugin.get(type)) {
-        throw new ProtocolPluginTypeCollisionError(
-          `Cannot register protocol plugin "${
-            protocolPlugin.constructor.name
-          }", type "${type}" already registered for "${
-            this.typeToPlugin.get(type).constructor.name
-          }"`,
-        );
-      }
-      this.typeToPlugin.set(type, protocolPlugin);
-    }
-  }
+    private readonly protocolSourcesService: ProtocolSourcesService,
+  ) {}
 
-  private async getProtocolSources() {
-    const sources = await this.protocolSourcesRepository.find();
-    return sources.map(({ id, type, config }) => {
-      const plugin = this.typeToPlugin.get(type);
-      if (!plugin) {
-        throw new ProtocolPluginTypeNotRegisteredError(
-          `Protocol plugin type "${type}" is not registered`,
-        );
-      }
-      return new plugin(id, config, this.httpService);
-    });
-  }
-
-  public async getProtocolById(id: ProtocolId): Promise<IProtocol | null> {
-    const sources = await this.getProtocolSources();
+  public async getProtocolById(
+    projectId: ProjectId,
+    id: ProtocolId,
+  ): Promise<IProtocol | null> {
+    const sources = await this.protocolSourcesService.getProtocolSources(
+      projectId,
+    );
     const result: Promise<IProtocol | null> = new Promise((resolve) => {
       if (sources.length === 0) {
         return resolve(null);
@@ -87,8 +47,8 @@ export class ProtocolsService {
     return result;
   }
 
-  public getProtocols(): Observable<IProtocol> {
-    return from(this.getProtocolSources()).pipe(
+  public getProtocols(projectId: ProjectId): Observable<IProtocol> {
+    return from(this.protocolSourcesService.getProtocolSources(projectId)).pipe(
       mergeMap((sources) =>
         merge(...sources.map((source) => source.getProtocols())),
       ),
