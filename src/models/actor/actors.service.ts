@@ -24,6 +24,6 @@ export class ActorsService {
       login,
       password: hashedPassword,
     });
-    return insert.raw.id;
+    return insert.raw[0].id;
   }
 }
