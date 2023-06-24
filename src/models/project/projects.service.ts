@@ -5,26 +5,26 @@ import { Project } from './entities/project.entity';
 import { ProjectId } from './interfaces/project.interface';
 import { ActorId } from '../actor/interfaces/actor.interface';
 
-export class ProjectNameCollisionError extends Error {
-  constructor(projectName: string) {
-    super(`Project with name "${projectName}" already exists`);
-  }
-}
-
-export class ProjectNotFoundError extends Error {
-  constructor(id: string) {
-    super(`Project with id "${id}" was not found`);
-  }
-}
-
-export class ProjectUpdateAccessError extends Error {
-  constructor(id: string) {
-    super(`Access denied`);
-  }
-}
-
 @Injectable()
 export class ProjectsService {
+  public static ProjectNameCollisionError = class ProjectNameCollisionError extends Error {
+    constructor(projectName: string) {
+      super(`Project with name "${projectName}" already exists`);
+    }
+  };
+
+  public static ProjectNotFoundError = class ProjectNotFoundError extends Error {
+    constructor(id) {
+      super(`Project with id "${id}" was not found`);
+    }
+  };
+
+  public static ProjectUpdateAccessError = class ProjectUpdateAccessError extends Error {
+    constructor(id: string) {
+      super(`Access denied`);
+    }
+  };
+
   constructor(
     @InjectRepository(Project)
     private readonly projectsRepository: Repository<Project>,
@@ -49,7 +49,7 @@ export class ProjectsService {
   async create(name: string, actorId: ActorId) {
     const collision = await this.findByName(name);
     if (collision) {
-      throw new ProjectNameCollisionError(name);
+      throw new ProjectsService.ProjectNameCollisionError(name);
     }
 
     const insert = await this.projectsRepository.insert({
@@ -65,16 +65,16 @@ export class ProjectsService {
       this.findByName(name),
     ]);
     if (!project) {
-      throw new ProjectNotFoundError(id);
+      throw new ProjectsService.ProjectNotFoundError(id);
     }
     if (project.createdBy !== actorId) {
-      throw new ProjectUpdateAccessError(id);
+      throw new ProjectsService.ProjectUpdateAccessError(id);
     }
     if (project.name === name) {
       return project;
     }
     if (collision) {
-      throw new ProjectNameCollisionError(name);
+      throw new ProjectsService.ProjectNameCollisionError(name);
     }
 
     await this.projectsRepository.update(

@@ -1,9 +1,4 @@
-import {
-  ProjectNameCollisionError,
-  ProjectNotFoundError,
-  ProjectsService,
-  ProjectUpdateAccessError,
-} from './projects.service';
+import { ProjectsService } from './projects.service';
 import { Test } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { Project } from './entities/project.entity';
@@ -45,7 +40,7 @@ describe('ProjectsService', () => {
       );
 
       await expect(service.create('hello', 'someone')).rejects.toThrow(
-        ProjectNameCollisionError,
+        ProjectsService.ProjectNameCollisionError,
       );
       expect(repositoryMock.findOne as jest.Mock).toHaveBeenCalledWith({
         where: { name: 'hello' },
@@ -92,7 +87,7 @@ describe('ProjectsService', () => {
       });
 
       await expect(service.update('id', 'name', 'me')).rejects.toThrow(
-        ProjectNotFoundError,
+        ProjectsService.ProjectNotFoundError,
       );
     });
 
@@ -106,7 +101,7 @@ describe('ProjectsService', () => {
       });
 
       await expect(service.update('id', 'name', 'me')).rejects.toThrow(
-        ProjectUpdateAccessError,
+        ProjectsService.ProjectUpdateAccessError,
       );
     });
 
@@ -120,7 +115,7 @@ describe('ProjectsService', () => {
       });
 
       await expect(service.update('id', 'name', 'me')).rejects.toThrow(
-        ProjectNameCollisionError,
+        ProjectsService.ProjectNameCollisionError,
       );
     });
 

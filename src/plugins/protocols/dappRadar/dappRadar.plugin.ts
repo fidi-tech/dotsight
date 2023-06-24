@@ -22,10 +22,7 @@ export class DappRadarPlugin extends ProtocolPlugin<Config> {
     return 'protocol-plugin-dapp';
   }
 
-  private RESULTS_PER_PAGE = 50;
-
-  constructor(id: string, config: Config, httpService: HttpService) {
-    super(id, config, httpService);
+  static validateConfig(config: Config) {
     if (!config.chain || typeof config.chain !== 'string') {
       throw new PluginBadConfigError('Chain was not specified');
     }
@@ -36,6 +33,8 @@ export class DappRadarPlugin extends ProtocolPlugin<Config> {
       throw new PluginBadConfigError('Key was not specified');
     }
   }
+
+  private RESULTS_PER_PAGE = 50;
 
   private getHeaders() {
     return new AxiosHeaders({

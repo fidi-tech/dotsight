@@ -4,12 +4,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { ProjectsController } from './projects.controller';
-import {
-  ProjectNameCollisionError,
-  ProjectsService,
-  ProjectUpdateAccessError,
-  ProjectNotFoundError,
-} from './projects.service';
+import { ProjectsService } from './projects.service';
 import { Test } from '@nestjs/testing';
 import { JwtAuthGuard } from '../../common/auth/guards/jwt.guard';
 
@@ -55,7 +50,7 @@ describe('ProjectsController', () => {
 
     it('should return 400 if project name is already taken', async () => {
       jest.spyOn(projectsService, 'create').mockImplementation(() => {
-        throw new ProjectNameCollisionError('collision');
+        throw new ProjectsService.ProjectNameCollisionError('collision');
       });
 
       await expect(
@@ -87,7 +82,7 @@ describe('ProjectsController', () => {
 
     it("should return 403 if user is not project's creator", async () => {
       jest.spyOn(projectsService, 'update').mockImplementation(() => {
-        throw new ProjectUpdateAccessError('id');
+        throw new ProjectsService.ProjectUpdateAccessError('id');
       });
 
       await expect(
@@ -97,7 +92,7 @@ describe('ProjectsController', () => {
 
     it('should return 404 if project was not found', async () => {
       jest.spyOn(projectsService, 'update').mockImplementation(() => {
-        throw new ProjectNotFoundError('id');
+        throw new ProjectsService.ProjectNotFoundError('id');
       });
 
       await expect(
@@ -107,7 +102,7 @@ describe('ProjectsController', () => {
 
     it('should return 400 if project name is already taken', async () => {
       jest.spyOn(projectsService, 'update').mockImplementation(() => {
-        throw new ProjectNameCollisionError('ok');
+        throw new ProjectsService.ProjectNameCollisionError('ok');
       });
 
       await expect(

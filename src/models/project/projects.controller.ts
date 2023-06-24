@@ -11,12 +11,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { CreateProjectDto } from './dtos/createProject.dto';
-import {
-  ProjectNameCollisionError,
-  ProjectNotFoundError,
-  ProjectsService,
-  ProjectUpdateAccessError,
-} from './projects.service';
+import { ProjectsService } from './projects.service';
 import { JwtAuthGuard } from '../../common/auth/guards/jwt.guard';
 import { UpdateProjectDto } from './dtos/updateProject.dto';
 import { ProjectId } from './interfaces/project.interface';
@@ -37,7 +32,7 @@ export class ProjectsController {
         req.user.id,
       );
     } catch (err) {
-      if (err instanceof ProjectNameCollisionError) {
+      if (err instanceof ProjectsService.ProjectNameCollisionError) {
         throw new BadRequestException(err.message, { cause: err });
       }
       throw err;
@@ -59,13 +54,13 @@ export class ProjectsController {
         req.user.id,
       );
     } catch (err) {
-      if (err instanceof ProjectUpdateAccessError) {
+      if (err instanceof ProjectsService.ProjectUpdateAccessError) {
         throw new ForbiddenException(err.message, { cause: err });
       }
-      if (err instanceof ProjectNameCollisionError) {
+      if (err instanceof ProjectsService.ProjectNameCollisionError) {
         throw new BadRequestException(err.message, { cause: err });
       }
-      if (err instanceof ProjectNotFoundError) {
+      if (err instanceof ProjectsService.ProjectNotFoundError) {
         throw new NotFoundException(err.message, { cause: err });
       }
       throw err;
