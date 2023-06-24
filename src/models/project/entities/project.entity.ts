@@ -2,9 +2,9 @@ import {
   Column,
   Entity,
   PrimaryGeneratedColumn,
-  OneToOne,
   JoinColumn,
   Unique,
+  ManyToOne,
 } from 'typeorm';
 import { IProject } from '../interfaces/project.interface';
 import { Actor } from '../../actor/entities/actor.entity';
@@ -28,7 +28,7 @@ export class Project implements IProject {
   @Column({ name: 'created_by' })
   createdBy: ActorId;
 
-  @OneToOne(() => Actor)
+  @ManyToOne(() => Actor)
   @JoinColumn({ name: 'created_by' })
   creator: Actor;
 }
