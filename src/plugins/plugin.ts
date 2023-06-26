@@ -22,4 +22,8 @@ export abstract class Plugin<C> {
     protected config: C,
     protected readonly httpService: HttpService,
   ) {}
+
+  public getId() {
+    return this.id;
+  }
 }

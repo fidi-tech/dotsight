@@ -7,7 +7,10 @@ import { protocols as protocolPlugins } from '../../plugins/protocols';
 import { HttpService } from '@nestjs/axios';
 import { ProtocolPlugin } from '../../plugins/protocol.plugin';
 import { ProjectsService } from '../project/projects.service';
-import { IProtocolSource } from './interfaces/protocolSource.interface';
+import {
+  IProtocolSource,
+  ProtocolSourceId,
+} from './interfaces/protocolSource.interface';
 import { ActorId } from '../actor/interfaces/actor.interface';
 
 @Injectable()
@@ -75,6 +78,29 @@ export class ProtocolSourcesService {
       plugin.validateConfig(config);
       return new plugin(id, config, this.httpService);
     });
+  }
+
+  async getProtocolSource(projectId: ProjectId, id: ProtocolSourceId) {
+    const source = await this.protocolSourcesRepository.findOne({
+      where: {
+        id,
+        projectId,
+      },
+    });
+
+    if (source) {
+      const plugin = this.typeToPlugin.get(source.type);
+      if (!plugin) {
+        throw new ProtocolSourcesService.ProtocolPluginTypeNotRegisteredError(
+          source.type,
+        );
+      }
+      // @ts-expect-error typescript does not see that we have this static method
+      plugin.validateConfig(source.config);
+      return new plugin(id, source.config, this.httpService);
+    }
+
+    return null;
   }
 
   async create(

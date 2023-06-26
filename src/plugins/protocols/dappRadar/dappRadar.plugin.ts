@@ -1,13 +1,21 @@
-import { ProtocolPlugin, PluginBadConfigError } from '../../protocol.plugin';
+import { PluginBadConfigError, ProtocolPlugin } from '../../protocol.plugin';
 import { Injectable } from '@nestjs/common';
 import { AxiosHeaders } from 'axios';
-import { EMPTY, expand, filter, mergeMap, Observable } from 'rxjs';
+import {
+  EMPTY,
+  expand,
+  filter,
+  firstValueFrom,
+  mergeMap,
+  Observable,
+} from 'rxjs';
 import {
   IProtocol,
   ProtocolId,
 } from '../../../models/protocol/interfaces/protocol.interface';
 import { Protocol } from '../../../models/protocol/entities/protocol.entity';
-import { HttpService } from '@nestjs/axios';
+import { ProtocolMetric } from '../../../common/metrics/protocol.metrics';
+import { TimeSeries } from '../../../common/metrics';
 
 type Config = {
   id: string;
@@ -34,14 +42,13 @@ export class DappRadarPlugin extends ProtocolPlugin<Config> {
     }
   }
 
-  private RESULTS_PER_PAGE = 50;
-
   private getHeaders() {
     return new AxiosHeaders({
       'X-BLOBR-KEY': this.config.key,
     });
   }
 
+  private RESULTS_PER_PAGE = 50;
   private getPaginatedProtocols(page: number) {
     return this.httpService.get<{
       results: Array<{
@@ -101,5 +108,43 @@ export class DappRadarPlugin extends ProtocolPlugin<Config> {
         );
     });
     return result;
+  }
+
+  private metricMapping: Record<ProtocolMetric, string> = {
+    [ProtocolMetric.TRANSACTIONS]: 'transactions',
+  } as const;
+  async getProtocolMetric(
+    id: ProtocolId,
+    metric: ProtocolMetric,
+    dateFrom: string,
+    dateTo: string,
+  ): Promise<TimeSeries> {
+    const {
+      data: { results },
+    } = await firstValueFrom(
+      this.httpService.get<{
+        results: Array<{
+          timestamp: number;
+          date: string;
+          value: number;
+        }>;
+      }>(
+        `${this.config.endpoint}/dapps/${id}/history/${this.metricMapping[metric]}`,
+        {
+          headers: this.getHeaders(),
+          params: {
+            dateFrom,
+            dateTo,
+          },
+        },
+      ),
+    );
+
+    return new TimeSeries(
+      results.map(({ timestamp, value }) => ({
+        time: new Date(timestamp * 1000).toISOString(),
+        value,
+      })),
+    );
   }
 }

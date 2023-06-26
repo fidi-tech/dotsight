@@ -14,6 +14,9 @@ import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { ProtocolsQueryDto } from './dtos/protocols.query.dto';
 import { ProtocolQueryDto } from './dtos/protocol.query.dto';
 import { JwtAuthGuard } from '../../common/auth/guards/jwt.guard';
+import { ProtocolMetricsQueryDto } from './dtos/protocolMetrics.query.dto';
+import { TimeSeries } from '../../common/metrics';
+import { ApiOkResponse } from '@nestjs/swagger/dist/decorators/api-response.decorator';
 
 @Controller('protocols')
 @ApiTags('protocols')
@@ -49,6 +52,29 @@ export class ProtocolsController {
     return this.protocolsService.getProtocols(
       req.user.id,
       protocolsQuery.projectId,
+    );
+  }
+
+  @Get('/:id/metric')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: "get protocol's metrics" })
+  @ApiOkResponse({
+    description: "metric's data",
+    type: TimeSeries,
+  })
+  async getMetrics(
+    @Request() req,
+    @Param('id') id: string,
+    @Query() protocolMetricsQuery: ProtocolMetricsQueryDto,
+  ): Promise<TimeSeries> {
+    return this.protocolsService.getProtocolMetric(
+      req.user.id,
+      protocolMetricsQuery.projectId,
+      id,
+      protocolMetricsQuery.metric,
+      protocolMetricsQuery.dateFrom,
+      protocolMetricsQuery.dateTo,
     );
   }
 }
