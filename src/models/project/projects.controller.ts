@@ -15,7 +15,14 @@ import { ProjectsService } from './projects.service';
 import { JwtAuthGuard } from '../../common/auth/guards/jwt.guard';
 import { UpdateProjectDto } from './dtos/updateProject.dto';
 import { ProjectId } from './interfaces/project.interface';
-import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiCreatedResponse,
+  ApiOperation,
+  ApiTags,
+} from '@nestjs/swagger';
+import { ApiOkResponse } from '@nestjs/swagger/dist/decorators/api-response.decorator';
+import { ProjectResponseDto } from './dtos/project.response.dto';
 
 @Controller('projects')
 @ApiTags('projects')
@@ -26,7 +33,14 @@ export class ProjectsController {
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'create project' })
-  async create(@Request() req, @Body() createProjectDto: CreateProjectDto) {
+  @ApiCreatedResponse({
+    description: 'created project',
+    type: ProjectResponseDto,
+  })
+  async create(
+    @Request() req,
+    @Body() createProjectDto: CreateProjectDto,
+  ): Promise<ProjectResponseDto> {
     try {
       return await this.projectsService.create(
         createProjectDto.name,
@@ -44,11 +58,15 @@ export class ProjectsController {
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'update project' })
+  @ApiOkResponse({
+    description: 'updated project',
+    type: ProjectResponseDto,
+  })
   async updateProject(
     @Request() req,
     @Param('id') id: ProjectId,
     @Body() updateProjectDto: UpdateProjectDto,
-  ) {
+  ): Promise<ProjectResponseDto> {
     try {
       return await this.projectsService.update(
         id,

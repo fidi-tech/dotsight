@@ -6,12 +6,18 @@ import {
   Request,
   UseGuards,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiCreatedResponse,
+  ApiOperation,
+  ApiTags,
+} from '@nestjs/swagger';
 import { CreateProtocolSourceDto } from './dtos/createProtocolSource.dto';
 import { ProtocolSourcesService } from './protocolSources.service';
 import { ProjectsService } from '../project/projects.service';
 import { PluginBadConfigError } from '../../plugins/protocol.plugin';
 import { JwtAuthGuard } from '../../common/auth/guards/jwt.guard';
+import { ProtocolSourceResponseDto } from './dtos/protocolSource.response.dto';
 
 @Controller('protocol-sources')
 @ApiTags('protocol-sources')
@@ -24,10 +30,14 @@ export class ProtocolSourcesController {
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'create protocols source instance' })
+  @ApiCreatedResponse({
+    description: "protocol's metadata",
+    type: ProtocolSourceResponseDto,
+  })
   async create(
     @Request() req,
     @Body() { projectId, type, config }: CreateProtocolSourceDto,
-  ) {
+  ): Promise<ProtocolSourceResponseDto> {
     try {
       return await this.protocolSourcesService.create(
         req.user.id,

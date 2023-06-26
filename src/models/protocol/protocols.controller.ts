@@ -8,7 +8,6 @@ import {
   UseGuards,
   Request,
 } from '@nestjs/common';
-import { ProtocolEntity } from './serializers/protocol.serializer';
 import { ProtocolsService } from './protocols.service';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { ProtocolsQueryDto } from './dtos/protocols.query.dto';
@@ -17,6 +16,8 @@ import { JwtAuthGuard } from '../../common/auth/guards/jwt.guard';
 import { ProtocolMetricsQueryDto } from './dtos/protocolMetrics.query.dto';
 import { TimeSeries } from '../../common/metrics';
 import { ApiOkResponse } from '@nestjs/swagger/dist/decorators/api-response.decorator';
+import { ProtocolResponseDto } from './dtos/protocol.response.dto';
+import { ProtocolsResponseDto } from './dtos/protocols.response.dto';
 
 @Controller('protocols')
 @ApiTags('protocols')
@@ -27,12 +28,16 @@ export class ProtocolsController {
   @UseInterceptors(ClassSerializerInterceptor)
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
-  @ApiOperation({ summary: 'get protocol metadata' })
+  @ApiOperation({ summary: "get protocol's metadata" })
+  @ApiOkResponse({
+    description: "protocol's metadata",
+    type: ProtocolResponseDto,
+  })
   async get(
     @Request() req,
     @Param('id') id: string,
     @Query() protocolsQuery: ProtocolQueryDto,
-  ): Promise<ProtocolEntity> {
+  ): Promise<ProtocolResponseDto> {
     return this.protocolsService.getProtocolById(
       req.user.id,
       protocolsQuery.projectId,
@@ -45,14 +50,19 @@ export class ProtocolsController {
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'get all available protocols' })
+  @ApiOkResponse({
+    description: "all protocols' metadata",
+    type: ProtocolsResponseDto,
+  })
   async getAll(
     @Request() req,
     @Query() protocolsQuery: ProtocolsQueryDto,
-  ): Promise<ProtocolEntity[]> {
-    return this.protocolsService.getProtocols(
+  ): Promise<ProtocolsResponseDto> {
+    const protocols = this.protocolsService.getProtocols(
       req.user.id,
       protocolsQuery.projectId,
     );
+    return new ProtocolsResponseDto(protocols);
   }
 
   @Get('/:id/metric')
