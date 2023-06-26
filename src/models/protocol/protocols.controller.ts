@@ -58,7 +58,7 @@ export class ProtocolsController {
     @Request() req,
     @Query() protocolsQuery: ProtocolsQueryDto,
   ): Promise<ProtocolsResponseDto> {
-    const protocols = this.protocolsService.getProtocols(
+    const protocols = await this.protocolsService.getProtocols(
       req.user.id,
       protocolsQuery.projectId,
     );
