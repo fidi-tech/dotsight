@@ -1,0 +1,39 @@
+{
+  "dataSources": {
+    "chain": [{
+      "id": "uuid1",
+      "type": "dappRadar",
+      "params": {
+        "token": "secret-one"
+      }
+    }],
+    "protocol": [],
+    "wallet": [],
+    "walletProtocol": []
+  },
+  "mixer": {
+    "chain": {},
+    "protocol": {},
+    "wallet": {},
+    "walletProtocol": {}
+  },
+  "middlewares": {
+    "chain": [],
+    "protocol": [],
+    "wallet": [],
+    "walletProtocol": []
+  },
+  "mappers": {
+    "chain": [{
+      "id": "uuid2",
+      "type": "historical-latest-named-value",
+      "params": {
+        "name": "name",
+        "value": "transactions"
+      }
+    }],
+    "protocol": [],
+    "wallet": [],
+    "walletProtocol": []
+  }
+}

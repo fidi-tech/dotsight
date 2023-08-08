@@ -1,0 +1,14 @@
+- Generic datasource (to add caching & logging later) 1h
+- Protocol datasource (implementing interface)
+- DappRadar protocol datasource
+- Generic mixer
+- Protocol mixer
+- Piechart generic mapper
+- Controller
+- Connecting it all together
+- Piechart widget
+- Chain datasource
+- Wallet datasource
+- WalletProtocol datasource
+- Generic middleware
+- Coingecko middleware
