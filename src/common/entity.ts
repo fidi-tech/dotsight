@@ -14,7 +14,7 @@ export type Currency = {
 export type Currencies = Record<CurrencyId, Currency>;
 
 export type Entity<
-  M,
+  M extends Record<string, number | string>,
   V extends Record<string, number | Record<CurrencyId, number>>,
 > = {
   id: string;

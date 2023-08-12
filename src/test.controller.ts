@@ -1,25 +1,12 @@
-import { Controller, Get, Param } from '@nestjs/common';
-import {
-  ProtocolMixer,
-  ProtocolMixerConfig,
-} from './models/mixer/protocol.mixer';
-import { ProtocolDatasource } from './models/datasource/protocol.datasource';
+import { Controller, Get, Query } from '@nestjs/common';
+import { ProtocolMixer } from './models/mixer/protocol.mixer';
 import { DappRadarProtocolDatasource } from './datasources/protocol/dappRadar.protocol.datasource';
 import { StaticProtocolDatasource } from './datasources/protocol/static.protocol.datasource';
-import { ProtocolMiddleware } from './models/middleware/protocol.middleware';
 import { ScrambleNameProtocolMiddleware } from './middlewares/protocol/scrambleName.protocol.middleware';
+import { DistributionMapper } from './models/mapper/distribution.mapper';
+import { Protocol } from './common/protocol';
 
-const config: {
-  dataSources: {
-    protocol: ProtocolDatasource<any, any>[];
-  };
-  mixer: {
-    protocol: ProtocolMixerConfig;
-  };
-  middlewares: {
-    protocol: ProtocolMiddleware<any>[];
-  };
-} = {
+const config = {
   dataSources: {
     protocol: [
       new DappRadarProtocolDatasource({
@@ -41,12 +28,16 @@ const config: {
       new ScrambleNameProtocolMiddleware({}), // fix it back lol
     ],
   },
+  mapper: new DistributionMapper<Protocol>({
+    nameField: 'name',
+    valueField: 'tvl',
+  }),
 };
 
 @Controller('test')
 export class TestController {
   @Get('/')
-  async get(@Param() params) {
+  async get(@Query() params) {
     const chunks = await Promise.all(
       config.dataSources.protocol.map((dataSource) =>
         dataSource.getItems(params),
@@ -61,6 +52,6 @@ export class TestController {
       items = await middleware.transform(items);
     }
 
-    return items;
+    return config.mapper.map(items, config.mapper.extractParameters(params));
   }
 }
