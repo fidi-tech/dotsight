@@ -1,7 +1,7 @@
-import { Currencies } from '../../common/entity';
+import { Units } from '../../common/entity';
 
 export type GetItemsResult<T> = {
-  currencies: Currencies;
+  units: Units;
   items: T[];
 };
 

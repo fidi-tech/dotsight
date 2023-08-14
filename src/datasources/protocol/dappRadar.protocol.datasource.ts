@@ -1,7 +1,7 @@
 import { ProtocolDatasource } from '../../models/datasource/protocol.datasource';
 import { Protocol } from '../../common/protocol';
 import axios, { Axios, AxiosHeaders } from 'axios';
-import { Currencies } from '../../common/entity';
+import { Units } from '../../common/entity';
 import { USD } from '../../common/currecies';
 
 type Config = {
@@ -39,11 +39,11 @@ export class DappRadarProtocolDatasource extends ProtocolDatasource<
   }
 
   public async getItems({ chain }: Params): Promise<{
-    currencies: Currencies;
+    units: Units;
     items: Protocol[];
   }> {
     const items: Protocol[] = [];
-    const currencies: Currencies = {
+    const units: Units = {
       [USD.id]: USD,
     };
     let page = 1;
@@ -92,7 +92,7 @@ export class DappRadarProtocolDatasource extends ProtocolDatasource<
     } while (false && page < pageCount); // TODO only one page for now
 
     return {
-      currencies,
+      units,
       items,
     };
   }

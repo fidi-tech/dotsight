@@ -1,11 +1,11 @@
 import { Mapper } from './mapper';
-import { CurrencyId, Entity } from '../../common/entity';
+import { UnitId, Entity } from '../../common/entity';
 import { GetItemsResult } from '../datasource/datasource';
 import { DistributionDatashape } from '../../datashapes/distribution.datashape';
 
 type Params = {
   limit?: number;
-  currencyId?: CurrencyId;
+  unitId?: UnitId;
 };
 
 type Config<NF, VF> = {
@@ -22,8 +22,8 @@ export class DistributionMapper<E extends Entity<any, any>> extends Mapper<
   extractParameters(params: Record<any, any>): Params {
     const result: Params = {};
 
-    if (params.currencyId) {
-      result.currencyId = params.currencyId;
+    if (params.unitId) {
+      result.unitId = params.unitId;
     }
     if (params.limit && !Number.isNaN(Number.parseInt(params.limit, 10))) {
       result.limit = Number.parseInt(params.limit, 10);
@@ -33,7 +33,7 @@ export class DistributionMapper<E extends Entity<any, any>> extends Mapper<
   }
 
   map(e: GetItemsResult<E>, params): DistributionDatashape {
-    const currencyId = params.currencyId;
+    const unitId = params.unitId;
     const limit = Number.parseInt(params.limit, 10);
 
     const items = e.items
@@ -43,7 +43,7 @@ export class DistributionMapper<E extends Entity<any, any>> extends Mapper<
         value:
           typeof item.metrics[this.config.valueField] === 'number'
             ? item.metrics[this.config.valueField]
-            : item.metrics[this.config.valueField][currencyId] || 0,
+            : item.metrics[this.config.valueField][unitId] || 0,
       }))
       .sort(({ value: valueA }, { value: valueB }) => valueB - valueA);
 

@@ -1,4 +1,4 @@
-import { CurrencyId, Entity } from './entity';
+import { UnitId, Entity } from './entity';
 
 type Meta = {
   name?: string;
@@ -6,8 +6,8 @@ type Meta = {
 };
 
 type Metrics = {
-  tvl?: Record<CurrencyId, number>;
-  marketCap?: Record<CurrencyId, number>;
+  tvl?: Record<UnitId, number>;
+  marketCap?: Record<UnitId, number>;
 };
 
 export type Protocol = Entity<Meta, Metrics>;

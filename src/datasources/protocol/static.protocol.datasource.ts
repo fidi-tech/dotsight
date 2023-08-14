@@ -1,9 +1,9 @@
 import { ProtocolDatasource } from '../../models/datasource/protocol.datasource';
 import { Protocol } from '../../common/protocol';
-import { Currencies } from '../../common/entity';
+import { Units } from '../../common/entity';
 
 type Config = {
-  currencies: Currencies;
+  units: Units;
   protocols: Protocol[];
 };
 
@@ -14,11 +14,11 @@ export class StaticProtocolDatasource extends ProtocolDatasource<
   Params
 > {
   public async getItems(): Promise<{
-    currencies: Currencies;
+    units: Units;
     items: Protocol[];
   }> {
     return {
-      currencies: this.config.currencies,
+      units: this.config.units,
       items: this.config.protocols,
     };
   }

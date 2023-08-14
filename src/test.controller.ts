@@ -14,7 +14,7 @@ const config = {
         endpoint: 'https://api.dappradar.com/trader',
       }),
       new StaticProtocolDatasource({
-        currencies: {},
+        units: {},
         protocols: [],
       }),
     ],

@@ -3,25 +3,25 @@ export type TimeSeries<T> = Array<{
   value: T;
 }>;
 
-export type CurrencyId = string;
-export type Currency = {
-  id: CurrencyId;
+export type UnitId = string;
+export type Unit = {
+  id: UnitId;
   symbol?: string;
   iconUrl?: string;
   name?: string;
 };
 
-export type Currencies = Record<CurrencyId, Currency>;
+export type Units = Record<UnitId, Unit>;
 
 export type Entity<
   M extends Record<string, number | string>,
-  V extends Record<string, number | Record<CurrencyId, number>>,
+  V extends Record<string, number | Record<UnitId, number>>,
 > = {
   id: string;
   meta: M;
   historicalMetrics: Record<
     keyof V,
-    TimeSeries<number> | TimeSeries<Record<CurrencyId, number>>
+    TimeSeries<number> | TimeSeries<Record<UnitId, number>>
   >;
   metrics: V;
 };

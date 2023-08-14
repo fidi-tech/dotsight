@@ -7,11 +7,11 @@ export abstract class Mixer<C, E extends Entity<any, any>> {
     ...chunks: Array<GetItemsResult<E>>
   ): Promise<GetItemsResult<E>> {
     const result: GetItemsResult<E> = {
-      currencies: {},
+      units: {},
       items: [],
     };
     for (const chunk of chunks) {
-      Object.assign(result.currencies, chunk.currencies);
+      Object.assign(result.units, chunk.units);
       result.items.push(...chunk.items);
     }
     return result;

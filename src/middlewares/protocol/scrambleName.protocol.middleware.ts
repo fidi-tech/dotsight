@@ -9,7 +9,7 @@ export class ScrambleNameProtocolMiddleware extends ProtocolMiddleware<Config> {
     items: GetItemsResult<Protocol>,
   ): Promise<GetItemsResult<Protocol>> {
     return {
-      currencies: items.currencies,
+      units: items.units,
       items: items.items.map((item) => ({
         ...item,
         meta: {
