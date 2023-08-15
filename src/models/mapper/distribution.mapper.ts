@@ -32,7 +32,7 @@ export class DistributionMapper<E extends Entity<any, any>> extends Mapper<
     return result;
   }
 
-  map(e: GetItemsResult<E>, params): DistributionDatashape {
+  map(e: GetItemsResult<E, any>, params): DistributionDatashape {
     const unitId = params.unitId;
     const limit = Number.parseInt(params.limit, 10);
 

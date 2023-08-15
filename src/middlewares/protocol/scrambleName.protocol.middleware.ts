@@ -6,8 +6,8 @@ type Config = Record<string, never>;
 
 export class ScrambleNameProtocolMiddleware extends ProtocolMiddleware<Config> {
   async transform(
-    items: GetItemsResult<Protocol>,
-  ): Promise<GetItemsResult<Protocol>> {
+    items: GetItemsResult<Protocol, any>,
+  ): Promise<GetItemsResult<Protocol, any>> {
     return {
       units: items.units,
       items: items.items.map((item) => ({
@@ -17,6 +17,7 @@ export class ScrambleNameProtocolMiddleware extends ProtocolMiddleware<Config> {
           name: item.meta.name && item.meta.name.split('').reverse().join(''),
         },
       })),
+      meta: items.meta,
     };
   }
 }

@@ -13,11 +13,13 @@ export type Unit = {
 
 export type Units = Record<UnitId, Unit>;
 
+export type EntityId = string;
+
 export type Entity<
-  M extends Record<string, number | string>,
+  M extends Record<string, number | string | Record<UnitId, number>>,
   V extends Record<string, number | Record<UnitId, number>>,
 > = {
-  id: string;
+  id: EntityId;
   meta: M;
   historicalMetrics: Record<
     keyof V,

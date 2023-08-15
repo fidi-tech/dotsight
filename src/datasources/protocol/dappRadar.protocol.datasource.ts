@@ -3,6 +3,7 @@ import { Protocol } from '../../common/protocol';
 import axios, { Axios, AxiosHeaders } from 'axios';
 import { Units } from '../../common/entity';
 import { USD } from '../../common/currecies';
+import { GetItemsResult } from '../../models/datasource/datasource';
 
 type Config = {
   key: string;
@@ -38,10 +39,9 @@ export class DappRadarProtocolDatasource extends ProtocolDatasource<
     });
   }
 
-  public async getItems({ chain }: Params): Promise<{
-    units: Units;
-    items: Protocol[];
-  }> {
+  public async getItems({
+    chain,
+  }: Params): Promise<GetItemsResult<Protocol, null>> {
     const items: Protocol[] = [];
     const units: Units = {
       [USD.id]: USD,
@@ -94,6 +94,7 @@ export class DappRadarProtocolDatasource extends ProtocolDatasource<
     return {
       units,
       items,
+      meta: null,
     };
   }
 
