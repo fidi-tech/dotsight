@@ -1,73 +1,86 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="200" alt="Nest Logo" /></a>
-</p>
+# Milestone 1
+No-UI open-sourced Nest.js app, can be deployed.
+Instructions on how to deploy locally are included.
+All data pipelines' configs are stored in code via JSON.
+Unit tests are written, but no functional tests.
+OpenAPI specification is available both via yaml and Swagger UI.
+CI checks for types, codestyle & unit tests.
+No UI widgets.
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+Will be ready: **September 3rd, 2023**
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+## Entities
+Each entity comes with metadata and metrics. There is a **mixer** written for each entity.
 
-## Description
+### Protocol
+aka Dapp, with no attachment to specific wallet
+#### Metrics
+- tvl
+- marketCap
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+### Wallet
+Specific wallet, without it's contents
+#### Metrics
+- netWorth
 
-## Installation
+### WalletToken
+Token that belongs to some specific wallet and is either in wallet or some protocol
+#### Metrics
+- amount
+- value
 
-```bash
-$ npm install
+## Datasources
+Concrete datasources that are ready to return entities.
+### Protocol
+- DappRadar
+- Static (from config)
+
+### Wallet
+- Debank
+- Static (from config)
+
+### WalletToken
+- Debank wallet (uninvested tokens/coins)
+- Debank protocols (invested tokens/coins)
+
+## Middlewares
+### Coingecko token pricing
+Middleware that allows to receive current price for some coin/token.
+
+## DataShapes
+### Distribution
+DataShape that can be used in various UI widgets, eg pie chart.
+```json
+{
+    "items": [{
+      "id": "1",
+      "name": "Astar",
+      "value": 10
+    }],
+    "restItemsValue": 100
+}
 ```
 
-## Running the app
+## Mappers
+### Distribution
+Mapper that can take any entity, group by any meta field (by summing any metric) and return Distribution datashape. 
 
-```bash
-# development
-$ npm run start
-
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
+## Endpoints
+### GET /pipelines?mapperIds[]=mapperId1&mapperIds[]=mapperId2
+```(json)
+{
+    "result": {
+        "mapperId1": {
+            "items": [{
+                "id": "1",
+                "name": "Astar",
+                "value": 10
+            }, {
+                "id": "2",
+                "name": "Moonbeam",
+                "value": 1
+            }]
+        }
+    }
+}
 ```
-
-## Test
-
-```bash
-# unit tests
-$ npm run test
-
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
-```
-
-## Support
-
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
-
-## Stay in touch
-
-- Author - [Kamil Myśliwiec](https://kamilmysliwiec.com)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
-
-## License
-
-Nest is [MIT licensed](LICENSE).
