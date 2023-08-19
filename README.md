@@ -1,11 +1,18 @@
 # Milestone 1
 No-UI open-sourced Nest.js app, can be deployed.
+
 Instructions on how to deploy locally are included.
+
 All data pipelines' configs are stored in code via JSON.
+
 Unit tests are written, but no functional tests.
+
 OpenAPI specification is available both via yaml and Swagger UI.
+
 CI checks for types, codestyle & unit tests.
+
 No UI widgets.
+
 
 Will be ready: **September 3rd, 2023**
 
