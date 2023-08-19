@@ -67,7 +67,7 @@ Mapper that can take any entity, group by any meta field (by summing any metric)
 
 ## Endpoints
 ### GET /pipelines?mapperIds[]=mapperId1&mapperIds[]=mapperId2
-```(json)
+```json
 {
     "result": {
         "mapperId1": {
