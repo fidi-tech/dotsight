@@ -1,7 +1,7 @@
 import { Controller, Get, Query } from '@nestjs/common';
 import { ProtocolMixer } from './models/mixer/protocol.mixer';
 import { DappRadarProtocolDatasource } from './datasources/protocol/dappRadar.protocol.datasource';
-import { StaticProtocolDatasource } from './datasources/protocol/static.protocol.datasource';
+import { StaticDatasource } from './datasources/static.datasource';
 import { ScrambleNameProtocolMiddleware } from './middlewares/protocol/scrambleName.protocol.middleware';
 import { DistributionMapper } from './models/mapper/distribution.mapper';
 import { Protocol } from './common/protocol';
@@ -20,9 +20,10 @@ const config = {
         key: 'finxUrZGn5a0uJbtjj2FZi2CSAIp3VXm',
         endpoint: 'https://api.dappradar.com/trader',
       }),
-      new StaticProtocolDatasource({
+      new StaticDatasource<Protocol, null>({
         units: {},
-        protocols: [],
+        items: [],
+        meta: null,
       }),
     ],
     wallet: [
