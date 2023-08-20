@@ -29,4 +29,4 @@ type Metrics = {
   value?: Record<UnitId, number>;
 };
 
-export type WalletToken = Entity<Meta, Metrics>;
+export type WalletToken = Entity<'walletToken', Meta, Metrics>;

@@ -10,4 +10,4 @@ type Metrics = {
   marketCap?: Record<UnitId, number>;
 };
 
-export type Protocol = Entity<Meta, Metrics>;
+export type Protocol = Entity<'protocol', Meta, Metrics>;

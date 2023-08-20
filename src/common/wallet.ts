@@ -6,4 +6,4 @@ type Metrics = {
   netWorth: Record<UnitId, number>;
 };
 
-export type Wallet = Entity<Meta, Metrics>;
+export type Wallet = Entity<'wallet', Meta, Metrics>;

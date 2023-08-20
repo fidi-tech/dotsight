@@ -16,10 +16,12 @@ export type Units = Record<UnitId, Unit>;
 export type EntityId = string;
 
 export type Entity<
+  T extends string,
   M extends Record<string, number | string | Record<UnitId, number>>,
   V extends Record<string, number | Record<UnitId, number>>,
 > = {
   id: EntityId;
+  entity: T;
   meta: M;
   historicalMetrics: Record<
     keyof V,

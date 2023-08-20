@@ -1,9 +1,10 @@
+import { UnitId } from '../common/entity';
+
 export type DistributionDatashape = {
   items: Array<{
     id: string;
     name: string;
     iconUrl?: string;
-    value: number;
+    value: number | Record<UnitId, number>;
   }>;
-  restItemsValue: number;
 };
