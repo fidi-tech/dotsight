@@ -8,6 +8,7 @@ import { MixerService } from '../mixers/services/mixer/mixer.service';
 
 describe('PipelinesController', () => {
   let controller: PipelinesController;
+  let service: ExecutePipelineService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -22,9 +23,28 @@ describe('PipelinesController', () => {
     }).compile();
 
     controller = module.get<PipelinesController>(PipelinesController);
+    service = module.get<ExecutePipelineService>(ExecutePipelineService);
   });
 
   it('should be defined', () => {
     expect(controller).toBeDefined();
+  });
+
+  it('should call executePipelineService.executePipeline on executePipeline', () => {
+    const mockedResult = 42;
+    const pipelineId = '1';
+    const mapperIds = ['10'];
+    const params = { hello: 'there' };
+
+    jest.spyOn(service, 'executePipeline').mockResolvedValue(mockedResult);
+
+    expect(
+      controller.executePipeline(pipelineId, { mapperIds, ...params }),
+    ).resolves.toEqual(mockedResult);
+    expect(service.executePipeline).toHaveBeenCalledWith(
+      pipelineId,
+      mapperIds,
+      params,
+    );
   });
 });
