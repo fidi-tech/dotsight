@@ -1,6 +1,6 @@
 import axios, { Axios, AxiosHeaders } from 'axios';
-import { Wallet } from '../../../common/wallet';
-import { Unit, UnitId } from '../../../common/entity';
+import { Wallet } from '../../../entities/wallet.entity';
+import { Unit, UnitId } from '../../../entities/entity';
 import { USD } from '../../../common/currecies';
 import { AbstractWalletDataSource } from '../../abstract.wallet.data-source';
 import { Meta } from '../../abstract.data-source';

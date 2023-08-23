@@ -1,4 +1,4 @@
-import { Entity } from '../common/entity';
+import { Entity } from '../entities/entity';
 import { Meta } from '../data-sources/abstract.data-source';
 
 export abstract class AbstractMixer<C, E extends Entity<any, any, any>> {

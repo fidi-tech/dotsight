@@ -1,5 +1,5 @@
 import { AbstractDataSource, Meta } from './abstract.data-source';
-import { Protocol } from '../common/protocol';
+import { Protocol } from '../entities/protocol.entity';
 
 export abstract class AbstractProtocolDataSource<
   C,

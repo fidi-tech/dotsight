@@ -1,6 +1,6 @@
 import axios, { Axios, AxiosHeaders } from 'axios';
-import { Protocol } from '../../../common/protocol';
-import { Units } from '../../../common/entity';
+import { Protocol } from '../../../entities/protocol.entity';
+import { Units } from '../../../entities/entity';
 import { USD } from '../../../common/currecies';
 import { AbstractProtocolDataSource } from '../../abstract.protocol.data-source';
 import { Meta } from '../../abstract.data-source';

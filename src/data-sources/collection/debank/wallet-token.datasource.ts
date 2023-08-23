@@ -1,5 +1,5 @@
 import axios, { Axios, AxiosHeaders } from 'axios';
-import { WalletToken } from '../../../common/walletToken';
+import { WalletToken } from '../../../entities/wallet-token.entity';
 import { USD } from '../../../common/currecies';
 import {
   AbstractWalletTokenDataSource,

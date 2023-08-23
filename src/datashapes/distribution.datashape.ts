@@ -1,4 +1,4 @@
-import { UnitId } from '../common/entity';
+import { UnitId } from '../entities/entity';
 
 export type DistributionDatashape = {
   items: Array<{

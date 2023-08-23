@@ -1,4 +1,4 @@
-import { Unit, UnitId } from '../common/entity';
+import { Unit, UnitId } from '../entities/entity';
 
 export type Meta = {
   units: Record<UnitId, Unit>;

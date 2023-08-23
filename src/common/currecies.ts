@@ -1,4 +1,4 @@
-import { Unit } from './entity';
+import { Unit } from '../entities/entity';
 
 export const USD: Unit = {
   id: 'usd',

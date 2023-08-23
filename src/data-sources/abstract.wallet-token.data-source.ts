@@ -5,7 +5,7 @@ import {
   Protocol,
   ProtocolId,
   WalletToken,
-} from '../common/walletToken';
+} from '../entities/wallet-token.entity';
 
 export type WalletTokenMeta = Meta & {
   protocols: Record<ProtocolId, Protocol>;

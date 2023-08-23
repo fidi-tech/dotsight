@@ -1,4 +1,4 @@
-import { Entity } from '../../../common/entity';
+import { Entity } from '../../../entities/entity';
 import { DistributionDatashape } from '../../../datashapes/distribution.datashape';
 import { AbstractMapper } from '../../abstract.mapper';
 
