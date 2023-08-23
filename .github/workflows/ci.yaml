@@ -1,6 +1,6 @@
 name: Dotsight CI
 
-on: [push]
+on: [pull_request]
 
 jobs:
   unit:
