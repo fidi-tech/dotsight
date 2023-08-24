@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { Pipeline, PipelineId } from '../../entities/pipeline.entity';
 import { DataSource } from '../../../data-sources/entities/data-source.entity';
 import pipelinesConfig from './pipelines.config';
@@ -66,6 +66,10 @@ export class PipelineService {
   }
 
   async findById(id: PipelineId): Promise<Pipeline> {
-    return this.pipelines[id];
+    const pipeline = this.pipelines[id];
+    if (!pipeline) {
+      throw new NotFoundException(`Pipeline #${id} not found`);
+    }
+    return pipeline;
   }
 }

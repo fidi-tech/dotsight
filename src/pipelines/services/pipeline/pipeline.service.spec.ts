@@ -1,6 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { PipelineService } from './pipeline.service';
 import config from './pipelines.config';
+import { NotFoundException } from '@nestjs/common';
 
 describe('PipelineService', () => {
   let service: PipelineService;
@@ -40,5 +41,9 @@ describe('PipelineService', () => {
       pipelineConfig.dataSources[Object.keys(pipelineConfig.dataSources)[0]]
         .length,
     );
+  });
+
+  it('should throw an error if pipeline was not found', async () => {
+    await expect(service.findById('66')).rejects.toThrow(NotFoundException);
   });
 });
