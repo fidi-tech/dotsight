@@ -38,7 +38,6 @@ export class DistributionMapper extends AbstractMapper<
   map(
     allItems: Record<string, Entity<any, any, any>[]>,
   ): DistributionDatashape {
-    console.log(allItems);
     const items = allItems[this.config.entity].map((item) => ({
       id: item.id,
       name: item.meta[this.config.nameField],
