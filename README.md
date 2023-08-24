@@ -7,7 +7,7 @@ DotSight is licensed under [Apache License](./NOTICE).
 ## Current state
 DotSight is under active development.
 
-1. Having working data pipeline executor and couple of data sources; hardcoded pipeline configuration. **(we are here)**
+1. **(we are here)** Having working data pipeline executor and couple of data sources; hardcoded pipeline configuration.
 2. Having Dotsight UI widgets that can consume pipelines' outputs.
 3. Having UI where user can specify data pipeline from the collections of available data sources, mappers and middlewares.
 
