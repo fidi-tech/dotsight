@@ -21,6 +21,7 @@ has debank as one of it's data sources. So you need to specify DEBANK_API_KEY.
 
 ## Executing pipeline
 To get the data from data pipeline, one should make an HTTP request to deployed instance: 
+
 ```GET /pipelines/1/execute?mapperIds[]=distribution-1&walletIds[]=0x3deccefd66b34b64b8830b036843c9568504e217```
 ```json
 {
