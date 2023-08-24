@@ -2,7 +2,11 @@ import { Injectable } from '@nestjs/common';
 import { collection } from '../../collection';
 import { AbstractDataSource } from '../../abstract.data-source';
 
-class DataSourceNotFound extends Error {}
+class DataSourceNotFound extends Error {
+  constructor(type) {
+    super(`Datasource with type "${type}" not found`);
+  }
+}
 
 @Injectable()
 export class DataSourceService {

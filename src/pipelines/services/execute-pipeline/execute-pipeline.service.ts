@@ -1,4 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { PipelineService } from '../pipeline/pipeline.service';
 import { Pipeline, PipelineId } from '../../entities/pipeline.entity';
 import { MapperId } from '../../../mappers/entities/mapper.entity';
@@ -20,18 +24,31 @@ export class ExecutePipelineService {
     mapperIds: MapperId[],
     params: Record<string, any>,
   ) {
-    const pipeline = await this.pipelineService.findById(pipelineId);
+    if (mapperIds.length === 0) {
+      throw new BadRequestException(`No mapperIds specified`);
+    }
 
+    const pipeline = await this.pipelineService.findById(pipelineId);
     const mappers = mapperIds
-      .map((id) => pipeline.mappers[id])
+      .map((id) => {
+        const mapper = pipeline.mappers[id];
+        if (!mapper) {
+          throw new NotFoundException(`Mapper #${id} ot found`);
+        }
+        return mapper;
+      })
       .map((mapper) =>
         this.mapperService.instantiate(mapper.type, mapper.config),
       );
 
-    const requiredEntities = mappers.reduce((acc, mapper) => {
-      acc.push(...mapper.getRequiredEntities());
-      return acc;
-    }, []);
+    const requiredEntities = Object.keys(
+      mappers.reduce((acc, mapper) => {
+        for (const entity of mapper.getRequiredEntities()) {
+          acc[entity] = true;
+        }
+        return acc;
+      }, {}),
+    );
     const entitiesArray = await Promise.all(
       requiredEntities.map((entity) =>
         this.getEntities(pipeline, entity, params),
