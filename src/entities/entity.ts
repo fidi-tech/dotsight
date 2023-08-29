@@ -23,9 +23,8 @@ export type Entity<
   id: EntityId;
   entity: T;
   meta: M;
-  historicalMetrics: Record<
-    keyof V,
-    TimeSeries<number> | TimeSeries<Record<UnitId, number>>
+  historicalMetrics: Partial<
+    Record<keyof V, TimeSeries<number> | TimeSeries<Record<UnitId, number>>>
   >;
   metrics: V;
 };
