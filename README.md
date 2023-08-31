@@ -16,30 +16,25 @@ DotSight is under active development.
     - node 16,
     - npm 7.
 2. Install dependencies with ```npm ci```.
-3. Start the app ```DEBANK_API_KEY=... npm start```. As of now, the app has only one hard-coded data pipeline, and
-has debank as one of it's data sources. So you need to specify DEBANK_API_KEY.
+3. Start the app ```npm start```.
 
 ## Executing pipeline
 To get the data from data pipeline, one should make an HTTP request to deployed instance: 
 
-```GET /pipelines/1/execute?mapperIds[]=distribution-1&walletIds[]=0x3deccefd66b34b64b8830b036843c9568504e217```
+```GET /pipelines/polkadot-coin/execute?mapperIds[]=dot-amount-distribution&walletIds[]=16ZL8yLyXv3V3L3z9ofR1ovFLziyXaN1DPq4yffMAZ9czzBD&walletIds[]=12xtAYsRUrmbniiWQqJtECiBQrMn8AypQcXhnQAc6RB6XkLW```
 ```json
 {
-   "distribution-1": {
+   "dot-amount-distribution": {
       "items": [
          {
-            "id": "0x0e6580f2f84c8191d36043fb340ad9c0982dde92",
-            "name": "BLP",
-            "value": {
-               "usd": 562294.2815499539
-            }
+            "id": "DOT",
+            "name": "12xtAYsRUrmbniiWQqJtECiBQrMn8AypQcXhnQAc6RB6XkLW",
+            "value": 39259207.35584479
          },
          {
-            "id": "0xacc15dc74880c9944775448304b263d191c6077f",
-            "name": "WGLMR",
-            "value": {
-               "usd": 1698.702448085819
-            }
+            "id": "DOT",
+            "name": "16ZL8yLyXv3V3L3z9ofR1ovFLziyXaN1DPq4yffMAZ9czzBD",
+            "value": 58682924.819495305
          }
       ]
    }
