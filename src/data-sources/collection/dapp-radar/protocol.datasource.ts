@@ -91,7 +91,7 @@ export class DappRadarProtocolDatasource extends AbstractProtocolDataSource<
           }),
         ),
       );
-    } while (page < pageCount);
+    } while (page <= pageCount);
 
     return {
       items,

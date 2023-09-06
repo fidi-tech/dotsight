@@ -71,7 +71,7 @@ export class DebankWalletDatasource extends AbstractWalletDataSource<
     };
   }
 
-  public async getTotalBalance({ walletIds }: Params): Promise<
+  private async getTotalBalance({ walletIds }: Params): Promise<
     Array<{
       walletId;
       totalUsdValue: number;

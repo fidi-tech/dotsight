@@ -51,4 +51,14 @@ describe('DistributionMapper', () => {
       ],
     });
   });
+
+  it('should return entities from config', () => {
+    const mapper = new DistributionMapper({
+      nameField: '1',
+      valueField: '2',
+      entity: 'wallet',
+    });
+
+    expect(mapper.getRequiredEntities()).toEqual(['wallet']);
+  });
 });
