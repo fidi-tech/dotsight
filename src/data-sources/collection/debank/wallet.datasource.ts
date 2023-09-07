@@ -4,6 +4,7 @@ import { Unit, UnitId } from '../../../entities/entity';
 import { USD } from '../../../common/currecies';
 import { AbstractWalletDataSource } from '../../abstract.wallet.data-source';
 import { Meta } from '../../abstract.data-source';
+import { BadRequestException } from '@nestjs/common';
 
 type Config = {
   key: string;
@@ -33,6 +34,10 @@ export class DebankWalletDatasource extends AbstractWalletDataSource<
     items: Wallet[];
     meta: Meta;
   }> {
+    if (!Array.isArray(walletIds)) {
+      throw new BadRequestException('walletIds parameter was not specified');
+    }
+
     const response = await this.getTotalBalance({ walletIds });
 
     const units: Record<UnitId, Unit> = {

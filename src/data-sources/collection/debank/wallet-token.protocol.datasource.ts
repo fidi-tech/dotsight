@@ -5,6 +5,7 @@ import {
   AbstractWalletTokenDataSource,
   WalletTokenMeta,
 } from '../../abstract.wallet-token.data-source';
+import { BadRequestException } from '@nestjs/common';
 
 type Config = {
   key: string;
@@ -90,10 +91,6 @@ export class DebankWalletTokenProtocolDatasource extends AbstractWalletTokenData
       headers: new AxiosHeaders({
         AccessKey: this.config.key,
       }),
-      transformRequest: (config) => {
-        console.log(config);
-        return config;
-      },
     });
   }
 
@@ -101,6 +98,10 @@ export class DebankWalletTokenProtocolDatasource extends AbstractWalletTokenData
     items: WalletToken[];
     meta: WalletTokenMeta;
   }> {
+    if (!Array.isArray(walletIds)) {
+      throw new BadRequestException('walletIds parameter was not specified');
+    }
+
     const data = await Promise.all(
       walletIds.map(async (walletId) => {
         const protocols = await this.getAllComplexProtocols({ walletId });
