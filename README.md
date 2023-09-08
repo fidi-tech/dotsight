@@ -4,16 +4,24 @@
 DotSight operates under the [Apache License](./NOTICE).
 
 ## Table of Contents
-* Installation and Setup
-* Usage and Examples
-* API Documentation
-* Configuration and Customization
-* Contributing
-* Testing and Quality Assurance
-* License
-* Contact and Support
-* Acknowledgments
-
+* [Introduction](#introduction)
+    * [What is DotSight?](#what-is-dotsight)
+    * [Features](#features)
+    * [Benefits](#benefits)
+* [Quick Start](#quick-start)
+* [Usage Examples](#usage-examples)
+* [Customization](#customization)
+    * [Entities](#entities)
+    * [Data Sources](#data-sources)
+    * [Middlewares](#middlewares)
+    * [Mappers](#mappers)
+* [API Documentation](#api-documentation)
+* [Roadmap & Current Focus](#roadmap--current-focus)
+* [Contributing](#contributing)
+* [Testing and Quality Assurance](#testing-and-quality-assurance)
+* [License](#license)
+* [Contact and Support](#contact-and-support)
+* [Acknowledgments](#acknowledgments)
 
 
 ## Quick Start
