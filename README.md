@@ -3,7 +3,7 @@
 
 DotSight operates under the [Apache License](./NOTICE).
 
-## Table of Contents
+## Contents
 * [Introduction](#introduction)
     * [What is DotSight?](#what-is-dotsight)
     * [Features](#features)
@@ -32,7 +32,7 @@ To begin utilizing DotSight, follow these simple steps:
 4. Initiate the DotSight application by executing ```npm start```.
 
 ## Usage Examples
-At the high level, DotSight enables you to create ***data pipelines*** each transferring ***entities*** from a specified ***data source***, enriched with specified ***middlewares***, and materialized via specified ***mappers***. All customizable.
+At the high level, DotSight enables you to create _data pipelines_ each transferring _entities_ from a specified _data source_, enriched with specified _middlewares_, and materialized via specified _mappers_. All customizable.
 
 
 ### Pipeline Creation
@@ -94,7 +94,7 @@ In certain scenarios, not all required data can be obtained from a single data s
 Each entity within a pipeline progresses through a series of middlewares specified in the pipeline configuration. Middlewares have the power to augment or replace ```metrics``` and ```meta``` fields of the entity.
 
 ### Mappers
-Mappers, acting as transformative agents, convert arrays of entities acquired from data sources into a serialized data structure, i.e., a ***data shape***. 
+Mappers, acting as transformative agents, convert arrays of entities acquired from data sources into a serialized data structure, i.e., a _data shape_. 
 
 This structure can be further utilized in other services or seamlessly displayed through compatible DotSight UI widgets. Each mapper in a data pipeline possesses a unique identifier that must be specified when executing the pipeline.
 
@@ -102,11 +102,13 @@ Every mapper extends the capabilities of the [AbstractMapper](./src/mappers/abst
 
 ## API Documentation
 DotSight exposes a comprehensive API for developers to leverage its functionalities. Below is a summary of currently available methods:
+
 **DataPipeline**
 - ```addDataSource(dataSource)```: Adds a data source to the pipeline.
 - ```addMiddleware(middleware)```: Adds a middleware to the pipeline.
 - ```addMapper(mapper)```: Adds a mapper to the pipeline.
 - ```execute()```: Executes the data pipeline and returns the result.
+
 **Result**
 - ```getData(key)```: Retrieves the transformed data from the pipeline result.
 
