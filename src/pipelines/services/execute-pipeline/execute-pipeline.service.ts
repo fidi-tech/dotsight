@@ -9,6 +9,7 @@ import { MapperId } from '../../../mappers/entities/mapper.entity';
 import { MapperService } from '../../../mappers/services/mapper/mapper.service';
 import { DataSourceService } from '../../../data-sources/services/data-source/data-source.service';
 import { MixerService } from '../../../mixers/services/mixer/mixer.service';
+import { MiddlewareService } from '../../../middlewares/services/middleware/middleware.service';
 
 @Injectable()
 export class ExecutePipelineService {
@@ -17,6 +18,7 @@ export class ExecutePipelineService {
     private readonly mapperService: MapperService,
     private readonly dataSourceService: DataSourceService,
     private readonly mixerService: MixerService,
+    private readonly middlewareService: MiddlewareService,
   ) {}
 
   async executePipeline(
@@ -85,6 +87,17 @@ export class ExecutePipelineService {
       entity,
       pipeline.mixers[entity],
     );
-    return await mixer.mix(...chunks);
+
+    let result = await mixer.mix(...chunks);
+
+    for (const middleware of pipeline.middlewares[entity]) {
+      const instance = this.middlewareService.instantiate(
+        middleware.type,
+        middleware.config,
+      );
+      result = await instance.transform(result, params);
+    }
+
+    return result;
   }
 }

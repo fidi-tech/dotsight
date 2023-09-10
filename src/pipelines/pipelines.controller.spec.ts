@@ -5,6 +5,7 @@ import { PipelineService } from './services/pipeline/pipeline.service';
 import { MapperService } from '../mappers/services/mapper/mapper.service';
 import { DataSourceService } from '../data-sources/services/data-source/data-source.service';
 import { MixerService } from '../mixers/services/mixer/mixer.service';
+import { MiddlewareService } from '../middlewares/services/middleware/middleware.service';
 
 describe('PipelinesController', () => {
   let controller: PipelinesController;
@@ -19,6 +20,7 @@ describe('PipelinesController', () => {
         MapperService,
         DataSourceService,
         MixerService,
+        MiddlewareService,
       ],
     }).compile();
 

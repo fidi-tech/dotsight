@@ -52,9 +52,10 @@ export class GiantSquidStatsWalletTokenDataSource extends AbstractWalletTokenDat
       const amount = +account.free / 10 ** this.config.coin.decimals;
 
       items.push({
-        id: this.config.coin.id,
+        id: `${account.id}-${this.config.coin.id}`,
         entity: 'walletToken',
         meta: {
+          id: this.config.coin.id,
           walletId: account.id,
           name: this.config.coin.name,
           symbol: this.config.coin.symbol,

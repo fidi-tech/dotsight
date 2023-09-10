@@ -5,9 +5,10 @@ import { PipelineService } from './services/pipeline/pipeline.service';
 import { MappersModule } from '../mappers/mappers.module';
 import { DataSourcesModule } from '../data-sources/data-sources.module';
 import { MixersModule } from '../mixers/mixers.module';
+import { MiddlewaresModule } from '../middlewares/middlewares.module';
 
 @Module({
-  imports: [MappersModule, DataSourcesModule, MixersModule],
+  imports: [MappersModule, DataSourcesModule, MixersModule, MiddlewaresModule],
   controllers: [PipelinesController],
   providers: [ExecutePipelineService, PipelineService],
 })

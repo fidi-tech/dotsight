@@ -3,6 +3,7 @@ import { DebankWalletTokenProtocolDatasource } from './wallet-token.protocol.dat
 import { BadRequestException } from '@nestjs/common';
 
 jest.useFakeTimers();
+jest.mock('../../../common/http');
 
 describe('DebankWalletTokenProtocolDatasource', () => {
   let axiosCreate;
@@ -163,6 +164,7 @@ describe('DebankWalletTokenProtocolDatasource', () => {
           },
           id: 'w1-p1-t1',
           meta: {
+            id: 't1',
             chainId: 'c1',
             price: {
               usd: 1,
@@ -193,6 +195,7 @@ describe('DebankWalletTokenProtocolDatasource', () => {
           },
           id: 'w1-p1-t2',
           meta: {
+            id: 't2',
             chainId: 'c2',
             price: {
               usd: 2,
@@ -223,6 +226,7 @@ describe('DebankWalletTokenProtocolDatasource', () => {
           },
           id: 'w1-p2-t3',
           meta: {
+            id: 't3',
             chainId: 'c1',
             price: {
               usd: 3,
@@ -253,6 +257,7 @@ describe('DebankWalletTokenProtocolDatasource', () => {
           },
           id: 'w2-p2-t4',
           meta: {
+            id: 't4',
             chainId: 'c2',
             price: {
               usd: 4,

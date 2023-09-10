@@ -83,8 +83,9 @@ describe('GiantSquidStatsWalletTokenDataSource', () => {
               },
             ],
           },
-          id: 'cid',
+          id: 'w1-cid',
           meta: {
+            id: 'cid',
             name: 'cname',
             symbol: 'csymbol',
             walletId: 'w1',
@@ -103,8 +104,9 @@ describe('GiantSquidStatsWalletTokenDataSource', () => {
               },
             ],
           },
-          id: 'cid',
+          id: 'w2-cid',
           meta: {
+            id: 'cid',
             name: 'cname',
             symbol: 'csymbol',
             walletId: 'w2',

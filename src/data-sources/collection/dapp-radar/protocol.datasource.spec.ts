@@ -2,6 +2,7 @@ import axios, { AxiosHeaders, AxiosInstance } from 'axios';
 import { DappRadarProtocolDatasource } from './protocol.datasource';
 
 jest.useFakeTimers();
+jest.mock('../../../common/http');
 
 describe('DappRadarProtocolDatasource', () => {
   let axiosCreate;

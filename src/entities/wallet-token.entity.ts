@@ -15,6 +15,7 @@ export type Chain = {
 };
 
 type Meta = {
+  id: string;
   walletId: string;
   symbol?: string;
   iconUrl?: string;

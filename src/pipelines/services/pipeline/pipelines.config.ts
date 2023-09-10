@@ -64,15 +64,26 @@ pipelines.push({
     walletToken: {},
   },
   middlewares: {
-    walletToken: [],
+    walletToken: [
+      {
+        id: '11',
+        type: 'coingecko-wallet-token-price',
+        config: {
+          key: process.env.COINGECKO_API_KEY,
+          coinMapping: {
+            DOT: 'polkadot',
+          },
+        },
+      },
+    ],
   },
   mappers: [
     {
-      id: 'dot-amount-distribution',
+      id: 'dot-value-distribution',
       type: 'distribution',
       config: {
         nameField: 'walletId',
-        valueField: 'amount',
+        valueField: 'value',
         entity: 'walletToken',
       },
     },

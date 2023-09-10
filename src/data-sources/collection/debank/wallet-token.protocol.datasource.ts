@@ -1,4 +1,4 @@
-import axios, { Axios, AxiosHeaders } from 'axios';
+import axios, { AxiosHeaders, AxiosInstance } from 'axios';
 import { WalletToken } from '../../../entities/wallet-token.entity';
 import { USD } from '../../../common/currecies';
 import {
@@ -6,6 +6,7 @@ import {
   WalletTokenMeta,
 } from '../../abstract.wallet-token.data-source';
 import { BadRequestException } from '@nestjs/common';
+import { addLogging } from '../../../common/http';
 
 type Config = {
   key: string;
@@ -82,7 +83,7 @@ export class DebankWalletTokenProtocolDatasource extends AbstractWalletTokenData
   Config,
   Params
 > {
-  private httpClient: Axios;
+  private httpClient: AxiosInstance;
 
   constructor(props) {
     super(props);
@@ -92,6 +93,7 @@ export class DebankWalletTokenProtocolDatasource extends AbstractWalletTokenData
         AccessKey: this.config.key,
       }),
     });
+    addLogging('DebankWalletTokenProtocolDatasource', this.httpClient);
   }
 
   async getItems({ walletIds }: Params): Promise<{
@@ -143,6 +145,7 @@ export class DebankWalletTokenProtocolDatasource extends AbstractWalletTokenData
               id: `${walletId}-${protocol.id}-${token.id}`,
               entity: 'walletToken',
               meta: {
+                id: token.id,
                 walletId: walletId,
                 protocolId: protocol.id,
                 chainId: token.chain,

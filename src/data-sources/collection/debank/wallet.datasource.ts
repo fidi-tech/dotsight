@@ -1,10 +1,11 @@
-import axios, { Axios, AxiosHeaders } from 'axios';
+import axios, { AxiosHeaders, AxiosInstance } from 'axios';
 import { Wallet } from '../../../entities/wallet.entity';
 import { Unit, UnitId } from '../../../entities/entity';
 import { USD } from '../../../common/currecies';
 import { AbstractWalletDataSource } from '../../abstract.wallet.data-source';
 import { Meta } from '../../abstract.data-source';
 import { BadRequestException } from '@nestjs/common';
+import { addLogging } from '../../../common/http';
 
 type Config = {
   key: string;
@@ -18,7 +19,7 @@ export class DebankWalletDatasource extends AbstractWalletDataSource<
   Config,
   Params
 > {
-  private httpClient: Axios;
+  private httpClient: AxiosInstance;
 
   constructor(props) {
     super(props);
@@ -28,6 +29,7 @@ export class DebankWalletDatasource extends AbstractWalletDataSource<
         AccessKey: this.config.key,
       }),
     });
+    addLogging('DebankWalletDatasource', this.httpClient);
   }
 
   async getItems({ walletIds }: Params): Promise<{

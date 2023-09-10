@@ -51,23 +51,29 @@ DotSight is under active development, follow these steps to make use of it at th
 ### Querying a Deployed Pipeline
 A simple HTTP request to the deployed instance produces the output data. An example utilizing the default pipeline:
 
-```GET /pipelines/polkadot-coin/execute?mapperIds[]=dot-amount-distribution&walletIds[]=16ZL8yLyXv3V3L3z9ofR1ovFLziyXaN1DPq4yffMAZ9czzBD&walletIds[]=12xtAYsRUrmbniiWQqJtECiBQrMn8AypQcXhnQAc6RB6XkLW```
+```GET /pipelines/polkadot-coin/execute?mapperIds[]=dot-value-distribution&walletIds[]=16ZL8yLyXv3V3L3z9ofR1ovFLziyXaN1DPq4yffMAZ9czzBD&walletIds[]=12xtAYsRUrmbniiWQqJtECiBQrMn8AypQcXhnQAc6RB6XkLW&currencies[]=eth&currencies[]=usd```
 ```json
 {
-   "dot-amount-distribution": {
-      "items": [
-         {
-            "id": "DOT",
-            "name": "12xtAYsRUrmbniiWQqJtECiBQrMn8AypQcXhnQAc6RB6XkLW",
-            "value": 39259207.35584479
-         },
-         {
-            "id": "DOT",
-            "name": "16ZL8yLyXv3V3L3z9ofR1ovFLziyXaN1DPq4yffMAZ9czzBD",
-            "value": 58682924.819495305
-         }
-      ]
-   }
+  "dot-value-distribution": {
+    "items": [
+      {
+        "id": "12xtAYsRUrmbniiWQqJtECiBQrMn8AypQcXhnQAc6RB6XkLW-polkadot",
+        "name": "12xtAYsRUrmbniiWQqJtECiBQrMn8AypQcXhnQAc6RB6XkLW",
+        "value": {
+          "eth": 99873.54572933383,
+          "usd": 162016119.98081636
+        }
+      },
+      {
+        "id": "16ZL8yLyXv3V3L3z9ofR1ovFLziyXaN1DPq4yffMAZ9czzBD-polkadot",
+        "name": "16ZL8yLyXv3V3L3z9ofR1ovFLziyXaN1DPq4yffMAZ9czzBD",
+        "value": {
+          "eth": 151213.95403760733,
+          "usd": 245301175.01310474
+        }
+      }
+    ]
+  }
 }
 ```
 
@@ -100,7 +106,7 @@ In certain scenarios, not all required data can be obtained from a single data s
 
 Each entity within a pipeline progresses through a series of middlewares specified in the pipeline configuration. Middlewares have the power to augment or replace ```metrics``` and ```meta``` fields of the entity.
 
-// TODO. Example middleware with Coingecko pricing here
+Good example of middleware is the [Coingecko](./src/middlewares/collection/coingecko/wallet-token-price.middleware.ts), it allows to enrich [WalletToken](./src/entities/wallet-token.entity.ts) with tokens' prices if none were returned from a data source.
 
 
 ### Mappers

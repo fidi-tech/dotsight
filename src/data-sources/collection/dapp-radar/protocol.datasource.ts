@@ -1,9 +1,10 @@
-import axios, { Axios, AxiosHeaders } from 'axios';
+import axios, { AxiosHeaders, AxiosInstance } from 'axios';
 import { Protocol } from '../../../entities/protocol.entity';
 import { Units } from '../../../entities/entity';
 import { USD } from '../../../common/currecies';
 import { AbstractProtocolDataSource } from '../../abstract.protocol.data-source';
 import { Meta } from '../../abstract.data-source';
+import { addLogging } from '../../../common/http';
 
 type Config = {
   key: string;
@@ -27,7 +28,7 @@ export class DappRadarProtocolDatasource extends AbstractProtocolDataSource<
   Config,
   Params
 > {
-  private httpClient: Axios;
+  private httpClient: AxiosInstance;
 
   constructor(config: Config) {
     super(config);
@@ -37,6 +38,7 @@ export class DappRadarProtocolDatasource extends AbstractProtocolDataSource<
         'X-BLOBR-KEY': this.config.key,
       }),
     });
+    addLogging('DappRadarProtocolDatasource', this.httpClient);
   }
 
   public async getItems({ chain }: Params): Promise<{

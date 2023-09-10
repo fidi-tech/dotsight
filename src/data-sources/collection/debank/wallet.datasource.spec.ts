@@ -3,6 +3,7 @@ import { DebankWalletDatasource } from './wallet.datasource';
 import { BadRequestException } from '@nestjs/common';
 
 jest.useFakeTimers();
+jest.mock('../../../common/http');
 
 describe('DebankWalletDatasource', () => {
   let axiosCreate;

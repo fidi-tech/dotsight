@@ -9,6 +9,7 @@ import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { AbstractMapper } from '../../../mappers/abstract.mapper';
 import { AbstractDataSource } from '../../../data-sources/abstract.data-source';
 import { AbstractMixer } from '../../../mixers/abstract.mixer';
+import { MiddlewareService } from '../../../middlewares/services/middleware/middleware.service';
 
 describe('ExecutePipelineService', () => {
   let service: ExecutePipelineService;
@@ -25,6 +26,7 @@ describe('ExecutePipelineService', () => {
         MapperService,
         DataSourceService,
         MixerService,
+        MiddlewareService,
       ],
     }).compile();
 
@@ -151,6 +153,12 @@ describe('ExecutePipelineService', () => {
       mappers: {
         '1': { type: 't1', config: {} },
         '2': { type: 't2', config: {} },
+      },
+      middlewares: {
+        e1: [],
+        e2: [],
+        e3: [],
+        e4: [],
       },
       mixers: {
         e1: { e1: 'params' },
