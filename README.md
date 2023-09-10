@@ -1,10 +1,9 @@
 # DotSight: Advanced Analytics for Web3
-**[FiDi](https://fidi.tech) DotSight** is an advanced analytics data platform that empowers users to effortlessly construct high-precision data pipelines and seamlessly visualize their on-chain data with minimal or no coding required. DotSight operates under the Apache License.
+**DotSight** is an advanced analytics data platform developed by [FiDi](https://fidi.tech). It empowers users to effortlessly construct high-precision data pipelines and seamlessly visualize on-chain data with minimal or no coding required. DotSight operates under the Apache License.
 
 DotSight operates under the [Apache License](./NOTICE).
 
 ## Contents
-* [Introduction](#introduction)
 * [Quick Start](#quick-start)
 * [Usage Examples](#usage-examples)
 * [Customization](#customization)
@@ -31,7 +30,7 @@ To begin utilizing DotSight, follow these simple steps:
 ## Usage Examples
 At the high level, DotSight enables you to create _data pipelines_ each transferring _entities_ from a specified _data source_, enriched with specified _middlewares_, and serialized via specified _mappers_. All customizable.
 
-DotSight is under active development, follow these steps to make use of it at the current stage:
+DotSight is under active development. Follow these steps to make use of it at the current stage:
 
 
 ### Pipeline Creation
@@ -77,7 +76,7 @@ A simple HTTP request to the deployed instance produces the output data. An exam
 }
 ```
 
-These examples provide a glimpse into the capabilities of DotSight in on-chain data manipulation and outputs visualization.
+These examples provide a glimpse into the capabilities of DotSight in on-chain data manipulation and data visualization.
 
 ## Customization
 DotSight provides various configuration options to tailor the data flow according to your specific needs. You can customize:
@@ -106,7 +105,7 @@ In certain scenarios, not all required data can be obtained from a single data s
 
 Each entity within a pipeline progresses through a series of middlewares specified in the pipeline configuration. Middlewares have the power to augment or replace ```metrics``` and ```meta``` fields of the entity.
 
-Good example of middleware is the [Coingecko](./src/middlewares/collection/coingecko/wallet-token-price.middleware.ts), it allows to enrich [WalletToken](./src/entities/wallet-token.entity.ts) with tokens' prices if none were returned from a data source.
+A good example of middleware is the [Coingecko](./src/middlewares/collection/coingecko/wallet-token-price.middleware.ts), which allows to enrich [WalletToken](./src/entities/wallet-token.entity.ts) with tokens' prices if none were available in the data source.
 
 
 ### Mappers
@@ -158,7 +157,7 @@ For questions, feedback, and support requests, you can us through the following 
 - Twitter/X: https://twitter.com/cryptofidi
 - Discord: https://discord.gg/fhaRzWZa2r
 - Email: founders@fidit.tech
-- Website: https://fidi.tech/
+- Website: https://fidi.tech
 
 
 ## Acknowledgments
