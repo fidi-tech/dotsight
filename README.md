@@ -3,11 +3,8 @@
 
 DotSight operates under the [Apache License](./NOTICE).
 
-## Table of Contents
+## Contents
 * [Introduction](#introduction)
-    * [What is DotSight?](#what-is-dotsight)
-    * [Features](#features)
-    * [Benefits](#benefits)
 * [Quick Start](#quick-start)
 * [Usage Examples](#usage-examples)
 * [Customization](#customization)
@@ -28,21 +25,31 @@ DotSight operates under the [Apache License](./NOTICE).
 To begin utilizing DotSight, follow these simple steps:
 1. Ensure that you have ```Node``` v16 or above and ```npm``` v7 or above on your machine.
 2. Clone the DotSight repository from GitHub.
-3. Navigate to the cloned repository and ```run npm ci``` to install the necessary dependencies.
+3. Navigate to the cloned repository and ```npm ci``` to install the necessary dependencies.
 4. Initiate the DotSight application by executing ```npm start```.
 
 ## Usage Examples
-At the high level, DotSight enables you to create ***data pipelines*** each transferring ***entities*** from a specified ***data source***, enriched with specified ***middlewares***, and materialized via specified ***mappers***. All customizable.
+At the high level, DotSight enables you to create _data pipelines_ each transferring _entities_ from a specified _data source_, enriched with specified _middlewares_, and serialized via specified _mappers_. All customizable.
+
+DotSight is under active development, follow these steps to make use of it at the current stage:
 
 
 ### Pipeline Creation
+// TODO. example of how to add a new pipeline to a struct in pipelines.config.ts
+
 
 ### Sample Pipeline: Subsquid Sourced
+// TODO. Generating and running a Subsquid-sourced pipeline
+// + sample query for querying a running pipeline
+
 
 ### Sample Pipeline: DeBank Sourced
+// TODO. Generating and running a DeBank-sourced pipeline
+// + example of running the app with DEBANK_ENV
+// + sample query for querying a running pipeline
 
 ### Querying a Deployed Pipeline
-A simple HTTP request to the deployed instance produces the data. An example of utilizing a fresh endpoint:
+A simple HTTP request to the deployed instance produces the output data. An example utilizing the default pipeline:
 
 ```GET /pipelines/polkadot-coin/execute?mapperIds[]=dot-amount-distribution&walletIds[]=16ZL8yLyXv3V3L3z9ofR1ovFLziyXaN1DPq4yffMAZ9czzBD&walletIds[]=12xtAYsRUrmbniiWQqJtECiBQrMn8AypQcXhnQAc6RB6XkLW```
 ```json
@@ -93,24 +100,20 @@ In certain scenarios, not all required data can be obtained from a single data s
 
 Each entity within a pipeline progresses through a series of middlewares specified in the pipeline configuration. Middlewares have the power to augment or replace ```metrics``` and ```meta``` fields of the entity.
 
+// TODO. Example middleware with Coingecko pricing here
+
+
 ### Mappers
-Mappers, acting as transformative agents, convert arrays of entities acquired from data sources into a serialized data structure, i.e., a ***data shape***. 
+Mappers, acting as transformative agents, convert arrays of entities acquired from data sources into a serialized data structure, i.e., a _data shape_. 
 
 This structure can be further utilized in other services or seamlessly displayed through compatible DotSight UI widgets. Each mapper in a data pipeline possesses a unique identifier that must be specified when executing the pipeline.
 
 Every mapper extends the capabilities of the [AbstractMapper](./src/mappers/abstract.mapper.ts) class. An exemplary instance is the [Distribution](./src/mappers/collection/distribution/distribution.mapper.ts) mapper, which effectively transforms data into a distribution format.
 
-## API Documentation
-DotSight exposes a comprehensive API for developers to leverage its functionalities. Below is a summary of currently available methods:
-**DataPipeline**
-- ```addDataSource(dataSource)```: Adds a data source to the pipeline.
-- ```addMiddleware(middleware)```: Adds a middleware to the pipeline.
-- ```addMapper(mapper)```: Adds a mapper to the pipeline.
-- ```execute()```: Executes the data pipeline and returns the result.
-**Result**
-- ```getData(key)```: Retrieves the transformed data from the pipeline result.
 
-For detailed documentation of the API, including available parameters and functionalities, please refer to the API Reference and the Swagger UI by visiting ```/swagger```.
+## API Documentation
+For detailed documentation of the API, including available parameters and functionalities, please refer to the OpenAPI Reference and the Swagger UI by visiting ```/swagger```.
+
 
 ## Roadmap & Current Focus
 
@@ -119,6 +122,7 @@ DotSight is under active development.
 - Aug 2023 The data sources, middlewares, and mappers logic are all functional. Arbitrary data sources are supported and a collection of default sources is available.
 - Sep 2023 DotSight UI Widgets (existing pipelines visualization)
 - Q4 2023 DotSight customizable no-code UI 
+- Q4 2023 Dockerized Deployment
 - Q4 2023 First developer bounties
 - Q4 2023 SQL Querying via DotSight UI
 - Q1 2024 Extensive library of data sources and UI widgets
@@ -134,11 +138,9 @@ For more details on the development environment setup and the contribution proce
 
 
 ## Testing and Quality Assurance
-DotSight emphasizes testing and quality assurance to ensure a reliable and robust analytics platform. To run the tests and maintain the quality of the library:
-1. Install the required testing frameworks and tools as specified in the documentation.
-2. Execute the test suite using the provided commands.
-3. Review the test results and address any failures or issues.
-Detailed instructions for setting up testing frameworks and running tests can be found in the Testing Guide.
+Please make sure your PRs come with sufficient unit test coverage:
+1. For any new class logic and functions you're welcome to add corresponding unit tests under ```.spec.ts```.
+2. Validate that the coverage is sufficient via ```npm run test:cov```
 
 
 ## License
