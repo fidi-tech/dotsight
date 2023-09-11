@@ -145,7 +145,6 @@ export class DebankWalletTokenDatasource extends AbstractWalletTokenDataSource<
       {
         params: {
           id: walletId,
-          is_all: true,
         },
       },
     );

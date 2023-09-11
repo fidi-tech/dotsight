@@ -61,9 +61,9 @@ export type PortfolioItemObject = {
     | 'Perpetuals'
     | 'Wallet';
   detail: {
-    supply_token_list: UserToken[];
-    reward_token_list: UserToken[];
-    borrow_token_list: UserToken[];
+    supply_token_list?: UserToken[];
+    reward_token_list?: UserToken[];
+    borrow_token_list?: UserToken[];
   };
 };
 
@@ -136,7 +136,7 @@ export class DebankWalletTokenProtocolDatasource extends AbstractWalletTokenData
         };
 
         for (const item of protocol.portfolio_item_list) {
-          for (const token of item.detail.supply_token_list) {
+          for (const token of item?.detail?.supply_token_list || []) {
             result.meta.chains[token.chain] = {
               id: token.chain,
             };

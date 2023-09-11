@@ -1,5 +1,5 @@
 export default {
-  id: '1',
+  id: 'debank-tokens',
   dataSources: {
     walletToken: [
       {
@@ -26,7 +26,7 @@ export default {
   },
   mappers: [
     {
-      id: 'distribution-1',
+      id: 'distribution',
       type: 'distribution',
       config: {
         nameField: 'symbol',

@@ -54,13 +54,11 @@ describe('DebankWalletTokenDatasource', () => {
     expect(mockAxios.get).toHaveBeenCalledWith('/user/all_token_list', {
       params: {
         id: 'w1',
-        is_all: true,
       },
     });
     expect(mockAxios.get).toHaveBeenCalledWith('/user/all_token_list', {
       params: {
         id: 'w2',
-        is_all: true,
       },
     });
   });

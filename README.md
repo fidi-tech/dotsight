@@ -34,21 +34,20 @@ DotSight is under active development. Follow these steps to make use of it at th
 
 
 ### Pipeline Creation
-// TODO. example of how to add a new pipeline to a struct in pipelines.config.ts
+As of now, all pipelines' configurations are exported from the [configuration file](./src/pipelines/services/pipeline/config/pipeline.config.ts) in the source code. This configuration file should always explore all enabled pipelines.
+You can use predefined samples, modify them, or create your own pipelines.
 
+Every pipeline configuration should specify:
+- pipeline identifier,
+- all data sources for all the entities,
+- all mixers' configurations,
+- all middlewares for all the entities,
+- all the mappers that provide pipeline's results.
 
-### Sample Pipeline: Subsquid Sourced
-// TODO. Generating and running a Subsquid-sourced pipeline
-// + sample query for querying a running pipeline
+You can examine sample pipelines provided in the source code.
 
-
-### Sample Pipeline: DeBank Sourced
-// TODO. Generating and running a DeBank-sourced pipeline
-// + example of running the app with DEBANK_ENV
-// + sample query for querying a running pipeline
-
-### Querying a Deployed Pipeline
-A simple HTTP request to the deployed instance produces the output data. An example utilizing the default pipeline:
+### Sample Pipeline: SubSquid Sourced
+This repository contains [an example](./src/pipelines/services/pipeline/config/polkadot.pipeline.config.ts) of a pipeline that gets the data from [GiantSquid](https://docs.subsquid.io/giant-squid-api/), powered by [SubSquid](https://subsquid.io).
 
 ```GET /pipelines/polkadot-coin/execute?mapperIds[]=dot-value-distribution&walletIds[]=16ZL8yLyXv3V3L3z9ofR1ovFLziyXaN1DPq4yffMAZ9czzBD&walletIds[]=12xtAYsRUrmbniiWQqJtECiBQrMn8AypQcXhnQAc6RB6XkLW&currencies[]=eth&currencies[]=usd```
 ```json
@@ -76,7 +75,36 @@ A simple HTTP request to the deployed instance produces the output data. An exam
 }
 ```
 
-These examples provide a glimpse into the capabilities of DotSight in on-chain data manipulation and data visualization.
+### Sample Pipeline: DeBank Sourced
+This repository also contains [an example](./src/pipelines/services/pipeline/config/debank.pipeline.config.ts) of a pipeline that gets the data from [Debank](https://debank.com).
+
+As Debank [api](https://cloud.debank.com) requires an API key, you should specify one before executing the pipeline.
+To do that, set DEBANK_API_KEY environment variable before launching DotSight:
+```DEBANK_API_KEY=secret npm start```
+
+```GET /pipelines/debank-tokens/execute?mapperIds[]=distribution&walletIds[]=0x293ed38530005620e4b28600f196a97e1125daac&walletIds[]=0x95abda53bc5e9fbbdce34603614018d32ced219e```
+```json
+{
+  "distribution": {
+    "items": [
+      {
+        "id": "0x293ed38530005620e4b28600f196a97e1125daac-0x4200000000000000000000000000000000000042",
+        "name": "OP",
+        "value": {
+          "usd": 860.9083526541565
+        }
+      },
+      {
+        "id": "0x293ed38530005620e4b28600f196a97e1125daac-0x0000000000000000000000000000000000001010",
+        "name": "MATIC",
+        "value": {
+          "usd": 28.728887952845874
+        }
+      }
+    ]
+  }
+}
+```
 
 ## Customization
 DotSight provides various configuration options to tailor the data flow according to your specific needs. You can customize:
