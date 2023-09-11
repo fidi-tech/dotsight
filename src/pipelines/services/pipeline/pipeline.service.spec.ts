@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { PipelineService } from './pipeline.service';
-import config from './pipelines.config';
+import config from './config/pipeline.config';
 import { NotFoundException } from '@nestjs/common';
 
 describe('PipelineService', () => {

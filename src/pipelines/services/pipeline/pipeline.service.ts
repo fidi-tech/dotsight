@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { Pipeline, PipelineId } from '../../entities/pipeline.entity';
 import { DataSource } from '../../../data-sources/entities/data-source.entity';
-import pipelinesConfig from './pipelines.config';
+import pipelinesConfig from './config/pipeline.config';
 import { Mixer } from '../../../mixers/entities/mixer.entity';
 import { Middleware } from '../../../middlewares/entities/middleware.entity';
 import { Mapper } from '../../../mappers/entities/mapper.entity';
