@@ -28,26 +28,24 @@ To begin utilizing DotSight, follow these simple steps:
 4. Initiate the DotSight application by executing ```npm start```.
 
 ## Usage Examples
-At the high level, DotSight enables you to create _data pipelines_ each transferring _entities_ from a specified _data source_, enriched with specified _middlewares_, and serialized via specified _mappers_. All customizable.
+DotSight enables you to create _data pipelines_ transporting _entities_ from a specified _data source_, enriched with specified _middlewares_, and serialized via specified _mappers_. All customizable, i.e., you can provide your own data sources, build custom Oracle-like middlewares, mixers, and seralizarion logic.
 
-DotSight is under active development. Follow these steps to make use of it at the current stage:
+
+DotSight is under active development. Follow these steps to make use of it at the current stage.
 
 
 ### Pipeline Creation
-As of now, all pipelines' configurations are exported from the [configuration file](./src/pipelines/services/pipeline/config/pipeline.config.ts) in the source code. This configuration file should always explore all enabled pipelines.
-You can use predefined samples, modify them, or create your own pipelines.
+Update the [pipeline.config.ts](./src/pipelines/services/pipeline/config/pipeline.config.ts) to fit your needs. Several pre-defined pipelines have already been added for your reference. You are welcome to mimic their definitions in ```src/pipelines/services/pipeline/config``` and import any configurations into [pipeline.config.ts](./src/pipelines/services/pipeline/config/pipeline.config.ts).
 
-Every pipeline configuration should specify:
-- pipeline identifier,
-- all data sources for all the entities,
-- all mixers' configurations,
-- all middlewares for all the entities,
-- all the mappers that provide pipeline's results.
-
-You can examine sample pipelines provided in the source code.
+The pipeline definition includes:
+- an identifier
+- data sources
+- mixers
+- middlewares
+- mappers
 
 ### Sample Pipeline: SubSquid Sourced
-This repository contains [an example](./src/pipelines/services/pipeline/config/polkadot.pipeline.config.ts) of a pipeline that gets the data from [GiantSquid](https://docs.subsquid.io/giant-squid-api/), powered by [SubSquid](https://subsquid.io).
+See [polkadot.pipeline.config.ts](./src/pipelines/services/pipeline/config/polkadot.pipeline.config.ts) for an example of $DOT wallet data sourced via [GiantSquid](https://docs.subsquid.io/giant-squid-api/), powered by [SubSquid](https://subsquid.io).
 
 ```GET /pipelines/polkadot-coin/execute?mapperIds[]=dot-value-distribution&walletIds[]=16ZL8yLyXv3V3L3z9ofR1ovFLziyXaN1DPq4yffMAZ9czzBD&walletIds[]=12xtAYsRUrmbniiWQqJtECiBQrMn8AypQcXhnQAc6RB6XkLW&currencies[]=eth&currencies[]=usd```
 ```json
@@ -76,10 +74,9 @@ This repository contains [an example](./src/pipelines/services/pipeline/config/p
 ```
 
 ### Sample Pipeline: DeBank Sourced
-This repository also contains [an example](./src/pipelines/services/pipeline/config/debank.pipeline.config.ts) of a pipeline that gets the data from [Debank](https://debank.com).
+See [debank.pipeline.config.ts](./src/pipelines/services/pipeline/config/debank.pipeline.config.ts) for an example of a DeBank-sourced pipeline.
 
-As Debank [api](https://cloud.debank.com) requires an API key, you should specify one before executing the pipeline.
-To do that, set DEBANK_API_KEY environment variable before launching DotSight:
+For rate-limited data sources, provide the API key via an environment variable, e.g.,
 ```DEBANK_API_KEY=secret npm start```
 
 ```GET /pipelines/debank-tokens/execute?mapperIds[]=distribution&walletIds[]=0x293ed38530005620e4b28600f196a97e1125daac&walletIds[]=0x95abda53bc5e9fbbdce34603614018d32ced219e```
@@ -115,7 +112,7 @@ DotSight provides various configuration options to tailor the data flow accordin
 ### Entities
 All supported entities are organized in [./entities](./src/entities). Contributors can effortlessly extend the ```Entity``` type to create new entities. Each entity comprises the following components:
 - ```id```: A unique identifier employed in mixers to effectively handle entities originating from diverse data sources.
-- ```meta```: A set of fields elaborating on the characteristics of the entity, such as the dapp's ```name``` for the [Protocol entity](./src/entities/protocol.entity.ts)).
+- ```meta```: A set of fields elaborating on the characteristics of the entity, such as the dApp's ```name``` for the [Protocol entity](./src/entities/protocol.entity.ts)).
 - ```metrics```:  A key-value structure representing the metrics collected by data sources for a given entity. Examples include a ```netWorth``` for [Wallet entity](./src/entities/wallet.entity.ts).
 - ```HistoricalMetrics```: Similar to metrics, this component captures multiple metric values over time, each associated with a corresponding timestamp.
 
