@@ -26,16 +26,17 @@ To begin utilizing DotSight, follow these simple steps:
 2. Clone the DotSight repository from GitHub.
 3. Navigate to the cloned repository and ```npm ci``` to install the necessary dependencies.
 4. Initiate the DotSight application by executing ```npm start```.
+5. [Query](#usage-examples) any default pipeline or build your own.
 
 ## Usage Examples
-DotSight enables you to create _data pipelines_ transporting _entities_ from a specified _data source_, enriched with specified _middlewares_, and serialized via specified _mappers_. All customizable, i.e., you can provide your own data sources, build custom Oracle-like middlewares, mixers, and seralizarion logic.
+DotSight enables you to create _data pipelines_ transporting _entities_ from a specified _data source_, enriched with specified _middlewares_, and serialized via specified _mappers_. All are customizable, i.e., you can provide your own data sources and build custom Oracle-like middlewares, mixers, and serialization logic.
 
 
 DotSight is under active development. Follow these steps to make use of it at the current stage.
 
 
-### Pipeline Creation
-Update the [pipeline.config.ts](./src/pipelines/services/pipeline/config/pipeline.config.ts) to fit your needs. Several pre-defined pipelines have already been added for your reference. You are welcome to mimic their definitions in ```src/pipelines/services/pipeline/config``` and import any configurations into [pipeline.config.ts](./src/pipelines/services/pipeline/config/pipeline.config.ts).
+### Deploying New Pipeline
+Update the [pipeline.config.ts](./src/pipelines/services/pipeline/config/pipeline.config.ts) to fit your needs and restart the app. Several pre-defined pipelines have already been added for your reference. You are welcome to mimic their definitions in ```src/pipelines/services/pipeline/config``` and import any configurations into [pipeline.config.ts](./src/pipelines/services/pipeline/config/pipeline.config.ts).
 
 The pipeline definition includes:
 - an identifier
@@ -44,10 +45,37 @@ The pipeline definition includes:
 - middlewares
 - mappers
 
-### Sample Pipeline: SubSquid Sourced
-See [polkadot.pipeline.config.ts](./src/pipelines/services/pipeline/config/polkadot.pipeline.config.ts) for an example of $DOT wallet data sourced via [GiantSquid](https://docs.subsquid.io/giant-squid-api/), powered by [SubSquid](https://subsquid.io).
+### Querying Subsquid Sources
+Let's take a look at a pre-defined example in [polkadot.pipeline.config.ts](./src/pipelines/services/pipeline/config/polkadot.pipeline.config.ts) for querying $DOT volumes in a specified wallet via [GiantSquid](https://docs.subsquid.io/giant-squid-api/) data sources, powered by [SubSquid](https://subsquid.io).
 
-```GET /pipelines/polkadot-coin/execute?mapperIds[]=dot-value-distribution&walletIds[]=16ZL8yLyXv3V3L3z9ofR1ovFLziyXaN1DPq4yffMAZ9czzBD&walletIds[]=12xtAYsRUrmbniiWQqJtECiBQrMn8AypQcXhnQAc6RB6XkLW&currencies[]=eth&currencies[]=usd```
+To query an active pipeline, send a `GET` request to the corresponding endpoint and specify the wallets you'd like to aggregate as `walletIds`. Customize the query with your host name and a port number your app is  bound to:
+
+```bash
+curl "/pipelines/polkadot-coin/execute?mapperIds[]=dot-value-distribution&walletIds[]=12xtAYsRUrmbniiWQqJtECiBQrMn8AypQcXhnQAc6RB6XkLW"
+```
+
+```json
+{
+  "dot-value-distribution": {
+    "items": [
+      {
+        "id": "12xtAYsRUrmbniiWQqJtECiBQrMn8AypQcXhnQAc6RB6XkLW-DOT",
+        "name": "12xtAYsRUrmbniiWQqJtECiBQrMn8AypQcXhnQAc6RB6XkLW",
+        "value": {
+          "usd": 164054859.8981744
+        }
+      }
+    ]
+  }
+}
+```
+
+You can also customize the mapper in use, e.g., `dot-value-distribution`, currencies, and add multiple wallets to query:
+
+```bash
+curl "/pipelines/polkadot-coin/execute?mapperIds[]=dot-value-distribution&walletIds[]=16ZL8yLyXv3V3L3z9ofR1ovFLziyXaN1DPq4yffMAZ9czzBD&walletIds[]=12xtAYsRUrmbniiWQqJtECiBQrMn8AypQcXhnQAc6RB6XkLW&currencies[]=eth&currencies[]=usd"
+```
+
 ```json
 {
   "dot-value-distribution": {
@@ -73,13 +101,21 @@ See [polkadot.pipeline.config.ts](./src/pipelines/services/pipeline/config/polka
 }
 ```
 
-### Sample Pipeline: DeBank Sourced
-See [debank.pipeline.config.ts](./src/pipelines/services/pipeline/config/debank.pipeline.config.ts) for an example of a DeBank-sourced pipeline.
 
-For rate-limited data sources, provide the API key via an environment variable, e.g.,
-```DEBANK_API_KEY=secret npm start```
+### Querying Rate-Limited Providers
+Let's take a look at a pre-defined DeBank-sourced pipeline in [debank.pipeline.config.ts](./src/pipelines/services/pipeline/config/debank.pipeline.config.ts)  as an illustrative example.
 
-```GET /pipelines/debank-tokens/execute?mapperIds[]=distribution&walletIds[]=0x293ed38530005620e4b28600f196a97e1125daac&walletIds[]=0x95abda53bc5e9fbbdce34603614018d32ced219e```
+For rate-limited data sources, provide the API key as an environment variable when you launch the app, e.g.,
+
+```bash
+DEBANK_API_KEY=key npm start # replace with your credentials from https://cloud.debank.com/
+```
+
+To query the wallet-level metrics:
+```bash
+curl "/pipelines/debank-tokens/execute?mapperIds[]=distribution&walletIds[]=0x293ed38530005620e4b28600f196a97e1125daac&walletIds[]=0x95abda53bc5e9fbbdce34603614018d32ced219e"
+```
+
 ```json
 {
   "distribution": {
