@@ -4,4 +4,8 @@ import { AbstractProtocolDataSource } from '../data-sources/abstract.protocol.da
 export abstract class AbstractProtocolMiddleware<
   C,
   P,
-> extends AbstractMiddleware<C, P, AbstractProtocolDataSource<any, any>> {}
+> extends AbstractMiddleware<C, P, AbstractProtocolDataSource<any, any>> {
+  public static getEntity(): string {
+    return 'protocol';
+  }
+}

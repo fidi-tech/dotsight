@@ -1,5 +1,7 @@
 import { AbstractDataSource } from '../data-sources/abstract.data-source';
 
+class MiddlewareEntityNotSpecifiedError extends Error {}
+
 export abstract class AbstractMiddleware<
   C,
   P,
@@ -11,4 +13,8 @@ export abstract class AbstractMiddleware<
     chunk: Awaited<ReturnType<DS['getItems']>>,
     params: P,
   ): ReturnType<DS['getItems']>;
+
+  public static getEntity(): string {
+    throw new MiddlewareEntityNotSpecifiedError();
+  }
 }

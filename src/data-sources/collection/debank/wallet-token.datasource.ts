@@ -40,14 +40,33 @@ export class DebankWalletTokenDatasource extends AbstractWalletTokenDataSource<
 > {
   private httpClient: AxiosInstance;
 
+  public static getConfigSchema(): object {
+    return {
+      title: 'Config',
+      description: 'DebankWalletTokenDatasource configuration',
+      type: 'object',
+      properties: {
+        key: {
+          description:
+            'API key for the DeBank Cloud API. Please visit https://docs.cloud.debank.com for more info',
+          type: 'string',
+          minLength: 1,
+        },
+      },
+      required: ['key'],
+    };
+  }
+
   constructor(props) {
     super(props);
+
     this.httpClient = axios.create({
       baseURL: 'https://pro-openapi.debank.com/v1',
       headers: new AxiosHeaders({
         AccessKey: this.config.key,
       }),
     });
+
     addLogging('DebankWalletTokenDatasource', this.httpClient);
   }
 

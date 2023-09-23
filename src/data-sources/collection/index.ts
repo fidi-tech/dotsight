@@ -11,3 +11,9 @@ export const collection = {
   'debank-protocol-tokens': DebankWalletTokenProtocolDatasource,
   'giant-squid-stats-wallet-token': GiantSquidStatsWalletTokenDataSource,
 } as const;
+
+// checking if required static methods are implemented
+for (const datasource of Object.values(collection)) {
+  datasource.getEntity();
+  datasource.getConfigSchema();
+}

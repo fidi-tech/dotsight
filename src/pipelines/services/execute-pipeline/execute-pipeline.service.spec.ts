@@ -10,6 +10,10 @@ import { AbstractMapper } from '../../../mappers/abstract.mapper';
 import { AbstractDataSource } from '../../../data-sources/abstract.data-source';
 import { AbstractMixer } from '../../../mixers/abstract.mixer';
 import { MiddlewareService } from '../../../middlewares/services/middleware/middleware.service';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { TestDbModule } from '../../../common/spec/db';
+import { Mapper } from '../../../mappers/entities/mapper.entity';
+import { DataSource } from '../../../data-sources/entities/data-source.entity';
 
 describe('ExecutePipelineService', () => {
   let service: ExecutePipelineService;
@@ -20,6 +24,10 @@ describe('ExecutePipelineService', () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
+      imports: [
+        TestDbModule,
+        TypeOrmModule.forFeature([Pipeline, Mapper, DataSource]),
+      ],
       providers: [
         ExecutePipelineService,
         PipelineService,
@@ -141,25 +149,18 @@ describe('ExecutePipelineService', () => {
     const params = { hello: 'there' };
 
     jest.spyOn(pipelineService, 'findById').mockResolvedValue({
-      dataSources: {
-        e1: [
-          { type: 'e1d1', config: { 11: 11 } },
-          { type: 'e1d2', config: { 12: 12 } },
-        ],
-        e2: [{ type: 'e2d1', config: { 21: 21 } }],
-        e3: [{ type: 'e3d1', config: { 31: 31 } }],
-        e4: [{ type: 'e4d1', config: { 41: 41 } }],
-      },
+      dataSources: [
+        { type: 'e1d1', config: { 11: 11 } },
+        { type: 'e1d2', config: { 12: 12 } },
+        { type: 'e2d1', config: { 21: 21 } },
+        { type: 'e3d1', config: { 31: 31 } },
+        { type: 'e4d1', config: { 41: 41 } },
+      ],
       mappers: {
         '1': { type: 't1', config: {} },
         '2': { type: 't2', config: {} },
       },
-      middlewares: {
-        e1: [],
-        e2: [],
-        e3: [],
-        e4: [],
-      },
+      middlewares: [],
       mixers: {
         e1: { e1: 'params' },
         e2: { e2: 'params' },
@@ -181,6 +182,23 @@ describe('ExecutePipelineService', () => {
       }
     });
     const getItems = jest.fn(() => ({ items: [42], meta: { some: 'meta' } }));
+    jest
+      .spyOn(datasourceService, 'getEntityByType')
+      .mockImplementation((type) => {
+        switch (type) {
+          case 'e1d1':
+          case 'e1d2':
+            return 'e1';
+          case 'e2d1':
+            return 'e2';
+          case 'e3d1':
+            return 'e3';
+          case 'e4d1':
+            return 'e4';
+          default:
+            throw Error('wrong mocks');
+        }
+      });
     jest
       .spyOn(datasourceService, 'instantiate')
       .mockImplementation(
