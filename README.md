@@ -165,7 +165,7 @@ In certain scenarios, not all required data can be obtained from a single data s
 
 Each entity within a pipeline progresses through a series of middlewares specified in the pipeline configuration. Middlewares have the power to augment or replace ```metrics``` and ```meta``` fields of the entity.
 
-A good example of middleware is the [Coingecko](./src/middlewares/collection/coingecko/wallet-token-price.middleware.ts), which allows to enrich [WalletToken](./src/entities/wallet-token.entity.ts) with tokens' prices if none were available in the data source.
+A good example of middleware is a [Coingecko](./src/middlewares/collection/coingecko/wallet-token-price.middleware.ts) data source, which allows to enrich [WalletToken](./src/entities/wallet-token.entity.ts) with tokens' prices if none were available in the data source.
 
 
 ### Mappers
