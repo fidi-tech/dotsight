@@ -157,11 +157,10 @@ The data source can be any data stream able to provide a complete set of specifi
 
 In cases where a GraphQL service can deliver multiple entities, it is recommended to create distinct DotSight data sources, each dedicated to a specific entity. 
 
-DotSight's data sources are versatile and capable of abstracting over a wide range of data retrieval methods, including HTTP or GraphQL services. For instance, try leveraging [DappRadar](./src/data-sources/collection/dapp-radar)'s endpoint to see the protocol data at the dApp level in action.
+DotSight's data sources are versatile and capable of abstracting over a wide range of data retrieval methods, including HTTP or GraphQL services. For instance, try leveraging [DappRadar](./src/data-sources/collection/dapp-radar)'s endpoint to see the protocol data at the dApp level data in action.
 
 
 ### Middlewares
-Middlewares
 In certain scenarios, not all required data can be obtained from a single data source. Consider a blockchain indexer as a data source without any pricing information. Analogous to oracles, middlewares allow augmenting the sourced data with additional off-chain sources.
 
 Each entity within a pipeline progresses through a series of middlewares specified in the pipeline configuration. Middlewares have the power to augment or replace ```metrics``` and ```meta``` fields of the entity.
