@@ -15,4 +15,8 @@ export type WalletTokenMeta = Meta & {
 export abstract class AbstractWalletTokenDataSource<
   C,
   P,
-> extends AbstractDataSource<C, P, WalletToken, WalletTokenMeta> {}
+> extends AbstractDataSource<C, P, WalletToken, WalletTokenMeta> {
+  public static getEntity(): string {
+    return 'walletToken';
+  }
+}

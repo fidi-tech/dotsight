@@ -8,7 +8,6 @@ describe('GiantSquidStatsWalletTokenDataSource', () => {
 
   beforeEach(() => {
     jest.spyOn(gql, 'gql').mockImplementation((strings) => {
-      console.log(strings);
       return strings[0];
     });
     request = jest.fn();
@@ -20,7 +19,7 @@ describe('GiantSquidStatsWalletTokenDataSource', () => {
     );
 
     dataSource = new GiantSquidStatsWalletTokenDataSource({
-      endpoint: 'ep',
+      endpoint: 'https://localhost:3000/',
       coin: {
         id: 'cid',
         name: 'cname',
@@ -30,8 +29,57 @@ describe('GiantSquidStatsWalletTokenDataSource', () => {
     });
   });
 
+  it('should throw if the config is wrong', () => {
+    expect(() => new GiantSquidStatsWalletTokenDataSource({} as any)).toThrow();
+    expect(
+      () => new GiantSquidStatsWalletTokenDataSource({ endpoint: '12' } as any),
+    ).toThrow();
+    expect(
+      () =>
+        new GiantSquidStatsWalletTokenDataSource({
+          endpoint: 'https://localhost/',
+          coin: [],
+        } as any),
+    ).toThrow();
+    expect(
+      () =>
+        new GiantSquidStatsWalletTokenDataSource({
+          endpoint: 'https://localhost/',
+          coin: {},
+        } as any),
+    ).toThrow();
+    expect(
+      () =>
+        new GiantSquidStatsWalletTokenDataSource({
+          endpoint: 'https://localhost/',
+          coin: { id: 42 },
+        } as any),
+    ).toThrow();
+    expect(
+      () =>
+        new GiantSquidStatsWalletTokenDataSource({
+          endpoint: 'https://localhost/',
+          coin: { id: '42', name: 13 },
+        } as any),
+    ).toThrow();
+    expect(
+      () =>
+        new GiantSquidStatsWalletTokenDataSource({
+          endpoint: 'https://localhost/',
+          coin: { id: '42', name: '13', decimals: '8', symbol: 'S' },
+        } as any),
+    ).toThrow();
+    expect(
+      () =>
+        new GiantSquidStatsWalletTokenDataSource({
+          endpoint: '12',
+          coin: { id: '42', name: '13', symbol: 'S' },
+        } as any),
+    ).toThrow();
+  });
+
   it('should create gql client with correct params', () => {
-    expect(GraphQLClient).toHaveBeenCalledWith('ep');
+    expect(GraphQLClient).toHaveBeenCalledWith('https://localhost:3000/');
   });
 
   it('should call api with correct query', async () => {

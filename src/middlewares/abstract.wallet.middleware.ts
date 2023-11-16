@@ -5,4 +5,8 @@ export abstract class AbstractWalletMiddleware<C, P> extends AbstractMiddleware<
   C,
   P,
   AbstractWalletDataSource<any, any>
-> {}
+> {
+  public static getEntity(): string {
+    return 'wallet';
+  }
+}

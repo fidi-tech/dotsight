@@ -22,122 +22,27 @@ DotSight operates under the [Apache License](./NOTICE).
 
 ## Quick Start
 To begin utilizing DotSight, follow these simple steps:
-1. Ensure that you have ```Node``` v16 or above and ```npm``` v7 or above on your machine.
+1. Ensure that you have:
+    - ```node``` v16 or above,
+    - ```npm``` v7 or above,
+    - ```docker``` v20 or above on your machine.
 2. Clone the DotSight repository from GitHub.
 3. Navigate to the cloned repository and ```npm ci``` to install the necessary dependencies.
-4. Initiate the DotSight application by executing ```npm start```.
-5. [Query](#usage-examples) any default pipeline or build your own.
+4. Specify application secrets:
+   - create ```.env``` file in the project root,
+   - add a new line in ```.env``` file, specifying database name, e.g. ```DB_NAME=dotsight```,
+   - add a new line in ```.env``` file, specifying database name, e.g. ```DB_USERNAME=dotsight```,
+   - add a new line in ```.env``` file, specifying database name, e.g. ```DB_PASSWORD=d0tS1gHtRul3z```.
+5. Start the environment by running ```docker compose up -d```.
+    - If you encounter ```Bind for 0.0.0.0:5433 failed: port is already allocated``` error, make sure that there are no apps that use 5433 port.
+    - If you encounter some other error, you should cleanup via ```docker compose rm -f``` and start again.
+6. Populate the database by running all migrations via ```npm run typeorm:run-migrations```.
+7. Initiate the DotSight application by executing ```npm start```. 
 
 ## Usage Examples
 DotSight enables you to create _data pipelines_ transporting _entities_ from a specified _data source_, enriched with specified _middlewares_, and serialized via specified _mappers_. All are customizable, i.e., you can provide your own data sources and build custom Oracle-like middlewares, mixers, and serialization logic.
 
-
-DotSight is under active development. Follow these steps to make use of it at the current stage.
-
-
-### Deploying New Pipeline
-Update the [pipeline.config.ts](./src/pipelines/services/pipeline/config/pipeline.config.ts) to fit your needs and restart the app. Several pre-defined pipelines have already been added for your reference. You are welcome to mimic their definitions in ```src/pipelines/services/pipeline/config``` and import any configurations into [pipeline.config.ts](./src/pipelines/services/pipeline/config/pipeline.config.ts).
-
-The pipeline definition includes:
-- an identifier
-- data sources
-- mixers
-- middlewares
-- mappers
-
-### Querying Subsquid Sources
-Let's take a look at a pre-defined example in [polkadot.pipeline.config.ts](./src/pipelines/services/pipeline/config/polkadot.pipeline.config.ts) for querying $DOT volumes in a specified wallet via [GiantSquid](https://docs.subsquid.io/giant-squid-api/) data sources, powered by [SubSquid](https://subsquid.io).
-
-To query an active pipeline, send a `GET` request to the corresponding endpoint and specify the wallets you'd like to aggregate as `walletIds`. Customize the query with your host name and a port number your app is  bound to:
-
-```bash
-curl "/pipelines/polkadot-coin/execute?mapperIds[]=dot-value-distribution&walletIds[]=12xtAYsRUrmbniiWQqJtECiBQrMn8AypQcXhnQAc6RB6XkLW"
-```
-
-```json
-{
-  "dot-value-distribution": {
-    "items": [
-      {
-        "id": "12xtAYsRUrmbniiWQqJtECiBQrMn8AypQcXhnQAc6RB6XkLW-DOT",
-        "name": "12xtAYsRUrmbniiWQqJtECiBQrMn8AypQcXhnQAc6RB6XkLW",
-        "value": {
-          "usd": 164054859.8981744
-        }
-      }
-    ]
-  }
-}
-```
-
-You can also customize the mapper in use, e.g., `dot-value-distribution`, currencies, and add multiple wallets to query:
-
-```bash
-curl "/pipelines/polkadot-coin/execute?mapperIds[]=dot-value-distribution&walletIds[]=16ZL8yLyXv3V3L3z9ofR1ovFLziyXaN1DPq4yffMAZ9czzBD&walletIds[]=12xtAYsRUrmbniiWQqJtECiBQrMn8AypQcXhnQAc6RB6XkLW&currencies[]=eth&currencies[]=usd"
-```
-
-```json
-{
-  "dot-value-distribution": {
-    "items": [
-      {
-        "id": "12xtAYsRUrmbniiWQqJtECiBQrMn8AypQcXhnQAc6RB6XkLW-polkadot",
-        "name": "12xtAYsRUrmbniiWQqJtECiBQrMn8AypQcXhnQAc6RB6XkLW",
-        "value": {
-          "eth": 99873.54572933383,
-          "usd": 162016119.98081636
-        }
-      },
-      {
-        "id": "16ZL8yLyXv3V3L3z9ofR1ovFLziyXaN1DPq4yffMAZ9czzBD-polkadot",
-        "name": "16ZL8yLyXv3V3L3z9ofR1ovFLziyXaN1DPq4yffMAZ9czzBD",
-        "value": {
-          "eth": 151213.95403760733,
-          "usd": 245301175.01310474
-        }
-      }
-    ]
-  }
-}
-```
-
-
-### Querying Rate-Limited Providers
-Let's take a look at a pre-defined DeBank-sourced pipeline in [debank.pipeline.config.ts](./src/pipelines/services/pipeline/config/debank.pipeline.config.ts)  as an illustrative example.
-
-For rate-limited data sources, provide the API key as an environment variable when you launch the app, e.g.,
-
-```bash
-DEBANK_API_KEY=key npm start # replace with your credentials from https://cloud.debank.com/
-```
-
-To query the wallet-level metrics:
-```bash
-curl "/pipelines/debank-tokens/execute?mapperIds[]=distribution&walletIds[]=0x293ed38530005620e4b28600f196a97e1125daac&walletIds[]=0x95abda53bc5e9fbbdce34603614018d32ced219e"
-```
-
-```json
-{
-  "distribution": {
-    "items": [
-      {
-        "id": "0x293ed38530005620e4b28600f196a97e1125daac-0x4200000000000000000000000000000000000042",
-        "name": "OP",
-        "value": {
-          "usd": 860.9083526541565
-        }
-      },
-      {
-        "id": "0x293ed38530005620e4b28600f196a97e1125daac-0x0000000000000000000000000000000000001010",
-        "name": "MATIC",
-        "value": {
-          "usd": 28.728887952845874
-        }
-      }
-    ]
-  }
-}
-```
+Use [DotSight UI](https://github.com/fidi-tech/dotsight-ui) to define data pipelines and query them.
 
 ## Customization
 DotSight provides various configuration options to tailor the data flow according to your specific needs. You can customize:
@@ -150,7 +55,7 @@ All supported entities are organized in [./entities](./src/entities). Contributo
 - ```id```: A unique identifier employed in mixers to effectively handle entities originating from diverse data sources.
 - ```meta```: A set of fields elaborating on the characteristics of the entity, such as the dApp's ```name``` for the [Protocol entity](./src/entities/protocol.entity.ts)).
 - ```metrics```:  A key-value structure representing the metrics collected by data sources for a given entity. Examples include a ```netWorth``` for [Wallet entity](./src/entities/wallet.entity.ts).
-- ```HistoricalMetrics```: Similar to metrics, this component captures multiple metric values over time, each associated with a corresponding timestamp.
+- ```historicalMetrics```: Similar to metrics, this component captures multiple metric values over time, each associated with a corresponding timestamp.
 
 ### Data Sources
 The data source can be any data stream able to provide a complete set of specific ```entity``` data within a given context. Every data source within DotSight inherits the capabilities of the [AbstractDataSource](./src/data-sources/abstract.data-source.ts) class. To accommodate the diversity of entities, DotSight offers abstract classes tailored to each entity type, e.g., [AbstractProtocolDataSource](./src/data-sources/abstract.protocol.data-source.ts)).
@@ -186,7 +91,7 @@ For detailed documentation of the API, including available parameters and functi
 DotSight is under active development.
 
 - Aug 2023 The data sources, middlewares, and mappers logic are all functional. Arbitrary data sources are supported and a collection of default sources is available.
-- Sep 2023 DotSight UI Widgets (existing pipelines visualization)
+- Nov 2023 DotSight UI Widgets (existing pipelines visualization)
 - Q4 2023 DotSight customizable no-code UI 
 - Q4 2023 Dockerized Deployment
 - Q4 2023 First developer bounties
@@ -194,14 +99,22 @@ DotSight is under active development.
 - Q1 2024 Extensive library of data sources and UI widgets
 
 ## Contributing
-We welcome contributions from the developer community to fork, enhance, and improve DotSight. To contribute, please follow these guidelines:
+We welcome contributions from the developer community to fork, enhance, and improve DotSight. To contribute, please follow these steps:
 1. Fork the DotSight repository and create a new branch for your contribution.
 2. Make the necessary changes and submit a pull request.
 3. Ensure that all continuous integration (CI) checks pass successfully.
 4. Ensure that your contribution has sufficient test coverage.
 5. Submit your PR and participate in the discussion with the project maintainers.
-For more details on the development environment setup and the contribution process, please refer to the Contribution Guidelines.
 
+### Guidelines
+This section contains various agreements that make DotSight's codebase performant & readable.
+#### DotSight core
+##### Database interactions
+1. If you are creating a method that queries the database, it can either throw an error when nothing is found, or return null. To make things more predictable, you should name your method ```find*``` if it throws, and ```query*``` if it returns null.
+#### DotSight's Data Sources
+1. Data source's constructor should always validate it's config and throw ```AbstractDataSource.DataSourceWrongConfig``` if validation failed.
+#### DotSight's Mappers
+1. Mapper's constructor should always validate it's config and throw ```AbstractMapper.MapperWrongConfig``` if validation failed.
 
 ## Testing and Quality Assurance
 Please make sure your PRs come with sufficient unit test coverage:

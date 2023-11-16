@@ -1,6 +1,10 @@
 import { Entity } from '../../../entities/entity';
-import { DistributionDatashape } from '../../../datashapes/distribution.datashape';
+import {
+  DistributionDatashape,
+  TYPE,
+} from '../../../datashapes/distribution.datashape';
 import { AbstractMapper } from '../../abstract.mapper';
+import { ENTITIES } from '../../../entities/const';
 
 type Params = Record<string, never>;
 
@@ -16,23 +20,37 @@ export class DistributionMapper extends AbstractMapper<
   any,
   DistributionDatashape
 > {
-  constructor(config: Config) {
-    super(config);
-    if (!config.nameField) {
-      throw new Error('DistributionMapper: config.nameField was not specified');
-    }
-    if (!config.valueField) {
-      throw new Error(
-        'DistributionMapper: config.valueField was not specified',
-      );
-    }
-    if (!config.entity) {
-      throw new Error('DistributionMapper: config.entity was not specified');
-    }
-  }
-
   static getType(): string {
     return 'distribution';
+  }
+
+  public static getConfigSchema(): object {
+    return {
+      title: 'Config',
+      description: 'DistributionMapper configuration',
+      type: 'object',
+      properties: {
+        nameField: {
+          description: "Entity's meta field, e.g. symbol for walletToken",
+          type: 'string',
+          minLength: 1,
+        },
+        valueField: {
+          description: "Entity's value field, e.g. value for walletToken",
+          type: 'string',
+          minLength: 1,
+        },
+        entity: {
+          description: 'Entity to be processed, e.g. walletToken',
+          enum: ENTITIES,
+        },
+      },
+      required: ['nameField', 'valueField', 'entity'],
+    };
+  }
+
+  static getDatashape(): string {
+    return TYPE;
   }
 
   map(

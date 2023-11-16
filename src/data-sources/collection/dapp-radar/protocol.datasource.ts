@@ -5,6 +5,7 @@ import { USD } from '../../../common/currecies';
 import { AbstractProtocolDataSource } from '../../abstract.protocol.data-source';
 import { Meta } from '../../abstract.data-source';
 import { addLogging } from '../../../common/http';
+import { URL_REGEXP } from '../../../common/regexp';
 
 type Config = {
   key: string;
@@ -30,14 +31,39 @@ export class DappRadarProtocolDatasource extends AbstractProtocolDataSource<
 > {
   private httpClient: AxiosInstance;
 
+  public static getConfigSchema(): object {
+    return {
+      title: 'Config',
+      description: 'DappRadarProtocolDatasource configuration',
+      type: 'object',
+      properties: {
+        key: {
+          description:
+            'API key for the DappRadar API. Please visit https://api-docs.dappradar.com for more info',
+          type: 'string',
+          minLength: 1,
+        },
+        endpoint: {
+          description:
+            'API endpoint for the DappRadar API. Please visit https://api-docs.dappradar.com for more info',
+          type: 'string',
+          pattern: URL_REGEXP,
+        },
+      },
+      required: ['key', 'endpoint'],
+    };
+  }
+
   constructor(config: Config) {
     super(config);
+
     this.httpClient = axios.create({
       baseURL: this.config.endpoint,
       headers: new AxiosHeaders({
         'X-BLOBR-KEY': this.config.key,
       }),
     });
+
     addLogging('DappRadarProtocolDatasource', this.httpClient);
   }
 

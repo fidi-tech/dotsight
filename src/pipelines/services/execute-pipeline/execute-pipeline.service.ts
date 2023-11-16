@@ -5,7 +5,7 @@ import {
 } from '@nestjs/common';
 import { PipelineService } from '../pipeline/pipeline.service';
 import { Pipeline, PipelineId } from '../../entities/pipeline.entity';
-import { MapperId } from '../../../mappers/entities/mapper.entity';
+import { MapperCode } from '../../../mappers/entities/mapper.entity';
 import { MapperService } from '../../../mappers/services/mapper/mapper.service';
 import { DataSourceService } from '../../../data-sources/services/data-source/data-source.service';
 import { MixerService } from '../../../mixers/services/mixer/mixer.service';
@@ -23,19 +23,19 @@ export class ExecutePipelineService {
 
   async executePipeline(
     pipelineId: PipelineId,
-    mapperIds: MapperId[],
+    mapperCodes: MapperCode[],
     params: Record<string, any>,
   ) {
-    if (mapperIds.length === 0) {
+    if (mapperCodes.length === 0) {
       throw new BadRequestException(`No mapperIds specified`);
     }
 
     const pipeline = await this.pipelineService.findById(pipelineId);
-    const mappers = mapperIds
-      .map((id) => {
-        const mapper = pipeline.mappers[id];
+    const mappers = mapperCodes
+      .map((code) => {
+        const mapper = pipeline.mappers[code];
         if (!mapper) {
-          throw new NotFoundException(`Mapper #${id} ot found`);
+          throw new NotFoundException(`Mapper "${code}" not found`);
         }
         return mapper;
       })
@@ -65,7 +65,7 @@ export class ExecutePipelineService {
 
     const result = {};
     for (let i = 0; i < mappers.length; i++) {
-      result[mapperIds[i]] = mappers[i].map(items, params, meta);
+      result[mapperCodes[i]] = mappers[i].map(items, params, meta);
     }
     return result;
   }
@@ -76,11 +76,16 @@ export class ExecutePipelineService {
     params: Record<string, any>,
   ) {
     const chunks = await Promise.all(
-      pipeline.dataSources[entity].map((dataSource) =>
-        this.dataSourceService
-          .instantiate(dataSource.type, dataSource.config)
-          .getItems(params),
-      ),
+      pipeline.dataSources
+        .filter(
+          (dataSource) =>
+            this.dataSourceService.getEntityByType(dataSource.type) === entity,
+        )
+        .map((dataSource) =>
+          this.dataSourceService
+            .instantiate(dataSource.type, dataSource.config)
+            .getItems(params),
+        ),
     );
 
     const mixer = this.mixerService.instantiate(
@@ -90,7 +95,13 @@ export class ExecutePipelineService {
 
     let result = await mixer.mix(...chunks);
 
-    for (const middleware of pipeline.middlewares[entity]) {
+    const middlewares = pipeline.middlewares
+      .filter(
+        (middleware) =>
+          this.middlewareService.getEntityByType(middleware.type) === entity,
+      )
+      .sort(({ order: orderA }, { order: orderB }) => orderB - orderA);
+    for (const middleware of middlewares) {
       const instance = this.middlewareService.instantiate(
         middleware.type,
         middleware.config,

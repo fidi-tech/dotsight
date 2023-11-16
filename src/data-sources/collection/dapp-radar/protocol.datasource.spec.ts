@@ -17,13 +17,26 @@ describe('DappRadarProtocolDatasource', () => {
 
     dataSource = new DappRadarProtocolDatasource({
       key: '66',
-      endpoint: '42',
+      endpoint: 'https://some-valid-url.com',
     });
+  });
+
+  it('should throw if the config is wrong', () => {
+    expect(() => new DappRadarProtocolDatasource({} as any)).toThrow();
+    expect(
+      () => new DappRadarProtocolDatasource({ key: '66' } as any),
+    ).toThrow();
+    expect(
+      () => new DappRadarProtocolDatasource({ key: '66', endpoint: [] } as any),
+    ).toThrow();
+    expect(
+      () => new DappRadarProtocolDatasource({ key: [], endpoint: '42' } as any),
+    ).toThrow();
   });
 
   it('should create axios instance with correct params', () => {
     expect(axiosCreate).toHaveBeenCalledWith({
-      baseURL: '42',
+      baseURL: 'https://some-valid-url.com',
       headers: new AxiosHeaders({
         'X-BLOBR-KEY': '66',
       }),

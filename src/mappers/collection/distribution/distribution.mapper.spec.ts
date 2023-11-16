@@ -15,7 +15,11 @@ describe('DistributionMapper', () => {
 
   it('should be instantiated if config is correct', () => {
     expect(
-      new DistributionMapper({ nameField: '1', valueField: '2', entity: '3' }),
+      new DistributionMapper({
+        nameField: '1',
+        valueField: '2',
+        entity: 'walletToken',
+      }),
     ).toBeInstanceOf(DistributionMapper);
   });
 

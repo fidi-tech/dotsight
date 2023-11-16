@@ -4,6 +4,8 @@ import {
 } from '../../../abstract.wallet-token.data-source';
 import { gql, GraphQLClient } from 'graphql-request';
 import { WalletToken } from '../../../../entities/wallet-token.entity';
+import { BadRequestException } from '@nestjs/common';
+import { URL_REGEXP } from '../../../../common/regexp';
 
 type Config = {
   endpoint: string;
@@ -34,13 +36,61 @@ export class GiantSquidStatsWalletTokenDataSource extends AbstractWalletTokenDat
 
   private client: GraphQLClient;
 
+  public static getConfigSchema(): object {
+    return {
+      title: 'Config',
+      description: 'GiantSquidStatsWalletTokenDataSource configuration',
+      type: 'object',
+      properties: {
+        endpoint: {
+          description:
+            'GraphQL endpoint for the Giant Squid Stats API. Please visit https://docs.subsquid.io/giant-squid-api/gs-stats/ for more info',
+          type: 'string',
+          pattern: URL_REGEXP,
+        },
+        coin: {
+          description: 'Coin specification for the selected network',
+          type: 'object',
+          properties: {
+            id: {
+              type: 'string',
+              description: 'Coin id to be used by engine to deduplicate data',
+              minLength: 1,
+            },
+            name: {
+              type: 'string',
+              minLength: 1,
+            },
+            symbol: {
+              type: 'string',
+              minLength: 1,
+              description: 'Coin symbol to be used, e.g. BTC or ETH',
+            },
+            decimals: {
+              type: 'integer',
+              exclusiveMinimum: 0,
+              description: 'Coin decimals, e.g. 18',
+            },
+          },
+          required: ['id', 'name', 'symbol', 'decimals'],
+        },
+      },
+      required: ['endpoint', 'coin'],
+    };
+  }
+
   constructor(config: Config) {
     super(config);
+
     this.client = new GraphQLClient(config.endpoint);
   }
   async getItems({
     walletIds,
   }: Params): Promise<{ items: WalletToken[]; meta: WalletTokenMeta }> {
+    if (!Array.isArray(walletIds)) {
+      throw new BadRequestException(`walletIds param should be specified`);
+    }
+
     const response: { accounts: Array<{ id: string; free: string }> } =
       await this.client.request(
         GiantSquidStatsWalletTokenDataSource.FREE_COIN_QUERY,

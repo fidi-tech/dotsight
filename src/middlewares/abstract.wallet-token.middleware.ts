@@ -4,4 +4,8 @@ import { AbstractWalletTokenDataSource } from '../data-sources/abstract.wallet-t
 export abstract class AbstractWalletTokenMiddleware<
   C,
   P,
-> extends AbstractMiddleware<C, P, AbstractWalletTokenDataSource<any, any>> {}
+> extends AbstractMiddleware<C, P, AbstractWalletTokenDataSource<any, any>> {
+  public static getEntity(): string {
+    return 'walletToken';
+  }
+}

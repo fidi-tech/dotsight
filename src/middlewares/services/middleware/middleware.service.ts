@@ -17,4 +17,12 @@ export class MiddlewareService {
     }
     return new middleware(config);
   }
+
+  getEntityByType(type: string): string {
+    const middleware = collection[type];
+    if (!middleware) {
+      throw new MiddlewareNotFound(type);
+    }
+    return middleware.getEntity();
+  }
 }

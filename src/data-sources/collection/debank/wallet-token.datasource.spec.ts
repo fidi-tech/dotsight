@@ -21,6 +21,11 @@ describe('DebankWalletTokenDatasource', () => {
     });
   });
 
+  it('should throw if the config is wrong', () => {
+    expect(() => new DebankWalletTokenDatasource({})).toThrow();
+    expect(() => new DebankWalletTokenDatasource({ key: [] })).toThrow();
+  });
+
   it('should create axios instance with correct params', () => {
     expect(axiosCreate).toHaveBeenCalledWith({
       baseURL: 'https://pro-openapi.debank.com/v1',
