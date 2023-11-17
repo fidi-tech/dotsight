@@ -18,6 +18,14 @@ export class SingleMetricMapper extends AbstractMapper<
   any,
   any
 > {
+  static getName(): string {
+    return 'Single value';
+  }
+
+  static getDescription(): string {
+    return `Mapper that converts an array of specified entities to a single value. Array is reduced to this single value by the provided aggregation function`;
+  }
+
   static getType(): string {
     return 'single-metric';
   }
@@ -28,19 +36,19 @@ export class SingleMetricMapper extends AbstractMapper<
       description: 'SingleMetricMapper configuration',
       type: 'object',
       properties: {
-        aggregation: {
-          description:
-            'Select a way to aggregate several entities to a single value',
-          enum: ['any', 'sum', 'avg'],
+        entity: {
+          description: 'Entity to be processed, e.g. walletToken',
+          enum: ENTITIES,
         },
         valueField: {
           description: "Entity's value field, e.g. value for walletToken",
           type: 'string',
           minLength: 1,
         },
-        entity: {
-          description: 'Entity to be processed, e.g. walletToken',
-          enum: ENTITIES,
+        aggregation: {
+          description:
+            'Select a way to aggregate several entities to a single value',
+          enum: ['any', 'sum', 'avg'],
         },
       },
       required: ['aggregation', 'valueField', 'entity'],

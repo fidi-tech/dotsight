@@ -20,6 +20,14 @@ export class DistributionMapper extends AbstractMapper<
   any,
   DistributionDatashape
 > {
+  static getName(): string {
+    return 'Distribution';
+  }
+
+  static getDescription(): string {
+    return `Mapper that converts an array of specified entities to name-value pairs. The number of pairs will always be equal to the number of entities provided by data sources.`;
+  }
+
   static getType(): string {
     return 'distribution';
   }
@@ -30,6 +38,10 @@ export class DistributionMapper extends AbstractMapper<
       description: 'DistributionMapper configuration',
       type: 'object',
       properties: {
+        entity: {
+          description: 'Entity to be processed, e.g. walletToken',
+          enum: ENTITIES,
+        },
         nameField: {
           description: "Entity's meta field, e.g. symbol for walletToken",
           type: 'string',
@@ -39,10 +51,6 @@ export class DistributionMapper extends AbstractMapper<
           description: "Entity's value field, e.g. value for walletToken",
           type: 'string',
           minLength: 1,
-        },
-        entity: {
-          description: 'Entity to be processed, e.g. walletToken',
-          enum: ENTITIES,
         },
       },
       required: ['nameField', 'valueField', 'entity'],

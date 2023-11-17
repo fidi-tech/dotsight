@@ -8,6 +8,8 @@ export const collection = {
 
 // checking if required static methods are implemented
 for (const mapper of Object.values(collection)) {
+  mapper.getName();
+  mapper.getDescription();
   mapper.getType();
   mapper.getConfigSchema();
   mapper.getDatashape();
