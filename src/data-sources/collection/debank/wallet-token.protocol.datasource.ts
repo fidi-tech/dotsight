@@ -85,6 +85,14 @@ export class DebankWalletTokenProtocolDatasource extends AbstractWalletTokenData
 > {
   private httpClient: AxiosInstance;
 
+  public static getName(): string {
+    return `Debank wallet's Dapps`;
+  }
+
+  public static getDescription(): string {
+    return `Data source powered by DeBank Cloud API that returns all of the dapps for the specified wallets. Consult https://docs.cloud.debank.com for more info.`;
+  }
+
   public static getConfigSchema(): object {
     return {
       title: 'Config',
@@ -92,8 +100,7 @@ export class DebankWalletTokenProtocolDatasource extends AbstractWalletTokenData
       type: 'object',
       properties: {
         key: {
-          description:
-            'API key for the DeBank Cloud API. Please visit https://docs.cloud.debank.com for more info',
+          description: 'API key for the DeBank Cloud API',
           type: 'string',
           minLength: 1,
         },

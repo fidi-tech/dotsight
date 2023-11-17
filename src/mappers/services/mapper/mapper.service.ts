@@ -23,7 +23,7 @@ class MapperCodeCollision extends Error {
 
 export class MapperSuggestion {
   @ApiProperty({
-    description: "mapper's type",
+    description: "mapper's name",
   })
   name: string;
 

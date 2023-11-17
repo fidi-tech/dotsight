@@ -34,6 +34,14 @@ export class Erc20Datasource extends AbstractWalletTokenDataSource<
     this.contract = new web3.eth.Contract(abi, config.contractAddress);
   }
 
+  public static getName(): string {
+    return `RPC ERC20`;
+  }
+
+  public static getDescription(): string {
+    return `Data source that emits the amounts of the ERC20 tokens in the wallets provided`;
+  }
+
   public static getConfigSchema(): object {
     return {
       title: 'Config',

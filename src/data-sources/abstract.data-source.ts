@@ -1,6 +1,8 @@
 import { Entity, Unit, UnitId } from '../entities/entity';
 import { validate } from 'jsonschema';
 
+class DataSourceNameNotSpecifiedError extends Error {}
+class DataSourceDescriptionNotSpecifiedError extends Error {}
 class DataSourceEntityNotSpecifiedError extends Error {}
 class DatasourceConfigSchemaNotSpecifiedError extends Error {}
 
@@ -28,6 +30,14 @@ export abstract class AbstractDataSource<
     items: T[];
     meta: M;
   }>;
+
+  public static getName(): string {
+    throw new DataSourceNameNotSpecifiedError();
+  }
+
+  public static getDescription(): string {
+    throw new DataSourceDescriptionNotSpecifiedError();
+  }
 
   public static getEntity(): string {
     throw new DataSourceEntityNotSpecifiedError();
