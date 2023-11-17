@@ -15,6 +15,16 @@ class DataSourceNotFound extends Error {
 
 export class DatasourceSuggestion {
   @ApiProperty({
+    description: "data source's name",
+  })
+  name: string;
+
+  @ApiProperty({
+    description: "data source's description",
+  })
+  description: string;
+
+  @ApiProperty({
     description: "data source's type",
   })
   type: string;
@@ -70,6 +80,8 @@ export class DataSourceService {
     return Object.entries(collection)
       .filter(([, datasource]) => datasource.getEntity() === entity)
       .map(([type, dataSource]) => ({
+        name: dataSource.getName(),
+        description: dataSource.getDescription(),
         type,
         configSchema: dataSource.getConfigSchema(),
       }));

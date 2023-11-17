@@ -16,6 +16,8 @@ export const collection = {
 
 // checking if required static methods are implemented
 for (const datasource of Object.values(collection)) {
+  datasource.getName();
+  datasource.getDescription();
   datasource.getEntity();
   datasource.getConfigSchema();
 }

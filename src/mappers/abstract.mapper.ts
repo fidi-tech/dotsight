@@ -1,6 +1,8 @@
 import { Entity } from '../entities/entity';
 import { validate } from 'jsonschema';
 
+class MapperNameNotSpecifiedError extends Error {}
+class MapperDescriptionNotSpecifiedError extends Error {}
 class MapperTypeNotSpecifiedError extends Error {}
 class MapperConfigSchemaNotSpecifiedError extends Error {}
 class MapperDatashapeNotSpecifiedError extends Error {}
@@ -14,6 +16,14 @@ export abstract class AbstractMapper<C extends object, P, M, D> {
       nestedErrors: true,
       required: true,
     });
+  }
+
+  public static getName(): string {
+    throw new MapperNameNotSpecifiedError();
+  }
+
+  public static getDescription(): string {
+    throw new MapperDescriptionNotSpecifiedError();
   }
 
   public static getType(): string {

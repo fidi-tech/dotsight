@@ -96,4 +96,40 @@ describe('AbstractMapper', () => {
 
     expect(ConcreteMapper.getDatashape()).toEqual('datashape');
   });
+
+  it('should not throw an error if static method getName was not specified', () => {
+    class ConcreteMapper extends AbstractMapper<any, any, any, any> {
+      static getDatashape() {
+        return 'datashape';
+      }
+
+      getRequiredEntities(): string[] {
+        return [];
+      }
+
+      map() {
+        return null;
+      }
+    }
+
+    expect(() => ConcreteMapper.getName()).toThrow();
+  });
+
+  it('should not throw an error if static method getDescriptio was not specified', () => {
+    class ConcreteMapper extends AbstractMapper<any, any, any, any> {
+      static getDatashape() {
+        return 'datashape';
+      }
+
+      getRequiredEntities(): string[] {
+        return [];
+      }
+
+      map() {
+        return null;
+      }
+    }
+
+    expect(() => ConcreteMapper.getDescription()).toThrow();
+  });
 });

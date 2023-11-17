@@ -31,6 +31,14 @@ export class DappRadarProtocolDatasource extends AbstractProtocolDataSource<
 > {
   private httpClient: AxiosInstance;
 
+  public static getName(): string {
+    return `DappRadar`;
+  }
+
+  public static getDescription(): string {
+    return `Data source powered by DappRadar API that returns Dapps' data. Consult https://api-docs.dappradar.com for more info.`;
+  }
+
   public static getConfigSchema(): object {
     return {
       title: 'Config',
@@ -38,14 +46,12 @@ export class DappRadarProtocolDatasource extends AbstractProtocolDataSource<
       type: 'object',
       properties: {
         key: {
-          description:
-            'API key for the DappRadar API. Please visit https://api-docs.dappradar.com for more info',
+          description: 'API key for the DappRadar API',
           type: 'string',
           minLength: 1,
         },
         endpoint: {
-          description:
-            'API endpoint for the DappRadar API. Please visit https://api-docs.dappradar.com for more info',
+          description: 'API endpoint for the DappRadar API',
           type: 'string',
           pattern: URL_REGEXP,
         },

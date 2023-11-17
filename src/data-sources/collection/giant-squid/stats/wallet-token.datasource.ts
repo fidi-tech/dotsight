@@ -36,6 +36,14 @@ export class GiantSquidStatsWalletTokenDataSource extends AbstractWalletTokenDat
 
   private client: GraphQLClient;
 
+  public static getName(): string {
+    return `Giant Squid Stats API`;
+  }
+
+  public static getDescription(): string {
+    return `Data source powered by Giant Squid Stats API that returns the amount of native coin for the selected wallets. Consult https://docs.subsquid.io/giant-squid-api/gs-stats/ for more info.`;
+  }
+
   public static getConfigSchema(): object {
     return {
       title: 'Config',
@@ -43,8 +51,7 @@ export class GiantSquidStatsWalletTokenDataSource extends AbstractWalletTokenDat
       type: 'object',
       properties: {
         endpoint: {
-          description:
-            'GraphQL endpoint for the Giant Squid Stats API. Please visit https://docs.subsquid.io/giant-squid-api/gs-stats/ for more info',
+          description: 'GraphQL endpoint for the Giant Squid Stats API',
           type: 'string',
           pattern: URL_REGEXP,
         },

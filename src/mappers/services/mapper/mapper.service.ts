@@ -23,6 +23,16 @@ class MapperCodeCollision extends Error {
 
 export class MapperSuggestion {
   @ApiProperty({
+    description: "mapper's name",
+  })
+  name: string;
+
+  @ApiProperty({
+    description: "mapper's description",
+  })
+  description: string;
+
+  @ApiProperty({
     description: "mapper's type",
   })
   type: string;
@@ -121,6 +131,8 @@ export class MapperService {
     return Object.entries(collection)
       .filter(([, mapper]) => mapper.getDatashape() === datashape)
       .map(([type, mapper]) => ({
+        name: mapper.getName(),
+        description: mapper.getDescription(),
         type,
         configSchema: mapper.getConfigSchema(),
       }));
