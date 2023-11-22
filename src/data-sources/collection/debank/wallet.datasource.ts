@@ -77,7 +77,9 @@ export class DebankWalletDatasource extends AbstractWalletDataSource<
       items.push({
         id: walletId,
         entity: 'wallet',
-        meta: {},
+        meta: {
+          walletId,
+        },
         metrics: {
           netWorth: {
             [USD.id]: totalUsdValue,
