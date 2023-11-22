@@ -1,6 +1,8 @@
 import { Entity, UnitId } from './entity';
 
-type Meta = Record<string, never>;
+type Meta = {
+  walletId: string;
+};
 
 type Metrics = {
   netWorth: Record<UnitId, number>;

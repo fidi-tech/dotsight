@@ -102,7 +102,9 @@ describe('DebankWalletDatasource', () => {
             ],
           },
           id: 'w1',
-          meta: {},
+          meta: {
+            walletId: 'w1',
+          },
           metrics: {
             netWorth: {
               usd: 1,
@@ -122,7 +124,9 @@ describe('DebankWalletDatasource', () => {
             ],
           },
           id: 'w2',
-          meta: {},
+          meta: {
+            walletId: 'w2',
+          },
           metrics: {
             netWorth: {
               usd: 2,
