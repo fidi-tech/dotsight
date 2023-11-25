@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { collection } from '../../collection';
 import { AbstractDataSource } from '../../abstract.data-source';
-import { PipelineId } from '../../../pipelines/entities/pipeline.entity';
+import { Pipeline } from '../../../pipelines/entities/pipeline.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { DataSource } from '../../entities/data-source.entity';
@@ -65,11 +65,11 @@ export class DataSourceService {
     this.instantiate(type, config);
   }
 
-  async create(pipelineId: PipelineId, type: string, config: object) {
+  async create(pipeline: Pipeline, type: string, config: object) {
     this.checkTypeAndConfig(type, config);
 
     const dataSource = this.dataSourceRepository.create({
-      pipeline: { id: pipelineId },
+      pipeline,
       type,
       config,
     });

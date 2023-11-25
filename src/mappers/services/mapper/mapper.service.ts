@@ -4,7 +4,10 @@ import { collection } from '../../collection';
 import { InjectRepository } from '@nestjs/typeorm';
 import { QueryRunner, Repository } from 'typeorm';
 import { Mapper } from '../../entities/mapper.entity';
-import { PipelineId } from '../../../pipelines/entities/pipeline.entity';
+import {
+  Pipeline,
+  PipelineId,
+} from '../../../pipelines/entities/pipeline.entity';
 import { ApiProperty } from '@nestjs/swagger';
 
 class MapperNotFound extends Error {
@@ -87,7 +90,7 @@ export class MapperService {
   }
 
   async create(
-    pipelineId: PipelineId,
+    pipeline: Pipeline,
     code: string,
     type: string,
     config: object,
@@ -102,13 +105,13 @@ export class MapperService {
       });
     }
 
-    const collision = await this.queryByPipelineIdAndCode(pipelineId, code);
+    const collision = await this.queryByPipelineIdAndCode(pipeline.id, code);
     if (collision) {
-      throw new MapperCodeCollision(pipelineId, code);
+      throw new MapperCodeCollision(pipeline.id, code);
     }
 
     const mapper = this.getMapperRepository(qr).create({
-      pipeline: { id: pipelineId },
+      pipeline,
       code,
       type,
       config,

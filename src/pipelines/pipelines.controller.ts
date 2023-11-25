@@ -7,6 +7,8 @@ import {
   Post,
   Patch,
   Query,
+  UseGuards,
+  Req,
 } from '@nestjs/common';
 import { Pipeline, PipelineId } from './entities/pipeline.entity';
 import { ExecutePipelineDto } from './dto/execute-pipeline.dto';
@@ -33,6 +35,7 @@ import {
   ApiOkResponse,
   ApiProperty,
 } from '@nestjs/swagger';
+import { JwtGuard } from '../auth/guards/jwt.guard';
 
 class DatasourcesSuggestions {
   @ApiProperty({
@@ -66,9 +69,15 @@ export class PipelinesController {
   })
   @Get('/:pipelineId/execute')
   async executePipeline(
+    @Req() request,
     @Param('pipelineId') pipelineId: PipelineId,
     @Query() { mapperCodes, widgetIds, ...params }: ExecutePipelineDto,
   ): Promise<Record<string, any>> {
+    const pipeline = await this.pipelineService.findById(
+      request.userId,
+      pipelineId,
+    );
+
     const mapperCodeToWidgetId = {};
     if (widgetIds) {
       const widgets = (await this.widgetService.findByIds(widgetIds)).filter(
@@ -89,7 +98,7 @@ export class PipelinesController {
     }
 
     const mapperResult = await this.executePipelineService.executePipeline(
-      pipelineId,
+      pipeline,
       mapperCodes,
       params,
     );
@@ -110,10 +119,12 @@ export class PipelinesController {
     type: Pipeline,
   })
   @Post('/')
+  @UseGuards(JwtGuard)
   async createPipeline(
+    @Req() request,
     @Body() { name = 'Untitled pipeline' }: CreatePipelineDto,
   ) {
-    return this.pipelineService.create(name);
+    return this.pipelineService.create(request.userId, name);
   }
 
   @ApiOkResponse({
@@ -121,8 +132,9 @@ export class PipelinesController {
     type: [Pipeline],
   })
   @Get('/')
-  async getPipelines() {
-    return this.pipelineService.findAll();
+  @UseGuards(JwtGuard)
+  async getPipelines(@Req() request) {
+    return this.pipelineService.findAll(request.userId);
   }
 
   @ApiOkResponse({
@@ -130,8 +142,12 @@ export class PipelinesController {
     type: Pipeline,
   })
   @Get('/:pipelineId')
-  async getPipeline(@Param('pipelineId') pipelineId: PipelineId) {
-    return this.pipelineService.findById(pipelineId);
+  @UseGuards(JwtGuard)
+  async getPipeline(
+    @Req() request,
+    @Param('pipelineId') pipelineId: PipelineId,
+  ) {
+    return this.pipelineService.findById(request.userId, pipelineId);
   }
 
   @ApiOkResponse({
@@ -140,12 +156,18 @@ export class PipelinesController {
     type: Pipeline,
   })
   @Patch('/:pipelineId')
+  @UseGuards(JwtGuard)
   async patchPipeline(
+    @Req() request,
     @Param('pipelineId') pipelineId: PipelineId,
     @Body() { name }: PatchPipelineDto,
   ) {
-    await this.pipelineService.updatePipeline(pipelineId, { name });
-    return this.pipelineService.findById(pipelineId);
+    const pipeline = await this.pipelineService.findById(
+      request.userId,
+      pipelineId,
+    );
+    await this.pipelineService.updatePipeline(pipeline, { name });
+    return this.pipelineService.findById(request.userId, pipelineId);
   }
 
   @ApiCreatedResponse({
@@ -154,12 +176,18 @@ export class PipelinesController {
     type: Pipeline,
   })
   @Post('/:pipelineId/mappers')
+  @UseGuards(JwtGuard)
   async addMapper(
+    @Req() request,
     @Param('pipelineId') pipelineId: PipelineId,
     @Body() { code, type, config }: AddMapperDto,
   ) {
-    await this.mapperService.create(pipelineId, code, type, config);
-    return this.pipelineService.findById(pipelineId);
+    const pipeline = await this.pipelineService.findById(
+      request.userId,
+      pipelineId,
+    );
+    await this.mapperService.create(pipeline, code, type, config);
+    return this.pipelineService.findById(request.userId, pipelineId);
   }
 
   @ApiCreatedResponse({
@@ -168,12 +196,18 @@ export class PipelinesController {
     type: Pipeline,
   })
   @Post('/:pipelineId/widgets')
+  @UseGuards(JwtGuard)
   async addWidget(
+    @Req() request,
     @Param('pipelineId') pipelineId: PipelineId,
     @Body() { type, config, datashape }: AddWidgetDto,
   ) {
-    await this.widgetService.create(pipelineId, type, config, datashape);
-    return this.pipelineService.findById(pipelineId);
+    const pipeline = await this.pipelineService.findById(
+      request.userId,
+      pipelineId,
+    );
+    await this.widgetService.create(pipeline, type, config, datashape);
+    return this.pipelineService.findById(request.userId, pipelineId);
   }
 
   @ApiOkResponse({
@@ -182,10 +216,18 @@ export class PipelinesController {
     type: [MapperSuggestion],
   })
   @Get('/:pipelineId/widgets/:widgetId/suggestions/mappers')
+  @UseGuards(JwtGuard)
   async getMappersByWidget(
+    @Req() request,
     @Param('pipelineId') pipelineId: PipelineId,
     @Param('widgetId') widgetId: WidgetId,
   ) {
+    // checking pipeline access
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const pipeline = await this.pipelineService.findById(
+      request.userId,
+      pipelineId,
+    );
     const widget = await this.widgetService.findById(widgetId);
     return this.mapperService.queryAllByDatashape(widget.datashape);
   }
@@ -196,7 +238,9 @@ export class PipelinesController {
     type: Pipeline,
   })
   @Post('/:pipelineId/widgets/:widgetId/mappers')
+  @UseGuards(JwtGuard)
   async addMapperAndBind(
+    @Req() request,
     @Param('pipelineId') pipelineId: PipelineId,
     @Param('widgetId') widgetId: WidgetId,
     @Body() { code, type, config }: AddMapperDto,
@@ -206,8 +250,12 @@ export class PipelinesController {
     await queryRunner.connect();
     await queryRunner.startTransaction();
     try {
-      await this.widgetService.addMapper(
+      const pipeline = await this.pipelineService.findById(
+        request.userId,
         pipelineId,
+      );
+      await this.widgetService.addMapper(
+        pipeline,
         widgetId,
         code,
         type,
@@ -223,7 +271,7 @@ export class PipelinesController {
       await queryRunner.release();
     }
 
-    return this.pipelineService.findById(pipelineId);
+    return this.pipelineService.findById(request.userId, pipelineId);
   }
 
   @ApiOkResponse({
@@ -231,10 +279,16 @@ export class PipelinesController {
     type: DatasourcesSuggestions,
   })
   @Get('/:pipelineId/suggestions/data-sources')
-  async getSuggestedDatasources(@Param('pipelineId') pipelineId: PipelineId) {
-    const entities = await this.pipelineService.getEntitiesByPipelineId(
+  @UseGuards(JwtGuard)
+  async getSuggestedDatasources(
+    @Req() request,
+    @Param('pipelineId') pipelineId: PipelineId,
+  ) {
+    const pipeline = await this.pipelineService.findById(
+      request.userId,
       pipelineId,
     );
+    const entities = await this.pipelineService.getEntitiesByPipeline(pipeline);
     const result: Record<
       string,
       Array<{ type: string; configSchema: object }>
@@ -250,11 +304,17 @@ export class PipelinesController {
     type: Pipeline,
   })
   @Post('/:pipelineId/data-sources')
+  @UseGuards(JwtGuard)
   async addDataSource(
+    @Req() request,
     @Param('pipelineId') pipelineId: PipelineId,
     @Body() { type, config }: AddDataSourceDto,
   ) {
-    await this.dataSourceService.create(pipelineId, type, config);
-    return this.pipelineService.findById(pipelineId);
+    const pipeline = await this.pipelineService.findById(
+      request.userId,
+      pipelineId,
+    );
+    await this.dataSourceService.create(pipeline, type, config);
+    return this.pipelineService.findById(request.userId, pipelineId);
   }
 }

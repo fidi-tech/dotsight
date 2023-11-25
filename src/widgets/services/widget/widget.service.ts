@@ -6,7 +6,7 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { In, QueryRunner, Repository } from 'typeorm';
 import { Widget, WidgetId } from '../../entities/widget.entity';
-import { PipelineId } from '../../../pipelines/entities/pipeline.entity';
+import { Pipeline } from '../../../pipelines/entities/pipeline.entity';
 import { MapperService } from '../../../mappers/services/mapper/mapper.service';
 
 @Injectable()
@@ -25,14 +25,14 @@ export class WidgetService {
   }
 
   async create(
-    pipelineId: PipelineId,
+    pipeline: Pipeline,
     type: string,
     config: object,
     datashape: string,
     qr?: QueryRunner,
   ) {
     const widget = this.getWidgetRepository(qr).create({
-      pipeline: { id: pipelineId },
+      pipeline,
       type,
       config,
       datashape,
@@ -69,7 +69,7 @@ export class WidgetService {
   }
 
   async addMapper(
-    pipelineId: PipelineId,
+    pipeline: Pipeline,
     widgetId: WidgetId,
     code: string,
     type: string,
@@ -85,7 +85,7 @@ export class WidgetService {
     }
 
     widget.mapper = await this.mapperService.create(
-      pipelineId,
+      pipeline,
       code,
       type,
       config,
