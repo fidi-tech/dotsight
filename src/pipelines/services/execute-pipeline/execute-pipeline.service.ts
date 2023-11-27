@@ -4,7 +4,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { PipelineService } from '../pipeline/pipeline.service';
-import { Pipeline } from '../../entities/pipeline.entity';
+import { Pipeline, PipelineId } from '../../entities/pipeline.entity';
 import { MapperCode } from '../../../mappers/entities/mapper.entity';
 import { MapperService } from '../../../mappers/services/mapper/mapper.service';
 import { DataSourceService } from '../../../data-sources/services/data-source/data-source.service';
@@ -22,7 +22,7 @@ export class ExecutePipelineService {
   ) {}
 
   async executePipeline(
-    pipeline: Pipeline,
+    pipelineId: PipelineId,
     mapperCodes: MapperCode[],
     params: Record<string, any>,
   ) {
@@ -30,6 +30,7 @@ export class ExecutePipelineService {
       throw new BadRequestException(`No mapperIds specified`);
     }
 
+    const pipeline = await this.pipelineService.findById(pipelineId);
     const mappers = mapperCodes
       .map((code) => {
         const mapper = pipeline.mappers[code];

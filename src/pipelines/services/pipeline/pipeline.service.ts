@@ -13,10 +13,10 @@ export class PipelineService {
     private readonly mapperService: MapperService,
   ) {}
 
-  async findById(userId: UserId, id: PipelineId): Promise<Pipeline> {
-    const pipeline = await this.pipelineRepository.findOneBy({
-      id,
-      createdBy: { id: userId },
+  async findById(id: PipelineId): Promise<Pipeline> {
+    const pipeline = await this.pipelineRepository.findOne({
+      where: { id },
+      relations: ['createdBy'],
     });
     if (!pipeline) {
       throw new NotFoundException(`Pipeline #${id} not found`);
@@ -30,16 +30,18 @@ export class PipelineService {
       createdBy: { id: userId },
     });
     const { id } = await this.pipelineRepository.save(pipeline);
-    return this.findById(userId, id);
+    return this.findById(id);
   }
 
-  async findAll(userId: UserId): Promise<Pipeline[]> {
+  async findAllByUserId(userId: UserId): Promise<Pipeline[]> {
     return this.pipelineRepository.find({
       where: { createdBy: { id: userId } },
     });
   }
 
-  async getEntitiesByPipeline(pipeline: Pipeline): Promise<string[]> {
+  async getEntitiesByPipelineId(pipelineId: PipelineId): Promise<string[]> {
+    const pipeline = await this.findById(pipelineId);
+
     const entities = Object.values(pipeline.mappers)
       .map(({ type, config }) => this.mapperService.instantiate(type, config))
       .map((mapper) => mapper.getRequiredEntities())
@@ -48,7 +50,8 @@ export class PipelineService {
     return [...new Set(entities)];
   }
 
-  async updatePipeline(pipeline: Pipeline, { name }: { name?: string }) {
+  async updatePipeline(pipelineId: PipelineId, { name }: { name?: string }) {
+    const pipeline = await this.findById(pipelineId);
     if (name) {
       pipeline.name = name;
     }
