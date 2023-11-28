@@ -33,4 +33,18 @@ export class AuthControllerDev {
     );
     return await this.authService.signIn(response, user);
   }
+
+  @Get('/github')
+  async loginGithub(@Res() response: Response) {
+    return response.redirect('/auth/github/callback');
+  }
+
+  @Get('/github/callback')
+  async callbackGithub(@Req() request, @Res() response: Response) {
+    const user = await this.authService.createUser(
+      'dev-github',
+      `dotsight-developer-${Math.random()}`,
+    );
+    return await this.authService.signIn(response, user);
+  }
 }

@@ -1,6 +1,6 @@
 import { PassportStrategy } from '@nestjs/passport';
 import { Profile } from 'passport';
-import { Strategy } from 'passport-google-oidc';
+import { Strategy } from 'passport-twitter';
 import { AuthService } from '../services/auth/auth.service';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
