@@ -5,6 +5,7 @@ import { AuthService } from './services/auth/auth.service';
 import { UsersModule } from '../users/users.module';
 import { GoogleOidcStrategy } from './strategies/google-oidc.strategy';
 import { JwtModule } from '@nestjs/jwt';
+import { TwitterStrategy } from './strategies/twitter.strategy';
 
 @Module({
   imports: [
@@ -17,6 +18,9 @@ import { JwtModule } from '@nestjs/jwt';
     process.env.NODE_ENV === 'development'
       ? [AuthControllerDev]
       : [AuthController],
-  providers: [AuthService, GoogleOidcStrategy],
+  providers:
+    process.env.NODE_ENV === 'development'
+      ? [AuthService]
+      : [AuthService, GoogleOidcStrategy, TwitterStrategy],
 })
 export class AuthModule {}

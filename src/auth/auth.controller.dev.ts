@@ -19,4 +19,18 @@ export class AuthControllerDev {
     );
     return await this.authService.signIn(response, user);
   }
+
+  @Get('/twitter')
+  async loginTwitter(@Res() response: Response) {
+    return response.redirect('/auth/twitter/callback');
+  }
+
+  @Get('/twitter/callback')
+  async callbackTwitter(@Req() request, @Res() response: Response) {
+    const user = await this.authService.createUser(
+      'dev-twitter',
+      `dotsight-developer-${Math.random()}`,
+    );
+    return await this.authService.signIn(response, user);
+  }
 }
