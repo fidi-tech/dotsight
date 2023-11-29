@@ -8,7 +8,7 @@ export class AuthControllerDev {
 
   @Get('/google')
   async loginGoogle(@Res() response: Response) {
-    return response.redirect('/auth/google/callback');
+    return response.redirect('/api/auth/google/callback');
   }
 
   @Get('/google/callback')
@@ -22,7 +22,7 @@ export class AuthControllerDev {
 
   @Get('/twitter')
   async loginTwitter(@Res() response: Response) {
-    return response.redirect('/auth/twitter/callback');
+    return response.redirect('/api/auth/twitter/callback');
   }
 
   @Get('/twitter/callback')
@@ -36,7 +36,7 @@ export class AuthControllerDev {
 
   @Get('/github')
   async loginGithub(@Res() response: Response) {
-    return response.redirect('/auth/github/callback');
+    return response.redirect('/api/auth/github/callback');
   }
 
   @Get('/github/callback')

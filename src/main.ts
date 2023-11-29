@@ -27,6 +27,7 @@ async function bootstrap() {
       saveUninitialized: false,
     }),
   );
+  app.setGlobalPrefix('/api');
 
   const config = new DocumentBuilder()
     .setTitle('DotSight')

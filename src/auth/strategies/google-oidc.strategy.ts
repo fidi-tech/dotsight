@@ -16,7 +16,7 @@ export class GoogleOidcStrategy extends PassportStrategy(Strategy, 'google') {
       clientSecret: configService.getOrThrow<string>('GOOGLE_CLIENT_SECRET'),
       callbackURL: `${configService.getOrThrow<string>(
         'HOST',
-      )}/auth/google/callback`,
+      )}/api/auth/google/callback`,
     });
   }
 

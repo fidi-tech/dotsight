@@ -18,7 +18,7 @@ export class TwitterStrategy extends PassportStrategy(Strategy, 'twitter') {
       consumerSecret: configService.getOrThrow<string>('TWITTER_API_SECRET'),
       callbackURL: `${configService.getOrThrow<string>(
         'HOST',
-      )}/auth/twitter/callback`,
+      )}/api/auth/twitter/callback`,
     });
   }
 

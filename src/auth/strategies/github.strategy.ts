@@ -18,12 +18,15 @@ export class GithubStrategy extends PassportStrategy(Strategy, 'github') {
       clientSecret: configService.getOrThrow<string>('GITHUB_CLIENT_SECRET'),
       callbackURL: `${configService.getOrThrow<string>(
         'HOST',
-      )}/auth/github/callback`,
+      )}/api/auth/github/callback`,
     });
   }
 
   async validate(accessToken: string, refreshToken: string, profile: Profile) {
-    const user = await this.authService.validateUser(GithubStrategy.Issuer, profile.id);
+    const user = await this.authService.validateUser(
+      GithubStrategy.Issuer,
+      profile.id,
+    );
     if (!user) {
       return this.authService.createUser(GithubStrategy.Issuer, profile.id);
     }
