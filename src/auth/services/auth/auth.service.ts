@@ -49,4 +49,9 @@ export class AuthService {
 
     return response.redirect(this.uiHost);
   }
+
+  async logout(response: Response) {
+    response.clearCookie('access_token');
+    return response.redirect(this.uiHost);
+  }
 }

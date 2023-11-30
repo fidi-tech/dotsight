@@ -47,4 +47,9 @@ export class AuthControllerDev {
     );
     return await this.authService.signIn(response, user);
   }
+
+  @Get('/logout')
+  async logout(@Res() response: Response) {
+    return await this.authService.logout(response);
+  }
 }
