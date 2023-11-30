@@ -5,9 +5,11 @@ import { UsersModule } from '../users/users.module';
 import { JwtModule } from '@nestjs/jwt';
 import { TestDbModule } from '../common/spec/db';
 import { ConfigService } from '@nestjs/config';
+import { Response } from 'express';
 
 describe('AuthController', () => {
   let controller: AuthController;
+  let authService: AuthService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -34,9 +36,43 @@ describe('AuthController', () => {
     }).compile();
 
     controller = module.get<AuthController>(AuthController);
+    authService = module.get<AuthService>(AuthService);
   });
 
   it('should be defined', () => {
     expect(controller).toBeDefined();
+  });
+
+  describe('callbackGoogle', () => {
+    it('should call authService.signIn', async () => {
+      const request = { user: '42' };
+      const response = 'rs' as any as Response;
+      jest.spyOn(authService, 'signIn').mockResolvedValue();
+      await controller.callbackGoogle(request, response);
+      expect(authService.signIn).toHaveBeenCalledTimes(1);
+      expect(authService.signIn).toHaveBeenCalledWith(response, '42');
+    });
+  });
+
+  describe('callbackTwitter', () => {
+    it('should call authService.signIn', async () => {
+      const request = { user: '42' };
+      const response = 'rs' as any as Response;
+      jest.spyOn(authService, 'signIn').mockResolvedValue();
+      await controller.callbackTwitter(request, response);
+      expect(authService.signIn).toHaveBeenCalledTimes(1);
+      expect(authService.signIn).toHaveBeenCalledWith(response, '42');
+    });
+  });
+
+  describe('callbackGithub', () => {
+    it('should call authService.signIn', async () => {
+      const request = { user: '42' };
+      const response = 'rs' as any as Response;
+      jest.spyOn(authService, 'signIn').mockResolvedValue();
+      await controller.callbackGithub(request, response);
+      expect(authService.signIn).toHaveBeenCalledTimes(1);
+      expect(authService.signIn).toHaveBeenCalledWith(response, '42');
+    });
   });
 });
