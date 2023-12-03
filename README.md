@@ -30,9 +30,11 @@ To begin utilizing DotSight, follow these simple steps:
 3. Navigate to the cloned repository and ```npm ci``` to install the necessary dependencies.
 4. Specify application secrets:
    - create ```.env``` file in the project root,
-   - add a new line in ```.env``` file, specifying database name, e.g. ```DB_NAME=dotsight```,
-   - add a new line in ```.env``` file, specifying database name, e.g. ```DB_USERNAME=dotsight```,
-   - add a new line in ```.env``` file, specifying database name, e.g. ```DB_PASSWORD=d0tS1gHtRul3z```.
+   - add a new line in ```.env``` file, ```DB_HOST=dotsight```,
+   - add a new line in ```.env``` file, ```DB_PORT=5433```,
+   - add a new line in ```.env``` file, specifying any database name, e.g. ```DB_NAME=dotsight```,
+   - add a new line in ```.env``` file, specifying any user name, e.g. ```DB_USERNAME=dotsight```,
+   - add a new line in ```.env``` file, specifying any database password, e.g. ```DB_PASSWORD=d0tS1gHtRul3z```.
 5. Start the environment by running ```docker compose up -d```.
     - If you encounter ```Bind for 0.0.0.0:5433 failed: port is already allocated``` error, make sure that there are no apps that use 5433 port.
     - If you encounter some other error, you should cleanup via ```docker compose rm -f``` and start again.

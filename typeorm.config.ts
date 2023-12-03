@@ -14,8 +14,9 @@ const applicationConfig = new ConfigService();
 
 export const config: DataSourceOptions = {
   type: 'postgres',
-  host: 'localhost',
-  port: 5433,
+  url: applicationConfig.get<string>('DB_URL'),
+  host: applicationConfig.get<string>('DB_HOST'),
+  port: applicationConfig.get<number>('DB_PORT'),
   username: applicationConfig.get<string>('DB_USERNAME'),
   password: applicationConfig.get<string>('DB_PASSWORD'),
   database: applicationConfig.get<string>('DB_NAME'),
