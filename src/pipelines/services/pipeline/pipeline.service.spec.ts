@@ -17,6 +17,7 @@ describe('PipelineService', () => {
   beforeEach(async () => {
     repository = {
       findOneBy: jest.fn(),
+      findOne: jest.fn(),
       create: jest.fn(),
       save: jest.fn(),
       find: jest.fn(),
@@ -44,25 +45,29 @@ describe('PipelineService', () => {
 
   describe('findById', () => {
     it('should throw NotFoundException if pipeline was ot found', async () => {
-      (repository.findOneBy as jest.MockedFn<any>).mockResolvedValue(null);
+      (repository.findOne as jest.MockedFn<any>).mockResolvedValue(null);
 
       await expect(service.findById('42')).rejects.toThrow(NotFoundException);
     });
 
     it('should return found pipeline', async () => {
       const pipeline = { hello: 'there' } as any as Pipeline;
-      (repository.findOneBy as jest.MockedFn<any>).mockResolvedValue(pipeline);
+      (repository.findOne as jest.MockedFn<any>).mockResolvedValue(pipeline);
 
       const result = await service.findById('42');
 
-      expect(repository.findOneBy).toHaveBeenCalledTimes(1);
-      expect(repository.findOneBy).toHaveBeenCalledWith({ id: '42' });
+      expect(repository.findOne).toHaveBeenCalledTimes(1);
+      expect(repository.findOne).toHaveBeenCalledWith({
+        where: { id: '42' },
+        relations: ['createdBy'],
+      });
       await expect(result).toEqual(pipeline);
     });
   });
 
   describe('create', () => {
     it('should create a pipeline in the repository', async () => {
+      const userId = '13';
       const pipelineDraft = { 'yet-another': 'pipeline' } as any as Pipeline;
       const pipeline = { hello: 'there' } as any as Pipeline;
       (repository.create as jest.MockedFn<any>).mockImplementation(
@@ -71,28 +76,37 @@ describe('PipelineService', () => {
       (repository.save as jest.MockedFn<any>).mockResolvedValue({
         id: 'new-id',
       });
-      (repository.findOneBy as jest.MockedFn<any>).mockResolvedValue(pipeline);
+      (repository.findOne as jest.MockedFn<any>).mockResolvedValue(pipeline);
 
-      const result = await service.create('new name');
+      const result = await service.create(userId, 'new name');
 
-      expect(repository.create).toHaveBeenCalledWith({ name: 'new name' });
+      expect(repository.create).toHaveBeenCalledWith({
+        name: 'new name',
+        createdBy: { id: userId },
+      });
       expect(repository.save).toHaveBeenCalledTimes(1);
       expect(repository.save).toHaveBeenCalledWith(pipelineDraft);
-      expect(repository.findOneBy).toHaveBeenCalledTimes(1);
-      expect(repository.findOneBy).toHaveBeenCalledWith({ id: 'new-id' });
+      expect(repository.findOne).toHaveBeenCalledTimes(1);
+      expect(repository.findOne).toHaveBeenCalledWith({
+        where: { id: 'new-id' },
+        relations: ['createdBy'],
+      });
       expect(result).toEqual(pipeline);
     });
   });
 
-  describe('findAll', () => {
+  describe('findAllByUserId', () => {
     it('should return all the pipelines from the repository', async () => {
+      const userId = '13';
       const result = 42 as any as Pipeline[];
       (repository.find as jest.MockedFn<any>).mockResolvedValue(result);
 
-      await expect(service.findAll()).resolves.toEqual(result);
+      await expect(service.findAllByUserId(userId)).resolves.toEqual(result);
 
       expect(repository.find).toHaveBeenCalledTimes(1);
-      expect(repository.find).toHaveBeenCalledWith();
+      expect(repository.find).toHaveBeenCalledWith({
+        where: { createdBy: { id: userId } },
+      });
     });
   });
 
@@ -104,7 +118,7 @@ describe('PipelineService', () => {
           2: { type: '22', config: '222' },
         },
       } as any as Pipeline;
-      (repository.findOneBy as jest.MockedFn<any>).mockResolvedValue(pipeline);
+      (repository.findOne as jest.MockedFn<any>).mockResolvedValue(pipeline);
       jest.spyOn(mapperService, 'instantiate').mockImplementation((type) => {
         if (type === '11') {
           return {
@@ -138,7 +152,7 @@ describe('PipelineService', () => {
     it('should save new name', async () => {
       const foundPipeline = { name: 'old', other: 'fields' } as any as Pipeline;
       const result = 66 as any as Pipeline;
-      (repository.findOneBy as jest.MockedFn<any>)
+      (repository.findOne as jest.MockedFn<any>)
         .mockResolvedValueOnce(foundPipeline)
         .mockResolvedValueOnce(result);
       (repository.save as jest.MockedFn<any>).mockResolvedValue(null);
@@ -147,8 +161,11 @@ describe('PipelineService', () => {
         name: 'new',
       });
 
-      await expect(repository.findOneBy).toHaveBeenCalledTimes(1);
-      await expect(repository.findOneBy).toHaveBeenCalledWith({ id: '42' });
+      await expect(repository.findOne).toHaveBeenCalledTimes(1);
+      await expect(repository.findOne).toHaveBeenCalledWith({
+        where: { id: '42' },
+        relations: ['createdBy'],
+      });
       await expect(repository.save).toHaveBeenCalledTimes(1);
       await expect(repository.save).toHaveBeenCalledWith({
         ...foundPipeline,

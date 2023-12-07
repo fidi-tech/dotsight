@@ -6,12 +6,14 @@ import {
   AfterLoad,
   Column,
   Entity,
+  ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { Exclude } from 'class-transformer';
 import { Widget } from '../../widgets/entities/widget.entity';
 import { ApiProperty } from '@nestjs/swagger';
+import { User } from '../../users/entities/user.entity';
 
 export type PipelineId = string;
 
@@ -110,4 +112,7 @@ export class Pipeline {
     eager: true,
   })
   widgets: Widget[];
+
+  @ManyToOne(() => User)
+  createdBy: User;
 }

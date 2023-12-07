@@ -9,6 +9,7 @@ import { MixersModule } from '../mixers/mixers.module';
 import { MiddlewaresModule } from '../middlewares/middlewares.module';
 import { Pipeline } from './entities/pipeline.entity';
 import { WidgetsModule } from '../widgets/widgets.module';
+import { PipelineAbilityService } from './services/pipeline-ability/pipeline-ability.service';
 
 @Module({
   imports: [
@@ -20,6 +21,6 @@ import { WidgetsModule } from '../widgets/widgets.module';
     WidgetsModule,
   ],
   controllers: [PipelinesController],
-  providers: [ExecutePipelineService, PipelineService],
+  providers: [ExecutePipelineService, PipelineService, PipelineAbilityService],
 })
 export class PipelinesModule {}
