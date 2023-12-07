@@ -7,6 +7,7 @@ import {
   Post,
   Patch,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 import { Pipeline, PipelineId } from './entities/pipeline.entity';
 import { ExecutePipelineDto } from './dto/execute-pipeline.dto';
@@ -33,6 +34,10 @@ import {
   ApiOkResponse,
   ApiProperty,
 } from '@nestjs/swagger';
+import { JwtGuard } from '../auth/guards/jwt.guard';
+import { AuthId } from '../auth/decorators/authId.decorator';
+import { UserId } from '../users/entities/user.entity';
+import { PipelineAbilityService } from './services/pipeline-ability/pipeline-ability.service';
 
 class DatasourcesSuggestions {
   @ApiProperty({
@@ -50,6 +55,7 @@ export class PipelinesController {
     private readonly widgetService: WidgetService,
     private readonly dataSource: TypeOrmDataSource,
     private readonly dataSourceService: DataSourceService,
+    private readonly pipelineAbilityService: PipelineAbilityService,
   ) {}
 
   @ApiOkResponse({
@@ -65,10 +71,14 @@ export class PipelinesController {
     },
   })
   @Get('/:pipelineId/execute')
+  @UseGuards(JwtGuard)
   async executePipeline(
+    @AuthId() userId: UserId,
     @Param('pipelineId') pipelineId: PipelineId,
     @Query() { mapperCodes, widgetIds, ...params }: ExecutePipelineDto,
   ): Promise<Record<string, any>> {
+    await this.pipelineAbilityService.claimExecute(userId, pipelineId);
+
     const mapperCodeToWidgetId = {};
     if (widgetIds) {
       const widgets = (await this.widgetService.findByIds(widgetIds)).filter(
@@ -110,10 +120,13 @@ export class PipelinesController {
     type: Pipeline,
   })
   @Post('/')
+  @UseGuards(JwtGuard)
   async createPipeline(
+    @AuthId() userId: UserId,
     @Body() { name = 'Untitled pipeline' }: CreatePipelineDto,
   ) {
-    return this.pipelineService.create(name);
+    await this.pipelineAbilityService.claimCreate(userId);
+    return this.pipelineService.create(userId, name);
   }
 
   @ApiOkResponse({
@@ -121,8 +134,9 @@ export class PipelinesController {
     type: [Pipeline],
   })
   @Get('/')
-  async getPipelines() {
-    return this.pipelineService.findAll();
+  @UseGuards(JwtGuard)
+  async getPipelines(@AuthId() userId: UserId) {
+    return this.pipelineService.findAllByUserId(userId);
   }
 
   @ApiOkResponse({
@@ -130,7 +144,12 @@ export class PipelinesController {
     type: Pipeline,
   })
   @Get('/:pipelineId')
-  async getPipeline(@Param('pipelineId') pipelineId: PipelineId) {
+  @UseGuards(JwtGuard)
+  async getPipeline(
+    @AuthId() userId: UserId,
+    @Param('pipelineId') pipelineId: PipelineId,
+  ) {
+    await this.pipelineAbilityService.claimRead(userId, pipelineId);
     return this.pipelineService.findById(pipelineId);
   }
 
@@ -140,10 +159,13 @@ export class PipelinesController {
     type: Pipeline,
   })
   @Patch('/:pipelineId')
+  @UseGuards(JwtGuard)
   async patchPipeline(
+    @AuthId() userId: UserId,
     @Param('pipelineId') pipelineId: PipelineId,
     @Body() { name }: PatchPipelineDto,
   ) {
+    await this.pipelineAbilityService.claimModify(userId, pipelineId);
     await this.pipelineService.updatePipeline(pipelineId, { name });
     return this.pipelineService.findById(pipelineId);
   }
@@ -154,10 +176,13 @@ export class PipelinesController {
     type: Pipeline,
   })
   @Post('/:pipelineId/mappers')
+  @UseGuards(JwtGuard)
   async addMapper(
+    @AuthId() userId: UserId,
     @Param('pipelineId') pipelineId: PipelineId,
     @Body() { code, type, config }: AddMapperDto,
   ) {
+    await this.pipelineAbilityService.claimModify(userId, pipelineId);
     await this.mapperService.create(pipelineId, code, type, config);
     return this.pipelineService.findById(pipelineId);
   }
@@ -168,10 +193,13 @@ export class PipelinesController {
     type: Pipeline,
   })
   @Post('/:pipelineId/widgets')
+  @UseGuards(JwtGuard)
   async addWidget(
+    @AuthId() userId: UserId,
     @Param('pipelineId') pipelineId: PipelineId,
     @Body() { type, config, datashape }: AddWidgetDto,
   ) {
+    await this.pipelineAbilityService.claimModify(userId, pipelineId);
     await this.widgetService.create(pipelineId, type, config, datashape);
     return this.pipelineService.findById(pipelineId);
   }
@@ -182,10 +210,13 @@ export class PipelinesController {
     type: [MapperSuggestion],
   })
   @Get('/:pipelineId/widgets/:widgetId/suggestions/mappers')
+  @UseGuards(JwtGuard)
   async getMappersByWidget(
+    @AuthId() userId: UserId,
     @Param('pipelineId') pipelineId: PipelineId,
     @Param('widgetId') widgetId: WidgetId,
   ) {
+    await this.pipelineAbilityService.claimModify(userId, pipelineId);
     const widget = await this.widgetService.findById(widgetId);
     return this.mapperService.queryAllByDatashape(widget.datashape);
   }
@@ -196,11 +227,15 @@ export class PipelinesController {
     type: Pipeline,
   })
   @Post('/:pipelineId/widgets/:widgetId/mappers')
+  @UseGuards(JwtGuard)
   async addMapperAndBind(
+    @AuthId() userId: UserId,
     @Param('pipelineId') pipelineId: PipelineId,
     @Param('widgetId') widgetId: WidgetId,
     @Body() { code, type, config }: AddMapperDto,
   ) {
+    await this.pipelineAbilityService.claimModify(userId, pipelineId);
+
     const queryRunner = this.dataSource.createQueryRunner();
 
     await queryRunner.connect();
@@ -231,7 +266,12 @@ export class PipelinesController {
     type: DatasourcesSuggestions,
   })
   @Get('/:pipelineId/suggestions/data-sources')
-  async getSuggestedDatasources(@Param('pipelineId') pipelineId: PipelineId) {
+  @UseGuards(JwtGuard)
+  async getSuggestedDatasources(
+    @AuthId() userId: UserId,
+    @Param('pipelineId') pipelineId: PipelineId,
+  ) {
+    await this.pipelineAbilityService.claimModify(userId, pipelineId);
     const entities = await this.pipelineService.getEntitiesByPipelineId(
       pipelineId,
     );
@@ -250,10 +290,13 @@ export class PipelinesController {
     type: Pipeline,
   })
   @Post('/:pipelineId/data-sources')
+  @UseGuards(JwtGuard)
   async addDataSource(
+    @AuthId() userId: UserId,
     @Param('pipelineId') pipelineId: PipelineId,
     @Body() { type, config }: AddDataSourceDto,
   ) {
+    await this.pipelineAbilityService.claimModify(userId, pipelineId);
     await this.dataSourceService.create(pipelineId, type, config);
     return this.pipelineService.findById(pipelineId);
   }

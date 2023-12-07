@@ -34,7 +34,9 @@ To begin utilizing DotSight, follow these simple steps:
    - add a new line in ```.env``` file, ```DB_PORT=5433```,
    - add a new line in ```.env``` file, specifying any database name, e.g. ```DB_NAME=dotsight```,
    - add a new line in ```.env``` file, specifying any user name, e.g. ```DB_USERNAME=dotsight```,
-   - add a new line in ```.env``` file, specifying any database password, e.g. ```DB_PASSWORD=d0tS1gHtRul3z```.
+   - add a new line in ```.env``` file, specifying any database password, e.g. ```DB_PASSWORD=d0tS1gHtRul3z```,
+   - add a new line in ```.env``` file, specifying any secret for jwt tokens, e.g. ```JWT_SECRET=secret-jwt```,
+   - add a new line in ```.env``` file, ```UI_HOST=http://localhost:3001```.
 5. Start the environment by running ```docker compose up -d```.
     - If you encounter ```Bind for 0.0.0.0:5433 failed: port is already allocated``` error, make sure that there are no apps that use 5433 port.
     - If you encounter some other error, you should cleanup via ```docker compose rm -f``` and start again.
