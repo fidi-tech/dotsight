@@ -66,6 +66,16 @@ export class SingleMetricMapper extends AbstractMapper<
     };
   }
 
+  public static getParamsSchema(): object {
+    return {
+      title: 'Params',
+      description: 'DistributionMapper params',
+      type: 'object',
+      properties: {},
+      required: [],
+    };
+  }
+
   static getDatashape(): string {
     return TYPE;
   }

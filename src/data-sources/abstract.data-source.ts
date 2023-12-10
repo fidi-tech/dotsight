@@ -5,6 +5,7 @@ class DataSourceNameNotSpecifiedError extends Error {}
 class DataSourceDescriptionNotSpecifiedError extends Error {}
 class DataSourceEntityNotSpecifiedError extends Error {}
 class DatasourceConfigSchemaNotSpecifiedError extends Error {}
+class DatasourceParamsSchemaNotSpecifiedError extends Error {}
 
 export type Meta = {
   units: Record<UnitId, Unit>;
@@ -44,5 +45,9 @@ export abstract class AbstractDataSource<
 
   public static getConfigSchema(): object {
     throw new DatasourceConfigSchemaNotSpecifiedError();
+  }
+
+  public static getParamsSchema(): object {
+    throw new DatasourceParamsSchemaNotSpecifiedError();
   }
 }

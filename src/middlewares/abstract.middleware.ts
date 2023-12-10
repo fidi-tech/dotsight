@@ -1,4 +1,5 @@
 import { AbstractDataSource } from '../data-sources/abstract.data-source';
+import { collection } from '../mappers/collection';
 
 class MiddlewareEntityNotSpecifiedError extends Error {}
 
@@ -16,5 +17,9 @@ export abstract class AbstractMiddleware<
 
   public static getEntity(): string {
     throw new MiddlewareEntityNotSpecifiedError();
+  }
+
+  getParamsByType(type: string) {
+    return collection[type].getParamsSchema();
   }
 }

@@ -25,4 +25,8 @@ export class MiddlewareService {
     }
     return middleware.getEntity();
   }
+
+  getParamsByType(type: string) {
+    return collection[type].getParamsSchema();
+  }
 }

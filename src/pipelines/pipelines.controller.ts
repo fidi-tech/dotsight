@@ -38,6 +38,7 @@ import { JwtGuard } from '../auth/guards/jwt.guard';
 import { AuthId } from '../auth/decorators/authId.decorator';
 import { UserId } from '../users/entities/user.entity';
 import { PipelineAbilityService } from './services/pipeline-ability/pipeline-ability.service';
+import { MapperCode } from '../mappers/entities/mapper.entity';
 
 class DatasourcesSuggestions {
   @ApiProperty({
@@ -299,5 +300,16 @@ export class PipelinesController {
     await this.pipelineAbilityService.claimModify(userId, pipelineId);
     await this.dataSourceService.create(pipelineId, type, config);
     return this.pipelineService.findById(pipelineId);
+  }
+
+  @Get('/:pipelineId/mappers/:mapperCode/params')
+  @UseGuards(JwtGuard)
+  async getParams(
+    @AuthId() userId: UserId,
+    @Param('pipelineId') pipelineId: PipelineId,
+    @Param('mapperCode') code: MapperCode,
+  ) {
+    await this.pipelineAbilityService.claimExecute(userId, pipelineId);
+    return this.executePipelineService.getParams(pipelineId, code);
   }
 }

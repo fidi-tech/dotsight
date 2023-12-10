@@ -137,4 +137,8 @@ export class MapperService {
         configSchema: mapper.getConfigSchema(),
       }));
   }
+
+  getParamsByType(type: string) {
+    return collection[type].getParamsSchema();
+  }
 }

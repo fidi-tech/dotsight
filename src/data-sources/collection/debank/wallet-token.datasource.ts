@@ -176,4 +176,22 @@ export class DebankWalletTokenDatasource extends AbstractWalletTokenDataSource<
     );
     return response.data;
   }
+
+  public static getParamsSchema(): object {
+    return {
+      title: 'Params',
+      description: 'DebankWalletTokenDatasource params',
+      type: 'object',
+      properties: {
+        walletIds: {
+          description: 'Wallets',
+          type: 'array',
+          items: {
+            type: 'string',
+          },
+        },
+      },
+      required: ['walletIds'],
+    };
+  }
 }

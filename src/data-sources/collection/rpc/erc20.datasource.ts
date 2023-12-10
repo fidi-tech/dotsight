@@ -128,4 +128,22 @@ export class Erc20Datasource extends AbstractWalletTokenDataSource<
       },
     };
   }
+
+  public static getParamsSchema(): object {
+    return {
+      title: 'Params',
+      description: 'Erc20Datasource params',
+      type: 'object',
+      properties: {
+        walletIds: {
+          description: 'Wallets',
+          type: 'array',
+          items: {
+            type: 'string',
+          },
+        },
+      },
+      required: ['walletIds'],
+    };
+  }
 }

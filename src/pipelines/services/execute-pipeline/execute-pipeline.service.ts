@@ -111,4 +111,58 @@ export class ExecutePipelineService {
 
     return result;
   }
+
+  async getParams(pipelineId: PipelineId, code: MapperCode) {
+    const pipeline = await this.pipelineService.findById(pipelineId);
+
+    const result = {
+      title: 'Params',
+      description: 'Pipeline params',
+      type: 'object',
+      properties: {},
+      required: [],
+    };
+
+    const mapper = pipeline.mappers[code];
+    if (!mapper) {
+      throw new NotFoundException(`Mapper "${code}" not found`);
+    }
+    // @ts-expect-error bad typings
+    const mapperParams: { properties: object; required: string[] } =
+      this.mapperService.getParamsByType(mapper.type);
+    Object.assign(result.properties, mapperParams.properties);
+    result.required = [
+      ...new Set([...result.required, ...mapperParams.required]),
+    ];
+
+    const mapperInstance = this.mapperService.instantiate(
+      mapper.type,
+      mapper.config,
+    );
+    const entities = mapperInstance.getRequiredEntities();
+
+    const middlewares = pipeline.middlewares.filter((middleware) =>
+      entities.includes(
+        this.middlewareService.getEntityByType(middleware.type),
+      ),
+    );
+    for (const middleware of middlewares) {
+      const params = this.middlewareService.getParamsByType(middleware.type);
+      Object.assign(result.properties, params.properties);
+      result.required = [...new Set([...result.required, ...params.required])];
+    }
+
+    const datasources = pipeline.dataSources.filter((dataSource) =>
+      entities.includes(
+        this.dataSourceService.getEntityByType(dataSource.type),
+      ),
+    );
+    for (const datasource of datasources) {
+      const params = this.dataSourceService.getParamsByType(datasource.type);
+      Object.assign(result.properties, params.properties);
+      result.required = [...new Set([...result.required, ...params.required])];
+    }
+
+    return result;
+  }
 }

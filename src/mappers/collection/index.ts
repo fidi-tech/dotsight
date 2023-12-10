@@ -13,4 +13,5 @@ for (const mapper of Object.values(collection)) {
   mapper.getType();
   mapper.getConfigSchema();
   mapper.getDatashape();
+  mapper.getParamsSchema();
 }
