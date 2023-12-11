@@ -26,7 +26,7 @@ describe('SingleMetricMapper', () => {
     expect(
       new SingleMetricMapper({
         aggregation: 'any',
-        valueField: '2',
+        valueField: 'amount',
         entity: 'walletToken',
       }),
     ).toBeInstanceOf(SingleMetricMapper);
@@ -35,7 +35,7 @@ describe('SingleMetricMapper', () => {
   it('should return entities from config', () => {
     const mapper = new SingleMetricMapper({
       aggregation: 'any',
-      valueField: '2',
+      valueField: 'amount',
       entity: 'walletToken',
     });
 
@@ -45,18 +45,18 @@ describe('SingleMetricMapper', () => {
   it('should map the items according to config', () => {
     const mapper = new SingleMetricMapper({
       aggregation: 'avg',
-      valueField: '2',
-      entity: 'wallet',
+      valueField: 'amount',
+      entity: 'walletToken',
     });
     expect(
       mapper.map({
-        wallet: [
-          { id: 1, meta: { 1: 'm' }, metrics: { 2: 50 } } as any,
-          { id: 2, meta: { 1: 'n' }, metrics: { 2: 150 } } as any,
+        walletToken: [
+          { id: 1, meta: { 1: 'm' }, metrics: { amount: 50 } } as any,
+          { id: 2, meta: { 1: 'n' }, metrics: { amount: 150 } } as any,
         ],
         smthElse: [
-          { id: 3, meta: { 1: 'mm' }, metrics: { 2: 250 } } as any,
-          { id: 4, meta: { 1: 'nn' }, metrics: { 2: 350 } } as any,
+          { id: 3, meta: { 1: 'mm' }, metrics: { amount: 250 } } as any,
+          { id: 4, meta: { 1: 'nn' }, metrics: { amount: 350 } } as any,
         ],
       }),
     ).toEqual({
@@ -65,28 +65,28 @@ describe('SingleMetricMapper', () => {
 
     expect(
       mapper.map({
-        wallet: [
+        walletToken: [
           {
             id: 1,
             meta: { 1: 'm' },
-            metrics: { 2: { USD: 50, BTC: 1 } },
+            metrics: { amount: { USD: 50, BTC: 1 } },
           } as any,
           {
             id: 2,
             meta: { 1: 'n' },
-            metrics: { 2: { USD: 150, BTC: 2 } },
+            metrics: { amount: { USD: 150, BTC: 2 } },
           } as any,
         ],
         smthElse: [
           {
             id: 3,
             meta: { 1: 'mm' },
-            metrics: { 2: { USD: 1050, BTC: 20 } },
+            metrics: { amount: { USD: 1050, BTC: 20 } },
           } as any,
           {
             id: 4,
             meta: { 1: 'nn' },
-            metrics: { 2: { USD: 1150, BTC: 21 } },
+            metrics: { amount: { USD: 1150, BTC: 21 } },
           } as any,
         ],
       }),

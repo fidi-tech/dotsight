@@ -40,9 +40,9 @@ describe('MapperService', () => {
 
     it('should return distribution mapper', () => {
       const result = service.instantiate('distribution', {
-        nameField: 'name',
-        valueField: 'value',
-        entity: 'wallet',
+        nameField: 'symbol',
+        valueField: 'amount',
+        entity: 'walletToken',
       });
       expect(result).toBeInstanceOf(DistributionMapper);
     });
@@ -91,8 +91,8 @@ describe('MapperService', () => {
       });
       await expect(
         service.create('42', 'some-code', DistributionMapper.getType(), {
-          nameField: '1',
-          valueField: '2',
+          nameField: 'symbol',
+          valueField: 'amount',
           entity: 'walletToken',
         }),
       ).rejects.toThrow();
@@ -116,8 +116,8 @@ describe('MapperService', () => {
         'some-code',
         DistributionMapper.getType(),
         {
-          nameField: '1',
-          valueField: '2',
+          nameField: 'symbol',
+          valueField: 'value',
           entity: 'walletToken',
         },
       );
@@ -126,7 +126,11 @@ describe('MapperService', () => {
         pipeline: { id: '42' },
         code: 'some-code',
         type: DistributionMapper.getType(),
-        config: { nameField: '1', valueField: '2', entity: 'walletToken' },
+        config: {
+          nameField: 'symbol',
+          valueField: 'value',
+          entity: 'walletToken',
+        },
       });
       expect(repository.save).toHaveBeenCalledTimes(1);
       expect(repository.save).toHaveBeenCalledWith(mapperDraft);

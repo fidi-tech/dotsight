@@ -30,4 +30,14 @@ type Metrics = {
   value?: Record<UnitId, number>;
 };
 
+export const META: Array<keyof Meta> = [
+  'walletId',
+  'symbol',
+  'name',
+  'protocolId',
+  'chainId',
+];
+
+export const METRICS: Array<keyof Metrics> = ['amount', 'value'];
+
 export type WalletToken = Entity<'walletToken', Meta, Metrics>;

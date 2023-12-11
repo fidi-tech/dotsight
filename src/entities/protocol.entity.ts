@@ -10,4 +10,8 @@ type Metrics = {
   marketCap?: Record<UnitId, number>;
 };
 
+export const META: Array<keyof Meta> = ['name'];
+
+export const METRICS: Array<keyof Metrics> = ['tvl', 'marketCap'];
+
 export type Protocol = Entity<'protocol', Meta, Metrics>;

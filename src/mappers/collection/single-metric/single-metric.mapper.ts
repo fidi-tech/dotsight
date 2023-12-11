@@ -2,7 +2,7 @@ import { AbstractMapper } from '../../abstract.mapper';
 import { TYPE } from '../../../datashapes/single-metric.datashape';
 import { Entity } from '../../../entities/entity';
 import { add, div } from '../../../common/math';
-import { ENTITIES } from '../../../entities/const';
+import { ENTITIES, FIELDS } from '../../../entities/const';
 
 type Config = {
   entity: string;
@@ -40,18 +40,29 @@ export class SingleMetricMapper extends AbstractMapper<
           description: 'Entity to be processed, e.g. walletToken',
           enum: ENTITIES,
         },
-        valueField: {
-          description: "Entity's value field, e.g. value for walletToken",
-          type: 'string',
-          minLength: 1,
-        },
         aggregation: {
           description:
             'Select a way to aggregate several entities to a single value',
           enum: ['any', 'sum', 'avg'],
         },
       },
-      required: ['aggregation', 'valueField', 'entity'],
+      required: ['aggregation', 'entity'],
+      dependencies: {
+        entity: {
+          oneOf: ENTITIES.map((entity) => ({
+            properties: {
+              entity: {
+                enum: [entity],
+              },
+              valueField: {
+                description: "Entity's value field, e.g. value for walletToken",
+                enum: FIELDS[entity].metrics,
+              },
+            },
+            required: ['entity', 'aggregation', 'valueField'],
+          })),
+        },
+      },
     };
   }
 

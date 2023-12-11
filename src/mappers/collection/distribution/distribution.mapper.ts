@@ -4,7 +4,7 @@ import {
   TYPE,
 } from '../../../datashapes/distribution.datashape';
 import { AbstractMapper } from '../../abstract.mapper';
-import { ENTITIES } from '../../../entities/const';
+import { ENTITIES, FIELDS } from '../../../entities/const';
 
 type Params = Record<string, never>;
 
@@ -13,6 +13,9 @@ type Config = {
   nameField: string;
   valueField: string;
 };
+
+const NAME_DESCRIPTION = "Entity's meta field, e.g. symbol for walletToken";
+const VALUE_DESCRIPTION = "Entity's value field, e.g. value for walletToken";
 
 export class DistributionMapper extends AbstractMapper<
   Config,
@@ -40,20 +43,30 @@ export class DistributionMapper extends AbstractMapper<
       properties: {
         entity: {
           description: 'Entity to be processed, e.g. walletToken',
-          enum: ENTITIES,
-        },
-        nameField: {
-          description: "Entity's meta field, e.g. symbol for walletToken",
-          type: 'string',
-          minLength: 1,
-        },
-        valueField: {
-          description: "Entity's value field, e.g. value for walletToken",
-          type: 'string',
-          minLength: 1,
+          enum: Object.keys(FIELDS),
         },
       },
-      required: ['nameField', 'valueField', 'entity'],
+      required: ['entity'],
+      dependencies: {
+        entity: {
+          oneOf: ENTITIES.map((entity) => ({
+            properties: {
+              entity: {
+                enum: [entity],
+              },
+              nameField: {
+                enum: FIELDS[entity].meta,
+                description: NAME_DESCRIPTION,
+              },
+              valueField: {
+                enum: FIELDS[entity].metrics,
+                description: VALUE_DESCRIPTION,
+              },
+            },
+            required: ['entity', 'nameField', 'valueField'],
+          })),
+        },
+      },
     };
   }
 
