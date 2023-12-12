@@ -63,7 +63,7 @@ export class DistributionMapper extends AbstractMapper<
                 description: VALUE_DESCRIPTION,
               },
             },
-            required: ['entity', 'nameField', 'valueField'],
+            required: ['nameField', 'valueField'],
           })),
         },
       },

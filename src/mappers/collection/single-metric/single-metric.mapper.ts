@@ -59,7 +59,7 @@ export class SingleMetricMapper extends AbstractMapper<
                 enum: FIELDS[entity].metrics,
               },
             },
-            required: ['entity', 'aggregation', 'valueField'],
+            required: ['valueField'],
           })),
         },
       },
