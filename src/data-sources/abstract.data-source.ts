@@ -1,5 +1,5 @@
 import { Entity, Unit, UnitId } from '../entities/entity';
-import { validate } from 'jsonschema';
+import validator from '@rjsf/validator-ajv8';
 
 class DataSourceNameNotSpecifiedError extends Error {}
 class DataSourceDescriptionNotSpecifiedError extends Error {}
@@ -19,11 +19,10 @@ export abstract class AbstractDataSource<
   constructor(protected readonly config: C) {
     // @ts-expect-error getting schema from child class
     const schema = this.constructor.getConfigSchema();
-    validate(config, schema, {
-      throwFirst: true,
-      nestedErrors: true,
-      required: true,
-    });
+    const { errors } = validator.rawValidation(schema, config);
+    if (errors?.length) {
+      throw new Error(errors[0].message);
+    }
   }
 
   abstract getItems(params: P): Promise<{

@@ -16,8 +16,8 @@ describe('DistributionMapper', () => {
   it('should be instantiated if config is correct', () => {
     expect(
       new DistributionMapper({
-        nameField: '1',
-        valueField: '2',
+        nameField: 'symbol',
+        valueField: 'amount',
         entity: 'walletToken',
       }),
     ).toBeInstanceOf(DistributionMapper);
@@ -25,15 +25,15 @@ describe('DistributionMapper', () => {
 
   it('should map the items according to config', () => {
     const mapper = new DistributionMapper({
-      nameField: '1',
-      valueField: '2',
-      entity: 'wallet',
+      nameField: 'symbol',
+      valueField: 'amount',
+      entity: 'walletToken',
     });
     expect(
       mapper.map({
-        wallet: [
-          { id: 1, meta: { 1: 'm' }, metrics: { 2: 50 } } as any,
-          { id: 2, meta: { 1: 'n' }, metrics: { 2: 150 } } as any,
+        walletToken: [
+          { id: 1, meta: { symbol: 'm' }, metrics: { amount: 50 } } as any,
+          { id: 2, meta: { symbol: 'n' }, metrics: { amount: 150 } } as any,
         ],
         smthElse: [
           { id: 3, meta: { 1: 'mm' }, metrics: { 2: 250 } } as any,
@@ -58,11 +58,11 @@ describe('DistributionMapper', () => {
 
   it('should return entities from config', () => {
     const mapper = new DistributionMapper({
-      nameField: '1',
-      valueField: '2',
-      entity: 'wallet',
+      nameField: 'symbol',
+      valueField: 'amount',
+      entity: 'walletToken',
     });
 
-    expect(mapper.getRequiredEntities()).toEqual(['wallet']);
+    expect(mapper.getRequiredEntities()).toEqual(['walletToken']);
   });
 });

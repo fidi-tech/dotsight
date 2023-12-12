@@ -1,5 +1,5 @@
 import { Entity } from '../entities/entity';
-import { validate } from 'jsonschema';
+import validator from '@rjsf/validator-ajv8';
 
 class MapperNameNotSpecifiedError extends Error {}
 class MapperDescriptionNotSpecifiedError extends Error {}
@@ -11,11 +11,10 @@ export abstract class AbstractMapper<C extends object, P, M, D> {
   constructor(protected readonly config: C) {
     // @ts-expect-error getting schema from child class
     const schema = this.constructor.getConfigSchema();
-    validate(config, schema, {
-      throwFirst: true,
-      nestedErrors: true,
-      required: true,
-    });
+    const { errors } = validator.rawValidation(schema, config);
+    if (errors?.length) {
+      throw new Error(errors[0].message);
+    }
   }
 
   public static getName(): string {
