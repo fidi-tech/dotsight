@@ -41,6 +41,7 @@ export class ChainlinkTokenDataSource extends AbstractTokenDataSource<
           description: 'Url of the ethereum RPC endpoint',
           type: 'string',
           pattern: URL_REGEXP,
+          default: 'https://rpc.ankr.com/eth',
         },
         token: {
           description: 'Choose token',
