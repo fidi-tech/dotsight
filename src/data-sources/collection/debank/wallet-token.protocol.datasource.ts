@@ -238,6 +238,7 @@ export class DebankWalletTokenProtocolDatasource extends AbstractWalletTokenData
           items: {
             type: 'string',
           },
+          minItems: 1,
         },
       },
       required: ['walletIds'],

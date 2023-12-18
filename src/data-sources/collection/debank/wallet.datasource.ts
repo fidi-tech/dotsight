@@ -142,6 +142,7 @@ export class DebankWalletDatasource extends AbstractWalletDataSource<
           items: {
             type: 'string',
           },
+          minItems: 1,
         },
       },
       required: ['walletIds'],
