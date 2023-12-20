@@ -52,6 +52,16 @@ export class ChainlinkTokenDataSource extends AbstractTokenDataSource<
     };
   }
 
+  public static getParamsSchema(): object {
+    return {
+      title: 'Params',
+      description: 'ChainlinkTokenDataSource params',
+      type: 'object',
+      properties: {},
+      required: [],
+    };
+  }
+
   constructor(c: Config) {
     super(c);
 
