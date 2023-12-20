@@ -35,4 +35,10 @@ export const config: DataSourceOptions = {
   ],
 };
 
+if (config.url && config.host && config.port) {
+  console.warn(
+    'You should either specify DB_URL, or DB_HOST and DB_PORT, not both',
+  );
+}
+
 export const dataSource = new TypeOrmDataSource(config);

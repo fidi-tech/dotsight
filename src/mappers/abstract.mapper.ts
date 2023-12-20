@@ -6,6 +6,7 @@ class MapperDescriptionNotSpecifiedError extends Error {}
 class MapperTypeNotSpecifiedError extends Error {}
 class MapperConfigSchemaNotSpecifiedError extends Error {}
 class MapperDatashapeNotSpecifiedError extends Error {}
+class MapperParamsSchemaNotSpecifiedError extends Error {}
 
 export abstract class AbstractMapper<C extends object, P, M, D> {
   constructor(protected readonly config: C) {
@@ -31,6 +32,10 @@ export abstract class AbstractMapper<C extends object, P, M, D> {
 
   public static getConfigSchema(): object {
     throw new MapperConfigSchemaNotSpecifiedError();
+  }
+
+  public static getParamsSchema(): object {
+    throw new MapperParamsSchemaNotSpecifiedError();
   }
 
   public static getDatashape(): string {

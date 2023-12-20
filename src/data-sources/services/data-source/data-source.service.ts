@@ -86,4 +86,8 @@ export class DataSourceService {
         configSchema: dataSource.getConfigSchema(),
       }));
   }
+
+  getParamsByType(type: string) {
+    return collection[type].getParamsSchema();
+  }
 }

@@ -20,4 +20,5 @@ for (const datasource of Object.values(collection)) {
   datasource.getDescription();
   datasource.getEntity();
   datasource.getConfigSchema();
+  datasource.getParamsSchema();
 }

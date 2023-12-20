@@ -149,4 +149,19 @@ export class DappRadarProtocolDatasource extends AbstractProtocolDataSource<
       },
     });
   }
+
+  public static getParamsSchema(): object {
+    return {
+      title: 'Params',
+      description: 'DappRadarProtocolDatasource params',
+      type: 'object',
+      properties: {
+        chain: {
+          description: 'Chain filter',
+          type: 'string',
+        },
+      },
+      required: [],
+    };
+  }
 }

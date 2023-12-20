@@ -140,4 +140,22 @@ export class GiantSquidStatsWalletTokenDataSource extends AbstractWalletTokenDat
       },
     };
   }
+
+  public static getParamsSchema(): object {
+    return {
+      title: 'Params',
+      description: 'GiantSquidStatsWalletTokenDataSource params',
+      type: 'object',
+      properties: {
+        walletIds: {
+          description: 'Wallets',
+          type: 'array',
+          items: {
+            type: 'string',
+          },
+        },
+      },
+      required: ['walletIds'],
+    };
+  }
 }
