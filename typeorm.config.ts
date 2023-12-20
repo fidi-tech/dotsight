@@ -14,12 +14,6 @@ dotEnvConfig();
 
 const applicationConfig = new ConfigService();
 
-if (process.env.NODE_ENV === 'development') {
-  if (applicationConfig.get<string>('DB_URL')) {
-    console.warn('Are you sure you want to specify DB_URL in DEV mode?');
-  }
-}
-
 export const config: DataSourceOptions = {
   type: 'postgres',
   url: applicationConfig.get<string>('DB_URL'),
@@ -40,5 +34,11 @@ export const config: DataSourceOptions = {
     Credential,
   ],
 };
+
+if (config.url && config.host && config.port) {
+  console.warn(
+    'You should either specify DB_URL, or DB_HOST and DB_PORT, not both',
+  );
+}
 
 export const dataSource = new TypeOrmDataSource(config);
