@@ -134,7 +134,10 @@ export class ChainlinkTokenDataSource extends AbstractTokenDataSource<
       this.fromRoundIdToAggregatorRoundId(BigInt(lastRoundId));
 
     const historical = new Map<number, number>([
-      [lastUpdatedAt.getTime(), this.convertPrice(answer, decimals)],
+      [
+        Math.floor(lastUpdatedAt.getTime() / 1000),
+        this.convertPrice(answer, decimals),
+      ],
     ]);
 
     let aggregatorRoundId = lastAggregatorRoundId - 1n;
@@ -152,7 +155,7 @@ export class ChainlinkTokenDataSource extends AbstractTokenDataSource<
       const timestamp = Number(response.updatedAt) * 1000;
 
       historical.set(
-        timestamp,
+        Math.floor(timestamp / 1000),
         // @ts-expect-error bad typings
         this.convertPrice(response.answer, decimals),
       );
@@ -189,14 +192,16 @@ export class ChainlinkTokenDataSource extends AbstractTokenDataSource<
           },
           metrics: {
             price: {
-              [USD.id]: historical.get(lastUpdatedAt.getTime()),
+              [USD.id]: historical.get(
+                Math.floor(lastUpdatedAt.getTime() / 1000),
+              ),
             },
           },
           historicalMetrics: {
             price: Array.from(historical.entries())
               .sort(([dateA], [dateB]) => dateA - dateB)
               .map(([date, price]) => ({
-                timestamp: Math.floor(date),
+                timestamp: date,
                 value: { [USD.id]: price },
               })),
           },
