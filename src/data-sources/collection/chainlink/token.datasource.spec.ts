@@ -81,7 +81,7 @@ describe('ChainlinkTokenDataSource', () => {
           historicalMetrics: {
             price: [
               {
-                timestamp: 1000,
+                timestamp: 1,
                 value: {
                   usd: 31000,
                 },
