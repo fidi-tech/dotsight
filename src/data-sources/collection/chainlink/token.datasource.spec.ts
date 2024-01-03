@@ -67,17 +67,21 @@ describe('ChainlinkTokenDataSource', () => {
   });
 
   it('should return correct data', async () => {
-    latestRoundData.mockResolvedValue({ answer: '3100000' });
+    latestRoundData.mockResolvedValue({
+      answer: '3100000',
+      updatedAt: 1,
+      roundId: '111',
+    });
     getDecimals.mockResolvedValue(2);
 
-    await expect(dataSource.getItems()).resolves.toEqual({
+    await expect(dataSource.getItems({})).resolves.toEqual({
       items: [
         {
           entity: 'token',
           historicalMetrics: {
             price: [
               {
-                timestamp: Math.floor(Date.now() / 1000),
+                timestamp: 1000,
                 value: {
                   usd: 31000,
                 },
