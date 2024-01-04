@@ -23,6 +23,10 @@ type Params = {
 
 const fractionDigits = 4;
 
+const HOUR = 60 * 60 * 1000;
+const DAY = 24 * HOUR;
+const MONTH = 30 * DAY;
+
 export class ChainlinkTokenDataSource extends AbstractTokenDataSource<
   Config,
   Params
@@ -143,6 +147,7 @@ export class ChainlinkTokenDataSource extends AbstractTokenDataSource<
     let aggregatorRoundId = lastAggregatorRoundId - 1n;
     let step = null;
     let shouldRequestMore = Boolean(historicalScope);
+    let previousUpdatedAt = null;
 
     while (shouldRequestMore) {
       const roundId = this.fromAggregatorRoundIfToRoundId(
@@ -160,23 +165,51 @@ export class ChainlinkTokenDataSource extends AbstractTokenDataSource<
         this.convertPrice(response.answer, decimals),
       );
 
-      if (!step) {
+      if (!previousUpdatedAt) {
+        // initial step guess
         const interval = lastUpdatedAt.getTime() - timestamp;
         if (historicalScope === HISTORICAL_SCOPE.DAY) {
-          step = BigInt(Math.round((24 * 60 * 60 * 1000) / interval / 24));
+          step = BigInt(Math.round((24 * HOUR) / interval / 12));
         } else if (historicalScope === HISTORICAL_SCOPE.MONTH) {
-          step = BigInt(Math.round((30 * 24 * 60 * 60 * 1000) / interval / 30));
+          step = BigInt(Math.round((30 * DAY) / interval / 15));
+        }
+
+        previousUpdatedAt = timestamp;
+      } else {
+        // checking if went too far in the past
+        let needRewind = false;
+
+        if (historicalScope === HISTORICAL_SCOPE.DAY) {
+          if (previousUpdatedAt - timestamp > 3 * HOUR) {
+            needRewind = true;
+          }
+        } else if (historicalScope === HISTORICAL_SCOPE.MONTH) {
+          if (previousUpdatedAt - timestamp > 3 * DAY) {
+            needRewind = true;
+          }
+        }
+
+        if (needRewind) {
+          // rewinding back
+          // we go back to previous round, and take smaller steps from now on
+          if ((step * 4n) / 5n !== 0n) {
+            aggregatorRoundId += step;
+            step = (step * 4n) / 5n;
+          }
+        } else {
+          // if everything is ok, we can go faster, and take bigger steps
+          // without this, we might go too slow after several rewinds
+          step = (step * 4n) / 3n;
+          previousUpdatedAt = timestamp;
         }
       }
 
       aggregatorRoundId -= step;
 
       if (historicalScope === HISTORICAL_SCOPE.DAY) {
-        shouldRequestMore =
-          lastUpdatedAt.getTime() - timestamp < 24 * 60 * 60 * 1000;
+        shouldRequestMore = lastUpdatedAt.getTime() - timestamp < DAY;
       } else if (historicalScope === HISTORICAL_SCOPE.MONTH) {
-        shouldRequestMore =
-          lastUpdatedAt.getTime() - timestamp < 30 * 24 * 60 * 60 * 1000;
+        shouldRequestMore = lastUpdatedAt.getTime() - timestamp < MONTH;
       }
     }
 
