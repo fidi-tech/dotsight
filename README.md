@@ -21,33 +21,36 @@ DotSight operates under the [Apache License](./NOTICE).
 
 
 ## Quick Start
-To begin utilizing DotSight, follow these simple steps:
-1. Ensure that you have:
-    - ```node``` v16 or above,
-    - ```npm``` v7 or above,
-    - ```docker``` v20 or above on your machine.
-2. Clone the DotSight repository from GitHub.
-3. Navigate to the cloned repository and ```npm ci``` to install the necessary dependencies.
-4. Specify application secrets:
-   - create ```.env``` file in the project root,
-   - add a new line in ```.env``` file, ```DB_HOST=dotsight```,
-   - add a new line in ```.env``` file, ```DB_PORT=5433```,
-   - add a new line in ```.env``` file, specifying any database name, e.g. ```DB_NAME=dotsight```,
-   - add a new line in ```.env``` file, specifying any user name, e.g. ```DB_USERNAME=dotsight```,
-   - add a new line in ```.env``` file, specifying any database password, e.g. ```DB_PASSWORD=d0tS1gHtRul3z```,
-   - add a new line in ```.env``` file, specifying any secret for jwt tokens, e.g. ```JWT_SECRET=secret-jwt```,
-   - add a new line in ```.env``` file, specifying any secret for sessions, e.g. ```SESSION_SECRET=some-secret```,
-   - add a new line in ```.env``` file, ```UI_HOST=http://localhost:3001```.
-5. Start the environment by running ```docker compose up -d```.
-    - If you encounter ```Bind for 0.0.0.0:5433 failed: port is already allocated``` error, make sure that there are no apps that use 5433 port.
-    - If you encounter some other error, you should cleanup via ```docker compose rm -f``` and start again.
-6. Populate the database by running all migrations via ```npm run typeorm:run-migrations```.
-7. Initiate the DotSight application by executing ```npm start```. 
+After cloning the DotSight repository and ensuring you have `node` v16, `npm` v7, and `docker` v20, or above:
+
+```bash
+# install all necessary dependencies
+npm ci
+```
+```bash
+# populate and review the environment variables
+cp .env.example .env 
+```
+```bash
+# start the environment
+docker compose up -d 
+```
+```bash
+# populate the database for the first run
+npm run typeorm:run-migrations 
+```
+```bash
+# initiate DotSight development instance (authentication disabled)
+npm start:dev 
+```
+
+- Make sure the specified port is not occupied by another application, e.g., ```Bind for 0.0.0.0:5433 failed: port is already allocated```.
+- For production deployment, use `npm start` with the authentication tokens specified in `.env`.
 
 ## Usage Examples
 DotSight enables you to create _data pipelines_ transporting _entities_ from a specified _data source_, enriched with specified _middlewares_, and serialized via specified _mappers_. All are customizable, i.e., you can provide your own data sources and build custom Oracle-like middlewares, mixers, and serialization logic.
 
-Use [DotSight UI](https://github.com/fidi-tech/dotsight-ui) to define data pipelines and query them.
+Use [DotSight UI](https://github.com/fidi-tech/dotsight-ui) to define data pipelines and query them without updating the codebase.
 
 ## Customization
 DotSight provides various configuration options to tailor the data flow according to your specific needs. You can customize:
@@ -95,7 +98,7 @@ For detailed documentation of the API, including available parameters and functi
 
 DotSight is under active development.
 
-- Aug 2023 The data sources, middlewares, and mappers logic are all functional. Arbitrary data sources are supported and a collection of default sources is available.
+- Aug 2023 The data sources, middlewares, and mappers logic are all functional. Arbitrary data sources are supported, and a collection of default sources is available.
 - Nov 2023 DotSight UI Widgets (existing pipelines visualization)
 - Q4 2023 DotSight customizable no-code UI 
 - Q4 2023 Dockerized Deployment
@@ -115,15 +118,15 @@ We welcome contributions from the developer community to fork, enhance, and impr
 This section contains various agreements that make DotSight's codebase performant & readable.
 #### DotSight core
 ##### Database interactions
-1. If you are creating a method that queries the database, it can either throw an error when nothing is found, or return null. To make things more predictable, you should name your method ```find*``` if it throws, and ```query*``` if it returns null.
+1. If you are creating a method that queries the database, it can either throw an error when nothing is found or return null. To make things more predictable, you should name your method ```find*``` if it throws and ```query*``` if it returns null.
 #### DotSight's Data Sources
-1. Data source's constructor should always validate it's config and throw ```AbstractDataSource.DataSourceWrongConfig``` if validation failed.
+1. The data source's constructor should always validate its config and throw ```AbstractDataSource.DataSourceWrongConfig``` if validation fails.
 #### DotSight's Mappers
-1. Mapper's constructor should always validate it's config and throw ```AbstractMapper.MapperWrongConfig``` if validation failed.
+1. Mapper's constructor should always validate its config and throw ```AbstractMapper.MapperWrongConfig``` if validation fails.
 
 ## Testing and Quality Assurance
 Please make sure your PRs come with sufficient unit test coverage:
-1. For any new class logic and functions you're welcome to add corresponding unit tests under ```.spec.ts```.
+1. For any new class logic and functions, you're welcome to add corresponding unit tests under ```.spec.ts```.
 2. Validate that the coverage is sufficient via ```npm run test:cov```
 
 
@@ -140,5 +143,5 @@ For questions, feedback, and support requests, you can us through the following 
 
 
 ## Acknowledgments
-We would like to express our gratitude to the Web3 Foundation, Parity, Subsquid, and DotSama’s collators community who all have inspired and contributed to this work and our vision of building a best-in-class analytics data platform for Web3.
+We would like to express our gratitude to the Web3 Foundation, Parity, Subsquid, and DotSama’s collators community, who all have inspired and contributed to this work and our vision of building a best-in-class analytics data platform for Web3.
 
