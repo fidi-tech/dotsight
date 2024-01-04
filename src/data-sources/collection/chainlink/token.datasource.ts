@@ -7,12 +7,19 @@ import { abi } from './abi';
 import { USD } from '../../../common/currecies';
 import { URL_REGEXP } from '../../../common/regexp';
 
+const HISTORICAL_SCOPE = {
+  DAY: 'day',
+  MONTH: 'month',
+} as const;
+
 type Config = {
   token: keyof typeof config;
   rpc: string;
 };
 
-type Params = Record<string, never>;
+type Params = {
+  historicalScope?: (typeof HISTORICAL_SCOPE)[keyof typeof HISTORICAL_SCOPE];
+};
 
 const fractionDigits = 4;
 
@@ -57,7 +64,12 @@ export class ChainlinkTokenDataSource extends AbstractTokenDataSource<
       title: 'Params',
       description: 'ChainlinkTokenDataSource params',
       type: 'object',
-      properties: {},
+      properties: {
+        historicalScope: {
+          description: "How long metrics' history should be",
+          enum: Object.values(HISTORICAL_SCOPE),
+        },
+      },
       required: [],
     };
   }
@@ -71,19 +83,102 @@ export class ChainlinkTokenDataSource extends AbstractTokenDataSource<
     this.contract = new web3.eth.Contract(abi, this.token.address);
   }
 
-  async getItems(): Promise<{ items: Token[]; meta: Meta }> {
-    // @ts-expect-error bad typings
-    const [decimals, { answer }] = await Promise.all([
-      this.contract.methods.decimals().call(),
-      this.contract.methods.latestRoundData().call(),
-    ]);
-
-    const price =
+  private convertPrice(answer, decimals) {
+    return (
       Number(
         (BigInt(answer) * 10n ** BigInt(fractionDigits)) /
           10n ** BigInt(decimals as any as number),
       ) /
-      10 ** fractionDigits;
+      10 ** fractionDigits
+    );
+  }
+
+  private fromRoundIdToAggregatorRoundId(roundId: bigint) {
+    const phaseId = roundId >> 64n;
+    const aggregatorRoundId = roundId & BigInt('0xFFFFFFFFFFFFFFFF');
+
+    return { phaseId, aggregatorRoundId };
+  }
+
+  private fromAggregatorRoundIfToRoundId(
+    phaseId: bigint,
+    aggregatorRoundId: bigint,
+  ) {
+    return (phaseId << 64n) | aggregatorRoundId;
+  }
+
+  private async getCurrentState() {
+    const [
+      decimals,
+      // @ts-expect-error bad typings
+      { roundId: lastRoundId, updatedAt, answer },
+    ] = await Promise.all([
+      this.contract.methods.decimals().call(),
+      this.contract.methods.latestRoundData().call(),
+    ]);
+
+    return {
+      answer,
+      decimals: decimals as any as number,
+      lastRoundId,
+      lastUpdatedAt: new Date(Number(updatedAt) * 1000),
+    };
+  }
+
+  async getItems({
+    historicalScope,
+  }: Params): Promise<{ items: Token[]; meta: Meta }> {
+    const { decimals, lastRoundId, lastUpdatedAt, answer } =
+      await this.getCurrentState();
+    const { phaseId, aggregatorRoundId: lastAggregatorRoundId } =
+      this.fromRoundIdToAggregatorRoundId(BigInt(lastRoundId));
+
+    const historical = new Map<number, number>([
+      [
+        Math.floor(lastUpdatedAt.getTime() / 1000),
+        this.convertPrice(answer, decimals),
+      ],
+    ]);
+
+    let aggregatorRoundId = lastAggregatorRoundId - 1n;
+    let step = null;
+    let shouldRequestMore = Boolean(historicalScope);
+
+    while (shouldRequestMore) {
+      const roundId = this.fromAggregatorRoundIfToRoundId(
+        phaseId,
+        aggregatorRoundId,
+      );
+      // @ts-expect-error bad typings
+      const response = await this.contract.methods.getRoundData(roundId).call();
+      // @ts-expect-error bad typings
+      const timestamp = Number(response.updatedAt) * 1000;
+
+      historical.set(
+        Math.floor(timestamp / 1000),
+        // @ts-expect-error bad typings
+        this.convertPrice(response.answer, decimals),
+      );
+
+      if (!step) {
+        const interval = lastUpdatedAt.getTime() - timestamp;
+        if (historicalScope === HISTORICAL_SCOPE.DAY) {
+          step = BigInt(Math.round((24 * 60 * 60 * 1000) / interval / 24));
+        } else if (historicalScope === HISTORICAL_SCOPE.MONTH) {
+          step = BigInt(Math.round((30 * 24 * 60 * 60 * 1000) / interval / 30));
+        }
+      }
+
+      aggregatorRoundId -= step;
+
+      if (historicalScope === HISTORICAL_SCOPE.DAY) {
+        shouldRequestMore =
+          lastUpdatedAt.getTime() - timestamp < 24 * 60 * 60 * 1000;
+      } else if (historicalScope === HISTORICAL_SCOPE.MONTH) {
+        shouldRequestMore =
+          lastUpdatedAt.getTime() - timestamp < 30 * 24 * 60 * 60 * 1000;
+      }
+    }
 
     return {
       items: [
@@ -97,16 +192,18 @@ export class ChainlinkTokenDataSource extends AbstractTokenDataSource<
           },
           metrics: {
             price: {
-              [USD.id]: price,
+              [USD.id]: historical.get(
+                Math.floor(lastUpdatedAt.getTime() / 1000),
+              ),
             },
           },
           historicalMetrics: {
-            price: [
-              {
-                timestamp: Math.floor(Date.now() / 1000),
+            price: Array.from(historical.entries())
+              .sort(([dateA], [dateB]) => dateA - dateB)
+              .map(([date, price]) => ({
+                timestamp: date,
                 value: { [USD.id]: price },
-              },
-            ],
+              })),
           },
         },
       ],
