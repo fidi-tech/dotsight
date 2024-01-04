@@ -4,6 +4,7 @@ import { ChainlinkTokenDataSource } from './token.datasource';
 
 const latestRoundData = jest.fn();
 const getDecimals = jest.fn();
+const getRoundData = jest.fn();
 class MockContract {
   get methods() {
     return {
@@ -12,6 +13,9 @@ class MockContract {
       }),
       latestRoundData: () => ({
         call: latestRoundData,
+      }),
+      getRoundData: () => ({
+        call: getRoundData,
       }),
     };
   }
@@ -68,25 +72,26 @@ describe('ChainlinkTokenDataSource', () => {
 
   it('should return correct data', async () => {
     latestRoundData.mockResolvedValue({
-      answer: '3100000',
-      updatedAt: 1,
+      answer: `${24 * 60 * 60}`,
+      updatedAt: 24 * 60 * 60,
       roundId: '111',
     });
     getDecimals.mockResolvedValue(2);
+    for (let current = 23 * 60 * 60; current >= 0; current -= 60 * 60) {
+      getRoundData.mockImplementationOnce(async () => {
+        return {
+          answer: `${current}`,
+          updatedAt: current,
+        };
+      });
+    }
 
-    await expect(dataSource.getItems({})).resolves.toEqual({
+    const expected = {
       items: [
         {
           entity: 'token',
           historicalMetrics: {
-            price: [
-              {
-                timestamp: 1,
-                value: {
-                  usd: 31000,
-                },
-              },
-            ],
+            price: [],
           },
           id: 'BTC',
           meta: {
@@ -96,7 +101,7 @@ describe('ChainlinkTokenDataSource', () => {
           },
           metrics: {
             price: {
-              usd: 31000,
+              usd: 864,
             },
           },
         },
@@ -110,6 +115,18 @@ describe('ChainlinkTokenDataSource', () => {
           },
         },
       },
-    });
+    };
+    for (let current = 0; current <= 24 * 60 * 60; current += 60 * 60) {
+      expected.items[0].historicalMetrics.price.push({
+        timestamp: current,
+        value: {
+          usd: Math.floor(current / 10 ** 2),
+        },
+      });
+    }
+
+    await expect(
+      dataSource.getItems({ historicalScope: 'day' }),
+    ).resolves.toEqual(expected);
   });
 });

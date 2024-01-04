@@ -173,10 +173,10 @@ export class ChainlinkTokenDataSource extends AbstractTokenDataSource<
 
       if (historicalScope === HISTORICAL_SCOPE.DAY) {
         shouldRequestMore =
-          lastUpdatedAt.getTime() - timestamp <= 24 * 60 * 60 * 1000;
+          lastUpdatedAt.getTime() - timestamp < 24 * 60 * 60 * 1000;
       } else if (historicalScope === HISTORICAL_SCOPE.MONTH) {
         shouldRequestMore =
-          lastUpdatedAt.getTime() - timestamp <= 30 * 24 * 60 * 60 * 1000;
+          lastUpdatedAt.getTime() - timestamp < 30 * 24 * 60 * 60 * 1000;
       }
     }
 
