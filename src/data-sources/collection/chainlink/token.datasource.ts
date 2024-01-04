@@ -176,7 +176,7 @@ export class ChainlinkTokenDataSource extends AbstractTokenDataSource<
 
         previousUpdatedAt = timestamp;
       } else {
-        // checking if wet too far in the past
+        // checking if went too far in the past
         let needRewind = false;
 
         if (historicalScope === HISTORICAL_SCOPE.DAY) {
@@ -191,11 +191,14 @@ export class ChainlinkTokenDataSource extends AbstractTokenDataSource<
 
         if (needRewind) {
           // rewinding back
+          // we go back to previous round, and take smaller steps from now on
           if ((step * 4n) / 5n !== 0n) {
             aggregatorRoundId += step;
             step = (step * 4n) / 5n;
           }
         } else {
+          // if everything is ok, we can go faster, and take bigger steps
+          // without this, we might go too slow after several rewinds
           step = (step * 4n) / 3n;
           previousUpdatedAt = timestamp;
         }
