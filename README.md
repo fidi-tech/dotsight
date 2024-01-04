@@ -40,12 +40,12 @@ docker compose up -d
 npm run typeorm:run-migrations 
 ```
 ```bash
-# initiate DotSight development instance (authentication disabled)
-npm start:dev 
-```
+# initiate a development instance (authentication disabled)
+npm run start:dev
 
-- Make sure the specified port is not occupied by another application, e.g., ```Bind for 0.0.0.0:5433 failed: port is already allocated```.
-- For production deployment, use `npm start` with the authentication tokens specified in `.env`.
+# initiate a production instance (specify authentication tokens in .env)
+npm run start
+```
 
 ## Usage Examples
 DotSight enables you to create _data pipelines_ transporting _entities_ from a specified _data source_, enriched with specified _middlewares_, and serialized via specified _mappers_. All are customizable, i.e., you can provide your own data sources and build custom Oracle-like middlewares, mixers, and serialization logic.
