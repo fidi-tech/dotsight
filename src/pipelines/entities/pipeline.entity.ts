@@ -115,4 +115,20 @@ export class Pipeline {
 
   @ManyToOne(() => User)
   createdBy: User;
+
+  @Column({
+    nullable: false,
+    default: false,
+  })
+  isPublic: boolean;
+
+  @ApiProperty({
+    description: 'if user is allowed to modify the pipeline',
+  })
+  canModify: boolean;
+
+  @ApiProperty({
+    description: 'if user is allowed to execute the pipeline',
+  })
+  canExecute: boolean;
 }
