@@ -8,4 +8,10 @@ export class PatchPipelineDto {
   @IsString()
   @IsOptional()
   readonly name?: string;
+
+  @ApiProperty({
+    required: false,
+  })
+  @IsOptional()
+  readonly isPublic?: boolean;
 }
