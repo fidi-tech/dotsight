@@ -70,6 +70,35 @@ describe('PipelineService', () => {
     });
   });
 
+  describe('findByIdForUser', () => {
+    it('should return enriched result from findById', async () => {
+      const pipeline = { hello: 'there', id: '42' } as any as Pipeline;
+      (repository.findOne as jest.MockedFn<any>).mockResolvedValue(pipeline);
+      jest
+        .spyOn(pipelineAbilityService, 'addAbilities')
+        .mockImplementation((userId, pipeline) => {
+          // @ts-expect-error for unit test
+          pipeline.withAbilities = pipeline.id + userId;
+        });
+
+      await expect(service.findByIdForUser('13', '42')).resolves.toEqual({
+        ...pipeline,
+        withAbilities: '4213',
+      });
+
+      expect(repository.findOne).toHaveBeenCalledTimes(1);
+      expect(repository.findOne).toHaveBeenCalledWith({
+        where: { id: '42' },
+        relations: ['createdBy'],
+      });
+      expect(pipelineAbilityService.addAbilities).toHaveBeenCalledTimes(1);
+      expect(pipelineAbilityService.addAbilities).toHaveBeenCalledWith(
+        '13',
+        expect.objectContaining(pipeline),
+      );
+    });
+  });
+
   describe('create', () => {
     it('should create a pipeline in the repository', async () => {
       const userId = '13';
@@ -84,7 +113,8 @@ describe('PipelineService', () => {
       (repository.findOne as jest.MockedFn<any>).mockResolvedValue(pipeline);
       jest
         .spyOn(pipelineAbilityService, 'addAbilities')
-        .mockImplementation((x) => x);
+        // eslint-disable-next-line @typescript-eslint/no-empty-function
+        .mockImplementation(() => {});
 
       const result = await service.create(userId, 'new name');
 
@@ -106,19 +136,38 @@ describe('PipelineService', () => {
   describe('findAllByUserId', () => {
     it('should return all the pipelines from the repository', async () => {
       const userId = '13';
-      const result = [42] as any as Pipeline[];
-      (repository.find as jest.MockedFn<any>).mockResolvedValue(result);
+      (repository.find as jest.MockedFn<any>).mockResolvedValue([
+        { id: 42 },
+        { id: 66 },
+      ] as any as Pipeline[]);
       jest
         .spyOn(pipelineAbilityService, 'addAbilities')
-        .mockImplementation((x) => x);
+        .mockImplementation((userId, pipeline) => {
+          // @ts-expect-error for unit test
+          pipeline.withAbilities = pipeline.id + userId;
+        });
 
-      await expect(service.findAllByUserId(userId)).resolves.toEqual(result);
+      await expect(service.findAllByUserId(userId)).resolves.toEqual([
+        { id: 42, withAbilities: '4213' },
+        { id: 66, withAbilities: '6613' },
+      ]);
 
       expect(repository.find).toHaveBeenCalledTimes(1);
       expect(repository.find).toHaveBeenCalledWith({
         where: { createdBy: { id: userId } },
         relations: ['createdBy'],
       });
+      expect(pipelineAbilityService.addAbilities).toHaveBeenCalledTimes(2);
+      expect(pipelineAbilityService.addAbilities).toHaveBeenNthCalledWith(
+        1,
+        userId,
+        expect.objectContaining({ id: 42 }),
+      );
+      expect(pipelineAbilityService.addAbilities).toHaveBeenNthCalledWith(
+        2,
+        userId,
+        expect.objectContaining({ id: 66 }),
+      );
     });
   });
 
@@ -161,8 +210,12 @@ describe('PipelineService', () => {
       ).rejects.toThrow(NotFoundException);
     });
 
-    it('should save new name', async () => {
-      const foundPipeline = { name: 'old', other: 'fields' } as any as Pipeline;
+    it('should save new name and isPublic', async () => {
+      const foundPipeline = {
+        name: 'old',
+        isPublic: false,
+        other: 'fields',
+      } as any as Pipeline;
       const result = 66 as any as Pipeline;
       (repository.findOne as jest.MockedFn<any>)
         .mockResolvedValueOnce(foundPipeline)
@@ -171,6 +224,7 @@ describe('PipelineService', () => {
 
       await service.updatePipeline('42', {
         name: 'new',
+        isPublic: true,
       });
 
       await expect(repository.findOne).toHaveBeenCalledTimes(1);
@@ -182,6 +236,7 @@ describe('PipelineService', () => {
       await expect(repository.save).toHaveBeenCalledWith({
         ...foundPipeline,
         name: 'new',
+        isPublic: true,
       });
     });
   });

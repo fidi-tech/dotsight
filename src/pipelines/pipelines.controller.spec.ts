@@ -320,12 +320,13 @@ describe('PipelinesController', () => {
       jest.spyOn(pipelineService, 'findByIdForUser').mockResolvedValue(result);
 
       await expect(
-        controller.patchPipeline(userId, '42', { name: 'new' }),
+        controller.patchPipeline(userId, '42', { name: 'new', isPublic: true }),
       ).resolves.toEqual(result);
 
       expect(pipelineService.updatePipeline).toHaveBeenCalledTimes(1);
       expect(pipelineService.updatePipeline).toHaveBeenCalledWith('42', {
         name: 'new',
+        isPublic: true,
       });
       expect(pipelineService.findByIdForUser).toHaveBeenCalledTimes(1);
       expect(pipelineService.findByIdForUser).toHaveBeenCalledWith(
