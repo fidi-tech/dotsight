@@ -14,7 +14,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { TestDbModule } from '../../../common/spec/db';
 import { Mapper } from '../../../mappers/entities/mapper.entity';
 import { DataSource } from '../../../data-sources/entities/data-source.entity';
-import {PipelineAbilityService} from '../pipeline-ability/pipeline-ability.service';
+import { PipelineAbilityService } from '../pipeline-ability/pipeline-ability.service';
 
 describe('ExecutePipelineService', () => {
   let service: ExecutePipelineService;
