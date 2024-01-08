@@ -8,11 +8,13 @@ import { TestDbModule } from '../../../common/spec/db';
 import { MapperService } from '../../../mappers/services/mapper/mapper.service';
 import { MappersModule } from '../../../mappers/mappers.module';
 import { AbstractMapper } from '../../../mappers/abstract.mapper';
+import { PipelineAbilityService } from '../pipeline-ability/pipeline-ability.service';
 
 describe('PipelineService', () => {
   let service: PipelineService;
   let repository: Repository<Pipeline>;
   let mapperService: MapperService;
+  let pipelineAbilityService: PipelineAbilityService;
 
   beforeEach(async () => {
     repository = {
@@ -29,7 +31,7 @@ describe('PipelineService', () => {
         TypeOrmModule.forFeature([Pipeline]),
         MappersModule,
       ],
-      providers: [PipelineService],
+      providers: [PipelineService, PipelineAbilityService],
     })
       .overrideProvider(getRepositoryToken(Pipeline))
       .useValue(repository)
@@ -37,6 +39,9 @@ describe('PipelineService', () => {
 
     service = module.get<PipelineService>(PipelineService);
     mapperService = module.get<MapperService>(MapperService);
+    pipelineAbilityService = module.get<PipelineAbilityService>(
+      PipelineAbilityService,
+    );
   });
 
   it('should be defined', () => {
@@ -77,6 +82,9 @@ describe('PipelineService', () => {
         id: 'new-id',
       });
       (repository.findOne as jest.MockedFn<any>).mockResolvedValue(pipeline);
+      jest
+        .spyOn(pipelineAbilityService, 'addAbilities')
+        .mockImplementation((x) => x);
 
       const result = await service.create(userId, 'new name');
 
@@ -98,14 +106,18 @@ describe('PipelineService', () => {
   describe('findAllByUserId', () => {
     it('should return all the pipelines from the repository', async () => {
       const userId = '13';
-      const result = 42 as any as Pipeline[];
+      const result = [42] as any as Pipeline[];
       (repository.find as jest.MockedFn<any>).mockResolvedValue(result);
+      jest
+        .spyOn(pipelineAbilityService, 'addAbilities')
+        .mockImplementation((x) => x);
 
       await expect(service.findAllByUserId(userId)).resolves.toEqual(result);
 
       expect(repository.find).toHaveBeenCalledTimes(1);
       expect(repository.find).toHaveBeenCalledWith({
         where: { createdBy: { id: userId } },
+        relations: ['createdBy'],
       });
     });
   });

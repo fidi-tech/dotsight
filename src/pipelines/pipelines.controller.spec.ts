@@ -173,7 +173,9 @@ describe('PipelinesController', () => {
       const pipeline = 42 as any as Pipeline;
       jest.spyOn(pipelineAbilityService, 'claimModify').mockResolvedValue();
       jest.spyOn(mapperService, 'create').mockResolvedValue(null);
-      jest.spyOn(pipelineService, 'findById').mockResolvedValue(pipeline);
+      jest
+        .spyOn(pipelineService, 'findByIdForUser')
+        .mockResolvedValue(pipeline);
 
       await expect(
         controller.addMapper(userId, '42', {
@@ -187,8 +189,11 @@ describe('PipelinesController', () => {
       expect(mapperService.create).toHaveBeenCalledWith('42', 'code', 'type', {
         some: 'config',
       });
-      expect(pipelineService.findById).toHaveBeenCalledTimes(1);
-      expect(pipelineService.findById).toHaveBeenCalledWith('42');
+      expect(pipelineService.findByIdForUser).toHaveBeenCalledTimes(1);
+      expect(pipelineService.findByIdForUser).toHaveBeenCalledWith(
+        userId,
+        '42',
+      );
       expect(pipelineAbilityService.claimModify).toHaveBeenCalledWith(
         userId,
         '42',
@@ -218,7 +223,9 @@ describe('PipelinesController', () => {
       const pipeline = 42 as any as Pipeline;
       jest.spyOn(pipelineAbilityService, 'claimModify').mockResolvedValue();
       jest.spyOn(widgetService, 'create').mockResolvedValue(null);
-      jest.spyOn(pipelineService, 'findById').mockResolvedValue(pipeline);
+      jest
+        .spyOn(pipelineService, 'findByIdForUser')
+        .mockResolvedValue(pipeline);
 
       await expect(
         controller.addWidget(userId, '42', {
@@ -237,8 +244,11 @@ describe('PipelinesController', () => {
         },
         'some-dsh',
       );
-      expect(pipelineService.findById).toHaveBeenCalledTimes(1);
-      expect(pipelineService.findById).toHaveBeenCalledWith('42');
+      expect(pipelineService.findByIdForUser).toHaveBeenCalledTimes(1);
+      expect(pipelineService.findByIdForUser).toHaveBeenCalledWith(
+        userId,
+        '42',
+      );
       expect(pipelineAbilityService.claimModify).toHaveBeenCalledWith(
         userId,
         '42',
@@ -250,7 +260,7 @@ describe('PipelinesController', () => {
     it('should throw ForbiddenException if claim failed', async () => {
       const userId = '13';
       jest
-        .spyOn(pipelineAbilityService, 'claimModify')
+        .spyOn(pipelineAbilityService, 'claimRead')
         .mockImplementation(async () => {
           throw new ForbiddenException();
         });
@@ -262,7 +272,7 @@ describe('PipelinesController', () => {
     it("should return suggestions for widget's datashape", async () => {
       const userId = '13';
       const suggestions = 42 as any;
-      jest.spyOn(pipelineAbilityService, 'claimModify').mockResolvedValue();
+      jest.spyOn(pipelineAbilityService, 'claimRead').mockResolvedValue();
       jest
         .spyOn(widgetService, 'findById')
         .mockResolvedValue({ datashape: 'dsh' } as Widget);
@@ -278,7 +288,7 @@ describe('PipelinesController', () => {
       expect(widgetService.findById).toHaveBeenCalledWith('wid');
       expect(mapperService.queryAllByDatashape).toHaveBeenCalledTimes(1);
       expect(mapperService.queryAllByDatashape).toHaveBeenCalledWith('dsh');
-      expect(pipelineAbilityService.claimModify).toHaveBeenCalledWith(
+      expect(pipelineAbilityService.claimRead).toHaveBeenCalledWith(
         userId,
         '42',
       );
@@ -307,7 +317,7 @@ describe('PipelinesController', () => {
         .mockImplementation(async () => {
           // do nothing
         });
-      jest.spyOn(pipelineService, 'findById').mockResolvedValue(result);
+      jest.spyOn(pipelineService, 'findByIdForUser').mockResolvedValue(result);
 
       await expect(
         controller.patchPipeline(userId, '42', { name: 'new' }),
@@ -317,8 +327,11 @@ describe('PipelinesController', () => {
       expect(pipelineService.updatePipeline).toHaveBeenCalledWith('42', {
         name: 'new',
       });
-      expect(pipelineService.findById).toHaveBeenCalledTimes(1);
-      expect(pipelineService.findById).toHaveBeenCalledWith('42');
+      expect(pipelineService.findByIdForUser).toHaveBeenCalledTimes(1);
+      expect(pipelineService.findByIdForUser).toHaveBeenCalledWith(
+        userId,
+        '42',
+      );
       expect(pipelineAbilityService.claimModify).toHaveBeenCalledWith(
         userId,
         '42',
