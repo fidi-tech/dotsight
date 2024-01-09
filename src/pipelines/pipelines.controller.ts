@@ -151,7 +151,7 @@ export class PipelinesController {
     @Param('pipelineId') pipelineId: PipelineId,
   ) {
     await this.pipelineAbilityService.claimRead(userId, pipelineId);
-    return this.pipelineService.findById(pipelineId);
+    return this.pipelineService.findByIdForUser(userId, pipelineId);
   }
 
   @ApiOkResponse({
@@ -164,11 +164,11 @@ export class PipelinesController {
   async patchPipeline(
     @AuthId() userId: UserId,
     @Param('pipelineId') pipelineId: PipelineId,
-    @Body() { name }: PatchPipelineDto,
+    @Body() { name, isPublic }: PatchPipelineDto,
   ) {
     await this.pipelineAbilityService.claimModify(userId, pipelineId);
-    await this.pipelineService.updatePipeline(pipelineId, { name });
-    return this.pipelineService.findById(pipelineId);
+    await this.pipelineService.updatePipeline(pipelineId, { name, isPublic });
+    return this.pipelineService.findByIdForUser(userId, pipelineId);
   }
 
   @ApiCreatedResponse({
@@ -185,7 +185,7 @@ export class PipelinesController {
   ) {
     await this.pipelineAbilityService.claimModify(userId, pipelineId);
     await this.mapperService.create(pipelineId, code, type, config);
-    return this.pipelineService.findById(pipelineId);
+    return this.pipelineService.findByIdForUser(userId, pipelineId);
   }
 
   @ApiCreatedResponse({
@@ -202,7 +202,7 @@ export class PipelinesController {
   ) {
     await this.pipelineAbilityService.claimModify(userId, pipelineId);
     await this.widgetService.create(pipelineId, type, config, datashape);
-    return this.pipelineService.findById(pipelineId);
+    return this.pipelineService.findByIdForUser(userId, pipelineId);
   }
 
   @ApiOkResponse({
@@ -217,7 +217,7 @@ export class PipelinesController {
     @Param('pipelineId') pipelineId: PipelineId,
     @Param('widgetId') widgetId: WidgetId,
   ) {
-    await this.pipelineAbilityService.claimModify(userId, pipelineId);
+    await this.pipelineAbilityService.claimRead(userId, pipelineId);
     const widget = await this.widgetService.findById(widgetId);
     return this.mapperService.queryAllByDatashape(widget.datashape);
   }
@@ -259,7 +259,7 @@ export class PipelinesController {
       await queryRunner.release();
     }
 
-    return this.pipelineService.findById(pipelineId);
+    return this.pipelineService.findByIdForUser(userId, pipelineId);
   }
 
   @ApiOkResponse({
@@ -272,7 +272,7 @@ export class PipelinesController {
     @AuthId() userId: UserId,
     @Param('pipelineId') pipelineId: PipelineId,
   ) {
-    await this.pipelineAbilityService.claimModify(userId, pipelineId);
+    await this.pipelineAbilityService.claimRead(userId, pipelineId);
     const entities = await this.pipelineService.getEntitiesByPipelineId(
       pipelineId,
     );
@@ -299,7 +299,7 @@ export class PipelinesController {
   ) {
     await this.pipelineAbilityService.claimModify(userId, pipelineId);
     await this.dataSourceService.create(pipelineId, type, config);
-    return this.pipelineService.findById(pipelineId);
+    return this.pipelineService.findByIdForUser(userId, pipelineId);
   }
 
   @Get('/:pipelineId/mappers/:mapperCode/params')
