@@ -120,7 +120,10 @@ export class DappRadarDappDatasource extends AbstractDappDataSource<
         return acc;
       }, {}),
       historicalMetrics: METRICS.reduce((acc, metric) => {
-        if (dApp.metrics[metric] !== null) {
+        if (
+          dApp.metrics[metric] !== null &&
+          dApp.metrics[metric] !== undefined
+        ) {
           const value = scalarMetrics.includes(metric)
             ? dApp.metrics[metric]
             : { [USD.id]: dApp.metrics[metric] };
