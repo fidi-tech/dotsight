@@ -32,7 +32,7 @@ export class DappRadarProtocolDatasource extends AbstractProtocolDataSource<
   private httpClient: AxiosInstance;
 
   public static getName(): string {
-    return `DappRadar`;
+    return `DappRadar DeFi`;
   }
 
   public static getDescription(): string {

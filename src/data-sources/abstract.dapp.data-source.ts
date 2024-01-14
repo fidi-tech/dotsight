@@ -1,13 +1,13 @@
 import { AbstractDataSource, Meta } from './abstract.data-source';
-import { DApp } from '../entities/dapp.entity';
+import { Protocol } from '../entities/protocol.entity';
 
 export abstract class AbstractDappDataSource<C, P> extends AbstractDataSource<
   C,
   P,
-  DApp,
+  Protocol,
   Meta
 > {
   public static getEntity(): string {
-    return 'dapp';
+    return 'protocol';
   }
 }

@@ -1,7 +1,7 @@
 import { BadRequestException } from '@nestjs/common';
 import axios, { AxiosHeaders, AxiosInstance } from 'axios';
 
-import { DApp, METRICS } from '../../../entities/dapp.entity';
+import { Protocol, METRICS } from '../../../entities/protocol.entity';
 import { Units } from '../../../entities/entity';
 import { USD } from '../../../common/currecies';
 import { Meta } from '../../abstract.data-source';
@@ -39,7 +39,7 @@ export class DappRadarDappDatasource extends AbstractDappDataSource<
   private httpClient: AxiosInstance;
 
   public static getName(): string {
-    return `DappRadar Dapps`;
+    return `DappRadar DApps`;
   }
 
   public static getDescription(): string {
@@ -81,7 +81,7 @@ export class DappRadarDappDatasource extends AbstractDappDataSource<
   }
 
   public async getItems({ dappId, range }: Params): Promise<{
-    items: DApp[];
+    items: Protocol[];
     meta: Meta;
   }> {
     if (!RANGES.includes(range)) {
@@ -89,7 +89,7 @@ export class DappRadarDappDatasource extends AbstractDappDataSource<
         `Wrong range param. ${RANGES.join('|')} are available`,
       );
     }
-    const items: DApp[] = [];
+    const items: Protocol[] = [];
     const units: Units = {
       [USD.id]: USD,
     };
@@ -98,13 +98,16 @@ export class DappRadarDappDatasource extends AbstractDappDataSource<
     const dApp = response.data.results;
     items.push({
       id: dApp.dappId.toString(),
-      entity: 'dapp',
+      entity: 'protocol',
       meta: {
         name: dApp.name,
         logoUrl: dApp.logo,
       },
       metrics: METRICS.reduce((acc, metric) => {
-        if (dApp.metrics[metric] !== null) {
+        if (
+          dApp.metrics[metric] !== null &&
+          dApp.metrics[metric] !== undefined
+        ) {
           const changeKey = `${metric}PercentageChange`;
           const value = scalarMetrics.includes(metric)
             ? dApp.metrics[metric]

@@ -5,7 +5,7 @@ import {
   TYPE,
 } from '../../../datashapes/statistics.datashape';
 import { ENTITIES } from '../../../entities/const';
-import { DApp } from '../../../entities/dapp.entity';
+import { Protocol } from '../../../entities/protocol.entity';
 
 type Config = {
   entity: string;
@@ -69,8 +69,8 @@ export class StatisticsMapper extends AbstractMapper<
     return [this.config.entity];
   }
 
-  map(data: { dapp: Array<DApp> }): StatisticsDatashape {
-    const dApp = data.dapp[0];
+  map(data: { protocol: Protocol[] }): StatisticsDatashape {
+    const dApp = data.protocol[0];
     return {
       stats: Object.entries(dApp.metrics).reduce(
         (
