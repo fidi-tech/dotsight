@@ -1,5 +1,9 @@
 import { AbstractMapper } from '../../abstract.mapper';
-import { Stat, StatisticsDatashape, TYPE } from '../../../datashapes/statistics.datashape';
+import {
+  Stat,
+  StatisticsDatashape,
+  TYPE,
+} from '../../../datashapes/statistics.datashape';
 import { ENTITIES } from '../../../entities/const';
 import { DApp } from '../../../entities/dapp.entity';
 
@@ -14,7 +18,7 @@ export class StatisticsMapper extends AbstractMapper<
   Params,
   any,
   StatisticsDatashape
-  > {
+> {
   static getName(): string {
     return 'Statistics';
   }
@@ -51,7 +55,7 @@ export class StatisticsMapper extends AbstractMapper<
         dappId: {
           description: 'DappId from DappRadar',
           type: 'integer',
-        }
+        },
       },
       required: [],
     };
@@ -65,17 +69,23 @@ export class StatisticsMapper extends AbstractMapper<
     return [this.config.entity];
   }
 
-  map(data: {dapp: Array<DApp>}): StatisticsDatashape {
+  map(data: { dapp: Array<DApp> }): StatisticsDatashape {
     const dApp = data.dapp[0];
     return {
-      stats: Object.entries(dApp.metrics).reduce((acc, [key, value]: [string, {value: number, percentageChange: number}]) => {
-        acc.push({
-          stat: key,
-          value: value.value,
-          change: value.percentageChange,
-        });
-        return acc;
-      }, [] as Array<Stat>),
+      stats: Object.entries(dApp.metrics).reduce(
+        (
+          acc,
+          [key, value]: [string, { value: number; percentageChange: number }],
+        ) => {
+          acc.push({
+            stat: key,
+            value: value.value,
+            change: value.percentageChange,
+          });
+          return acc;
+        },
+        [] as Array<Stat>,
+      ),
       name: dApp.meta.name,
       logoUrl: dApp.meta.logoUrl,
     };

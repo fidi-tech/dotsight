@@ -1,4 +1,6 @@
+import { BadRequestException } from '@nestjs/common';
 import axios, { AxiosHeaders, AxiosInstance } from 'axios';
+
 import { DApp, METRICS } from '../../../entities/dapp.entity';
 import { Units } from '../../../entities/entity';
 import { USD } from '../../../common/currecies';
@@ -12,7 +14,8 @@ type Config = {
   endpoint: string;
 };
 
-type Range = '24h' | '7d' | '30d';
+const RANGES = ['24h', '7d', '30d'];
+type Range = (typeof RANGES)[number];
 
 type Params = {
   dappId: number;
@@ -81,12 +84,17 @@ export class DappRadarDappDatasource extends AbstractDappDataSource<
     items: DApp[];
     meta: Meta;
   }> {
+    if (!RANGES.includes(range)) {
+      throw new BadRequestException(
+        `Wrong range param. ${RANGES.join('|')} are available`,
+      );
+    }
     const items: DApp[] = [];
     const units: Units = {
       [USD.id]: USD,
     };
 
-    const response = await this.fetchDApp({dappId, range});
+    const response = await this.fetchDApp({ dappId, range });
     const dApp = response.data.results;
     items.push({
       id: dApp.dappId.toString(),
@@ -100,7 +108,7 @@ export class DappRadarDappDatasource extends AbstractDappDataSource<
           const changeKey = `${metric}PercentageChange`;
           const value = scalarMetrics.includes(metric)
             ? dApp.metrics[metric]
-            : {[USD.id]: dApp.metrics[metric]};
+            : { [USD.id]: dApp.metrics[metric] };
           acc[metric] = {
             value,
             percentageChange: dApp.metrics[changeKey],
@@ -112,11 +120,13 @@ export class DappRadarDappDatasource extends AbstractDappDataSource<
         if (dApp.metrics[metric] !== null) {
           const value = scalarMetrics.includes(metric)
             ? dApp.metrics[metric]
-            : {[USD.id]: dApp.metrics[metric]};
-          acc[metric] = [{
-            timestamp: Math.floor(Date.now() / 1000),
-            value,
-          }];
+            : { [USD.id]: dApp.metrics[metric] };
+          acc[metric] = [
+            {
+              timestamp: Math.floor(Date.now() / 1000),
+              value,
+            },
+          ];
         }
         return acc;
       }, {}),
@@ -133,21 +143,19 @@ export class DappRadarDappDatasource extends AbstractDappDataSource<
   public static getParamsSchema(): object {
     return {
       title: 'Params',
-      description: 'DappRadarProtocolDatasource params',
+      description: 'DappRadarDappDatasource params',
       type: 'object',
-      properties: {},
-      required: [],
+      properties: {
+        dappId: {
+          description: 'DappId from DappRadar',
+          type: 'integer',
+        },
+      },
+      required: ['dappId'],
     };
   }
 
-
-  private fetchDApp({
-   dappId,
-   range,
-  }: {
-    dappId: number,
-    range?: Range,
-  }) {
+  private fetchDApp({ dappId, range }: { dappId: number; range?: Range }) {
     return this.httpClient.get<{
       results: DappRadarApp;
       page: number;

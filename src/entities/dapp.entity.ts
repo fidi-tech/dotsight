@@ -14,6 +14,11 @@ type Metrics = {
 
 export const META: Array<keyof Meta> = ['name'];
 
-export const METRICS: Array<keyof Metrics> = ['uaw', 'volume', 'transactions', 'balance'];
+export const METRICS: Array<keyof Metrics> = [
+  'uaw',
+  'volume',
+  'transactions',
+  'balance',
+];
 
 export type DApp = Entity<'dapp', Meta, Metrics>;
