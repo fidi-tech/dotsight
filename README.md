@@ -21,7 +21,7 @@ DotSight operates under the [Apache License](./NOTICE).
 
 
 ## Quick Start
-After cloning the DotSight repository and ensuring you have `node` v16, `npm` v7, and `docker` v20, or above:
+After cloning the DotSight repository and ensuring you have `node` v18, `npm` v9, and `docker` v20, or above:
 
 ```bash
 # install all necessary dependencies
