@@ -5,7 +5,7 @@ export const TYPE = 'statistics';
 export type Stat = {
   stat: string;
   value: number | Record<UnitId, number>;
-  change: number;
+  change?: number;
 };
 
 export type StatisticsDatashape = {

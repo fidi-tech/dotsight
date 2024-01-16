@@ -98,10 +98,8 @@ describe('DappRadarDappDatasource', () => {
             name: 'n1',
           },
           metrics: {
-            uaw: {
-              value: 1,
-              percentageChange: 2,
-            },
+            uaw: 1,
+            uawPercentageChange: 2,
           },
         },
       ],

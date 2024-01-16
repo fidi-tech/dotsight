@@ -1,13 +1,17 @@
 import { BadRequestException } from '@nestjs/common';
 import axios, { AxiosHeaders, AxiosInstance } from 'axios';
 
-import { Protocol, METRICS } from '../../../entities/protocol.entity';
+import {
+  Protocol,
+  METRICS,
+  PERCENTAGE_CHANGE_SUFFIX,
+} from '../../../entities/protocol.entity';
 import { Units } from '../../../entities/entity';
 import { USD } from '../../../common/currecies';
 import { Meta } from '../../abstract.data-source';
 import { addLogging } from '../../../common/http';
 import { URL_REGEXP } from '../../../common/regexp';
-import { AbstractDappDataSource } from '../../abstract.dapp.data-source';
+import { AbstractProtocolDataSource } from '../../abstract.protocol.data-source';
 
 type Config = {
   key: string;
@@ -32,18 +36,18 @@ type DappRadarApp = {
 
 const scalarMetrics = ['transactions', 'uaw'];
 
-export class DappRadarDappDatasource extends AbstractDappDataSource<
+export class DappRadarDappDatasource extends AbstractProtocolDataSource<
   Config,
   Params
 > {
   private httpClient: AxiosInstance;
 
   public static getName(): string {
-    return `DappRadar DApps`;
+    return `DappRadar DApp information`;
   }
 
   public static getDescription(): string {
-    return `Data source powered by DappRadar API that returns Dapps' data. Consult https://api-docs.dappradar.com for more info.`;
+    return `Data source powered by DappRadar API that returns users, transactions, volume, balance for a specific DApp, powered by DappRadar API. Consult https://api-docs.dappradar.com/#operation/getDappItem for more info.`;
   }
 
   public static getConfigSchema(): object {
@@ -108,14 +112,12 @@ export class DappRadarDappDatasource extends AbstractDappDataSource<
           dApp.metrics[metric] !== null &&
           dApp.metrics[metric] !== undefined
         ) {
-          const changeKey = `${metric}PercentageChange`;
+          const changeKey = `${metric}${PERCENTAGE_CHANGE_SUFFIX}`;
           const value = scalarMetrics.includes(metric)
             ? dApp.metrics[metric]
             : { [USD.id]: dApp.metrics[metric] };
-          acc[metric] = {
-            value,
-            percentageChange: dApp.metrics[changeKey],
-          };
+          acc[metric] = value;
+          acc[changeKey] = dApp.metrics[changeKey];
         }
         return acc;
       }, {}),

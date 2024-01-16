@@ -4,8 +4,10 @@ import {
   StatisticsDatashape,
   TYPE,
 } from '../../../datashapes/statistics.datashape';
-import { ENTITIES } from '../../../entities/const';
-import { Protocol } from '../../../entities/protocol.entity';
+import {
+  PERCENTAGE_CHANGE_SUFFIX,
+  Protocol,
+} from '../../../entities/protocol.entity';
 
 type Config = {
   entity: string;
@@ -39,7 +41,7 @@ export class StatisticsMapper extends AbstractMapper<
       properties: {
         entity: {
           description: 'Entity to be processed, e.g. walletToken',
-          enum: ENTITIES,
+          enum: ['protocol'],
         },
       },
       required: ['entity'],
@@ -51,12 +53,7 @@ export class StatisticsMapper extends AbstractMapper<
       title: 'Params',
       description: 'StatisticsMapper params',
       type: 'object',
-      properties: {
-        dappId: {
-          description: 'DappId from DappRadar',
-          type: 'integer',
-        },
-      },
+      properties: {},
       required: [],
     };
   }
@@ -71,21 +68,22 @@ export class StatisticsMapper extends AbstractMapper<
 
   map(data: { protocol: Protocol[] }): StatisticsDatashape {
     const dApp = data.protocol[0];
+    const metrics = dApp.metrics;
+    const keys = Object.keys(metrics).filter(
+      (key) => !key.includes(PERCENTAGE_CHANGE_SUFFIX),
+    );
     return {
-      stats: Object.entries(dApp.metrics).reduce(
-        (
-          acc,
-          [key, value]: [string, { value: number; percentageChange: number }],
-        ) => {
-          acc.push({
-            stat: key,
-            value: value.value,
-            change: value.percentageChange,
-          });
-          return acc;
-        },
-        [] as Array<Stat>,
-      ),
+      stats: keys.reduce((acc, key) => {
+        const value = {
+          stat: key,
+          value: metrics[key],
+        } as Stat;
+        if (metrics[`${key}${PERCENTAGE_CHANGE_SUFFIX}`]) {
+          value.change = metrics[`${key}${PERCENTAGE_CHANGE_SUFFIX}`];
+        }
+        acc.push(value);
+        return acc;
+      }, [] as Array<Stat>),
       name: dApp.meta.name,
       logoUrl: dApp.meta.logoUrl,
     };
