@@ -15,7 +15,7 @@ export class AuthControllerDev {
   async callbackGoogle(@Req() request, @Res() response: Response) {
     const user = await this.authService.createUser(
       'dev-google',
-      `dotsight-developer-${Math.random()}`,
+      `dotsight-developer-google`,
     );
     return await this.authService.signIn(response, user);
   }
@@ -29,7 +29,7 @@ export class AuthControllerDev {
   async callbackTwitter(@Req() request, @Res() response: Response) {
     const user = await this.authService.createUser(
       'dev-twitter',
-      `dotsight-developer-${Math.random()}`,
+      `dotsight-developer-twitter`,
     );
     return await this.authService.signIn(response, user);
   }
@@ -43,7 +43,7 @@ export class AuthControllerDev {
   async callbackGithub(@Req() request, @Res() response: Response) {
     const user = await this.authService.createUser(
       'dev-github',
-      `dotsight-developer-${Math.random()}`,
+      `dotsight-developer-github`,
     );
     return await this.authService.signIn(response, user);
   }
