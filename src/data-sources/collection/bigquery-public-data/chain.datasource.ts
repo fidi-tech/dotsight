@@ -2,7 +2,7 @@ import { AbstractChainDataSource } from '../../abstract.chain.data-source';
 import { Meta } from '../../abstract.data-source';
 import { CHAINS, ChainType } from './const';
 import { BigQuery, BigQueryTimestamp } from '@google-cloud/bigquery';
-import { TRANSACTIONS_COUNT } from './queries';
+import { TRANSACTIONS_COUNT, BLOCKS_COUNT } from './queries';
 import { Chain } from '../../../entities/chain.entity';
 
 type Config = Record<string, never>;
@@ -62,8 +62,6 @@ export class BigQueryPublicDataChainDatasource extends AbstractChainDataSource<
       location: CHAINS[chain].location,
     };
 
-    console.log(options.query);
-
     const [job] = await this.bigquery.createQueryJob(options);
     const [rows] = await job.getQueryResults();
 
@@ -81,10 +79,35 @@ export class BigQueryPublicDataChainDatasource extends AbstractChainDataSource<
     );
   }
 
+  private async getDailyBlocksCount(chain: ChainType, daysAgo: number) {
+    const options = {
+      query: BLOCKS_COUNT(CHAINS[chain], daysAgo),
+      location: CHAINS[chain].location,
+    };
+
+    const [job] = await this.bigquery.createQueryJob(options);
+    const [rows] = await job.getQueryResults();
+
+    return rows.map(
+      ({
+        day,
+        f0_: dailyBlocksCount,
+      }: {
+        day: BigQueryTimestamp;
+        f0_: number;
+      }) => ({
+        timestamp: new Date(day.value),
+        dailyBlocksCount,
+      }),
+    );
+  }
+
   async getItems({ chain }: Params): Promise<{ items: Chain[]; meta: Meta }> {
-    const [dailyTransactionsCountData] = await Promise.all([
-      this.getDailyTransactionsCount(chain, 2),
-    ]);
+    const [dailyTransactionsCountData, dailyBlocksCountData] =
+      await Promise.all([
+        this.getDailyTransactionsCount(chain, 2),
+        this.getDailyBlocksCount(chain, 2),
+      ]);
 
     return {
       items: [
@@ -99,6 +122,7 @@ export class BigQueryPublicDataChainDatasource extends AbstractChainDataSource<
           metrics: {
             dailyTransactionsCount:
               dailyTransactionsCountData[0].dailyTransactionsCount,
+            dailyBlocksCount: dailyBlocksCountData[0].dailyBlocksCount,
           },
 
           historicalMetrics: {
@@ -108,6 +132,14 @@ export class BigQueryPublicDataChainDatasource extends AbstractChainDataSource<
                   dailyTransactionsCountData[0].timestamp.getTime() / 1000,
                 ),
                 value: dailyTransactionsCountData[0].dailyTransactionsCount,
+              },
+            ],
+            dailyBlocksCount: [
+              {
+                timestamp: Math.floor(
+                  dailyBlocksCountData[0].timestamp.getTime() / 1000,
+                ),
+                value: dailyBlocksCountData[0].dailyBlocksCount,
               },
             ],
           },

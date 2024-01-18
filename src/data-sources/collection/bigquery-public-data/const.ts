@@ -5,6 +5,18 @@ export const CHAINS = {
     dataset: 'bigquery-public-data.goog_blockchain_ethereum_mainnet_us',
     location: 'US',
   },
+  avalanche: {
+    id: 'avalanche',
+    name: 'Avalanche',
+    dataset: 'bigquery-public-data.goog_blockchain_avalanche_contract_chain_us',
+    location: 'US',
+  },
+  arbitrum: {
+    id: 'arbitrum',
+    name: 'Arbitrum',
+    dataset: 'bigquery-public-data.goog_blockchain_arbitrum_one_us',
+    location: 'US',
+  },
 } as const;
 
 export type ChainType = keyof typeof CHAINS;
