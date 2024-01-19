@@ -8,7 +8,7 @@ import { Chain } from '../../../entities/chain.entity';
 type Config = Record<string, never>;
 
 type Params = {
-  chain: ChainType;
+  chains: ChainType[];
 };
 
 export class BigQueryPublicDataChainDatasource extends AbstractChainDataSource<
@@ -47,12 +47,15 @@ export class BigQueryPublicDataChainDatasource extends AbstractChainDataSource<
       description: 'ChainlinkTokenDataSource params',
       type: 'object',
       properties: {
-        chain: {
-          description: "Which chain's data to show",
-          enum: Object.keys(CHAINS),
+        chains: {
+          description: "Which chains' data to show",
+          type: 'array',
+          items: {
+            enum: Object.keys(CHAINS),
+          },
         },
       },
-      required: [],
+      required: ['chains'],
     };
   }
 
@@ -102,16 +105,26 @@ export class BigQueryPublicDataChainDatasource extends AbstractChainDataSource<
     );
   }
 
-  async getItems({ chain }: Params): Promise<{ items: Chain[]; meta: Meta }> {
-    const [dailyTransactionsCountData, dailyBlocksCountData] =
-      await Promise.all([
-        this.getDailyTransactionsCount(chain, 2),
-        this.getDailyBlocksCount(chain, 2),
-      ]);
+  async getItems({ chains }: Params): Promise<{ items: Chain[]; meta: Meta }> {
+    const datas = await Promise.all(
+      chains.map(async (chain) => {
+        const [dailyTransactionsCountData, dailyBlocksCountData] =
+          await Promise.all([
+            this.getDailyTransactionsCount(chain, 30),
+            this.getDailyBlocksCount(chain, 30),
+          ]);
+
+        return {
+          chain,
+          dailyTransactionsCountData,
+          dailyBlocksCountData,
+        };
+      }),
+    );
 
     return {
-      items: [
-        {
+      items: datas.map(
+        ({ chain, dailyTransactionsCountData, dailyBlocksCountData }) => ({
           entity: 'chain',
           id: CHAINS[chain].id,
 
@@ -126,25 +139,21 @@ export class BigQueryPublicDataChainDatasource extends AbstractChainDataSource<
           },
 
           historicalMetrics: {
-            dailyTransactionsCount: [
-              {
-                timestamp: Math.floor(
-                  dailyTransactionsCountData[0].timestamp.getTime() / 1000,
-                ),
-                value: dailyTransactionsCountData[0].dailyTransactionsCount,
-              },
-            ],
-            dailyBlocksCount: [
-              {
-                timestamp: Math.floor(
-                  dailyBlocksCountData[0].timestamp.getTime() / 1000,
-                ),
-                value: dailyBlocksCountData[0].dailyBlocksCount,
-              },
-            ],
+            dailyTransactionsCount: dailyTransactionsCountData.map(
+              ({ timestamp, dailyTransactionsCount }) => ({
+                timestamp: Math.floor(timestamp.getTime() / 1000),
+                value: dailyTransactionsCount,
+              }),
+            ),
+            dailyBlocksCount: dailyBlocksCountData.map(
+              ({ timestamp, dailyBlocksCount }) => ({
+                timestamp: Math.floor(timestamp.getTime() / 1000),
+                value: dailyBlocksCount,
+              }),
+            ),
           },
-        },
-      ],
+        }),
+      ),
       meta: {
         units: {},
       },

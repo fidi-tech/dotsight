@@ -9,11 +9,13 @@ export const TRANSACTIONS_COUNT = (
     count(*)
   FROM \`${dataset}.transactions\`
   WHERE
-    TIMESTAMP_TRUNC(block_timestamp, DAY) > TIMESTAMP_TRUNC(TIMESTAMP_SUB(CURRENT_TIMESTAMP, INTERVAL ${daysAgo} DAY), DAY)
+    TIMESTAMP_TRUNC(block_timestamp, DAY) > TIMESTAMP_TRUNC(TIMESTAMP_SUB(CURRENT_TIMESTAMP, INTERVAL ${
+      daysAgo + 1
+    } DAY), DAY)
   GROUP BY 
     day
   ORDER BY 
-    day ASC
+    day DESC
 `;
 
 export const BLOCKS_COUNT = ({ dataset }: ChainParams, daysAgo: number) => `
@@ -22,9 +24,11 @@ export const BLOCKS_COUNT = ({ dataset }: ChainParams, daysAgo: number) => `
     count(*)
   FROM \`${dataset}.blocks\`
   WHERE
-    TIMESTAMP_TRUNC(block_timestamp, DAY) > TIMESTAMP_TRUNC(TIMESTAMP_SUB(CURRENT_TIMESTAMP, INTERVAL ${daysAgo} DAY), DAY)
+    TIMESTAMP_TRUNC(block_timestamp, DAY) > TIMESTAMP_TRUNC(TIMESTAMP_SUB(CURRENT_TIMESTAMP, INTERVAL ${
+      daysAgo + 1
+    } DAY), DAY)
   GROUP BY 
     day
   ORDER BY 
-    day ASC
+    day DESC
 `;

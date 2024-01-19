@@ -29,7 +29,9 @@ describe('BigQueryPublicDataChainDatasource', () => {
       },
     ]);
 
-    const result = await datasource.getItems({ chain: 'ethereum' });
+    const result = await datasource.getItems({
+      chains: ['ethereum', 'avalanche'],
+    });
     expect(result).toEqual({
       items: [
         {
@@ -40,17 +42,58 @@ describe('BigQueryPublicDataChainDatasource', () => {
                 timestamp: 1,
                 value: 123,
               },
+              {
+                timestamp: 2,
+                value: 321,
+              },
             ],
             dailyTransactionsCount: [
               {
                 timestamp: 1,
                 value: 123,
               },
+              {
+                timestamp: 2,
+                value: 321,
+              },
             ],
           },
           id: 'ethereum',
           meta: {
             name: 'Ethereum',
+          },
+          metrics: {
+            dailyBlocksCount: 123,
+            dailyTransactionsCount: 123,
+          },
+        },
+        {
+          entity: 'chain',
+          historicalMetrics: {
+            dailyBlocksCount: [
+              {
+                timestamp: 1,
+                value: 123,
+              },
+              {
+                timestamp: 2,
+                value: 321,
+              },
+            ],
+            dailyTransactionsCount: [
+              {
+                timestamp: 1,
+                value: 123,
+              },
+              {
+                timestamp: 2,
+                value: 321,
+              },
+            ],
+          },
+          id: 'avalanche',
+          meta: {
+            name: 'Avalanche',
           },
           metrics: {
             dailyBlocksCount: 123,
