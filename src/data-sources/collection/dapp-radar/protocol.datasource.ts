@@ -32,11 +32,11 @@ export class DappRadarProtocolDatasource extends AbstractProtocolDataSource<
   private httpClient: AxiosInstance;
 
   public static getName(): string {
-    return `DappRadar`;
+    return `DappRadar DApp metrics`;
   }
 
   public static getDescription(): string {
-    return `Data source powered by DappRadar API that returns Dapps' data. Consult https://api-docs.dappradar.com for more info.`;
+    return `Data source powered by DappRadar API that returns Dapps' DeFi metrics (TVL, aTVL, CAP). Consult https://api-docs.dappradar.com/#operation/getDeFiChains for more info.`;
   }
 
   public static getConfigSchema(): object {
