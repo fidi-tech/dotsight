@@ -6,6 +6,7 @@ import { DebankWalletTokenProtocolDatasource } from './debank/wallet-token.proto
 import { GiantSquidStatsWalletTokenDataSource } from './giant-squid/stats/wallet-token.datasource';
 import { Erc20Datasource } from './rpc/erc20.datasource';
 import { ChainlinkTokenDataSource } from './chainlink/token.datasource';
+import { BigQueryPublicDataChainDatasource } from './bigquery-public-data/chain.datasource';
 
 export const collection = {
   'dapp-radar-protocols': DappRadarProtocolDatasource,
@@ -16,6 +17,7 @@ export const collection = {
   'giant-squid-stats-wallet-token': GiantSquidStatsWalletTokenDataSource,
   'erc20-wallet-tokens': Erc20Datasource,
   'chainlink-tokens': ChainlinkTokenDataSource,
+  'bigquery-public-data-chains': BigQueryPublicDataChainDatasource,
 } as const;
 
 // checking if required static methods are implemented

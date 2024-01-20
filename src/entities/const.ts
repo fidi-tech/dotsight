@@ -11,8 +11,15 @@ import {
   METRICS as PROTOCOL_METRICS,
 } from './protocol.entity';
 import { META as TOKEN_META, METRICS as TOKEN_METRICS } from './token.entity';
+import { META as CHAIN_META, METRICS as CHAIN_METRICS } from './chain.entity';
 
-export const ENTITIES = ['protocol', 'wallet', 'walletToken', 'token'] as const;
+export const ENTITIES = [
+  'protocol',
+  'wallet',
+  'walletToken',
+  'token',
+  'chain',
+] as const;
 
 export const FIELDS: Record<
   (typeof ENTITIES)[number],
@@ -33,5 +40,9 @@ export const FIELDS: Record<
   token: {
     meta: TOKEN_META,
     metrics: TOKEN_METRICS,
+  },
+  chain: {
+    meta: CHAIN_META,
+    metrics: CHAIN_METRICS,
   },
 };
