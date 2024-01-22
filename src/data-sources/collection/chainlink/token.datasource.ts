@@ -1,6 +1,6 @@
 import { AbstractTokenDataSource } from '../../abstract.token.data-source';
 import { config } from './config';
-import { Token } from '../../../entities/token.entity';
+import { Token, ENTITY } from '../../../entities/token.entity';
 import { Meta } from '../../abstract.data-source';
 import { Contract, Web3 } from 'web3';
 import { abi } from './abi';
@@ -217,7 +217,7 @@ export class ChainlinkTokenDataSource extends AbstractTokenDataSource<
       items: [
         {
           id: this.token.id,
-          entity: 'token',
+          entity: ENTITY,
           meta: {
             id: this.token.id,
             symbol: this.token.symbol,

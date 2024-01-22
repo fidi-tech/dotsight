@@ -1,5 +1,7 @@
 import { Entity } from './entity';
 
+export const ENTITY = 'chain';
+
 type Meta = {
   name: string;
 };

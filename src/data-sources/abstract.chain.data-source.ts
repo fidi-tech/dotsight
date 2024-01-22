@@ -1,5 +1,5 @@
 import { AbstractDataSource, Meta } from './abstract.data-source';
-import { Chain } from '../entities/chain.entity';
+import { Chain, ENTITY } from '../entities/chain.entity';
 
 export abstract class AbstractChainDataSource<C, P> extends AbstractDataSource<
   C,
@@ -8,6 +8,6 @@ export abstract class AbstractChainDataSource<C, P> extends AbstractDataSource<
   Meta
 > {
   public static getEntity(): string {
-    return 'chain';
+    return ENTITY;
   }
 }

@@ -6,10 +6,10 @@ export type NFTRaw = {
   name: string;
   description: string;
   content_type: string;
-  content: string;
+  content: string | null;
   thumbnail_url: string;
   total_supply: number;
-  detail_url: string;
+  detail_url?: string;
   attributes: Array<object>;
   collection_id: string;
   pay_token?: {

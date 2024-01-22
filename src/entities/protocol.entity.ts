@@ -1,5 +1,7 @@
 import { UnitId, Entity } from './entity';
 
+export const ENTITY = 'protocol';
+
 type Meta = {
   name?: string;
   logoUrl?: string;

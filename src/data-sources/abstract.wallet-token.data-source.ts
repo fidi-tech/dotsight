@@ -5,6 +5,7 @@ import {
   Protocol,
   ProtocolId,
   WalletToken,
+  ENTITY,
 } from '../entities/wallet-token.entity';
 
 export type WalletTokenMeta = Meta & {
@@ -17,6 +18,6 @@ export abstract class AbstractWalletTokenDataSource<
   P,
 > extends AbstractDataSource<C, P, WalletToken, WalletTokenMeta> {
   public static getEntity(): string {
-    return 'walletToken';
+    return ENTITY;
   }
 }

@@ -8,7 +8,10 @@ import {
   WalletNFTMeta,
 } from '../../abstract.wallet-nft.data-source';
 import { NFTRaw } from './types';
-import { WalletNFT } from '../../../entities/wallet-nft.entity';
+import {
+  ENTITY as WALLET_NFT_ENTITY,
+  WalletNFT,
+} from '../../../entities/wallet-nft.entity';
 import { normalizeNFT } from './helpers';
 
 type Config = {
@@ -16,7 +19,7 @@ type Config = {
 };
 
 type Params = {
-  walletId: string;
+  walletIds: string[];
 };
 
 export class DebankWalletNFTDatasource extends AbstractWalletNFTDataSource<
@@ -62,19 +65,22 @@ export class DebankWalletNFTDatasource extends AbstractWalletNFTDataSource<
     addLogging('DebankWalletNFTDatasource', this.httpClient);
   }
 
-  async getItems({ walletId }: Params): Promise<{
+  async getItems({ walletIds }: Params): Promise<{
     items: WalletNFT[];
     meta: WalletNFTMeta;
   }> {
-    if (!walletId) {
+    if (!Array.isArray(walletIds)) {
       throw new BadRequestException('walletIds parameter was not specified');
     }
 
-    const tokens = await this.getWalletNFTs({ walletId });
+    const data = await Promise.all(
+      walletIds.map((walletId) => this.getWalletNFTs({ walletId })),
+    );
+
     return {
-      items: tokens.map((token) => ({
+      items: data.flat().map((token) => ({
         id: `${token.contract_id}-${token.id}`,
-        entity: 'walletNFT',
+        entity: WALLET_NFT_ENTITY,
         meta: normalizeNFT(token),
         metrics: {},
         historicalMetrics: {},
@@ -102,12 +108,16 @@ export class DebankWalletNFTDatasource extends AbstractWalletNFTDataSource<
       description: 'DebankWalletTokenDatasource params',
       type: 'object',
       properties: {
-        walletId: {
-          description: 'Wallet',
-          type: 'string',
+        walletIds: {
+          description: 'Wallets',
+          type: 'array',
+          items: {
+            type: 'string',
+          },
+          minItems: 1,
         },
       },
-      required: ['walletId'],
+      required: ['walletIds'],
     };
   }
 }

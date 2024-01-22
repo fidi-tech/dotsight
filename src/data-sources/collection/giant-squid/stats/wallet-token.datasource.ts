@@ -3,7 +3,7 @@ import {
   WalletTokenMeta,
 } from '../../../abstract.wallet-token.data-source';
 import { gql, GraphQLClient } from 'graphql-request';
-import { WalletToken } from '../../../../entities/wallet-token.entity';
+import { WalletToken, ENTITY } from '../../../../entities/wallet-token.entity';
 import { BadRequestException } from '@nestjs/common';
 import { URL_REGEXP } from '../../../../common/regexp';
 
@@ -110,7 +110,7 @@ export class GiantSquidStatsWalletTokenDataSource extends AbstractWalletTokenDat
 
       items.push({
         id: `${account.id}-${this.config.coin.id}`,
-        entity: 'walletToken',
+        entity: ENTITY,
         meta: {
           id: this.config.coin.id,
           walletId: account.id,

@@ -1,5 +1,5 @@
 import { AbstractDataSource, Meta } from './abstract.data-source';
-import { Token } from '../entities/token.entity';
+import { Token, ENTITY } from '../entities/token.entity';
 
 export abstract class AbstractTokenDataSource<C, P> extends AbstractDataSource<
   C,
@@ -8,6 +8,6 @@ export abstract class AbstractTokenDataSource<C, P> extends AbstractDataSource<
   Meta
 > {
   public static getEntity(): string {
-    return 'token';
+    return ENTITY;
   }
 }

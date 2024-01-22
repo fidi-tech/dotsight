@@ -1,5 +1,7 @@
 import { Entity } from './entity';
 
+export const ENTITY = 'walletNFT';
+
 export type Meta = {
   id: string;
   contractId: string;

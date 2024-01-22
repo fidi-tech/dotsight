@@ -1,18 +1,16 @@
 import { AbstractMapper } from '../../abstract.mapper';
 import { NFTListDatashape, TYPE } from '../../../datashapes/nft-list.datashape';
+import { ENTITY } from '../../../entities/wallet-nft.entity';
 import { Entity } from '../../../entities/entity';
-import { ENTITIES } from '../../../entities/const';
 
-type Config = {
-  entity: string;
-};
+type Config = Record<string, never>;
 
 type Params = Record<string, never>;
 
 export class NFTListMapper extends AbstractMapper<
   Config,
   Params,
-  any,
+  typeof ENTITY,
   NFTListDatashape
 > {
   static getName(): string {
@@ -32,13 +30,8 @@ export class NFTListMapper extends AbstractMapper<
       title: 'Config',
       description: 'NFTListMapper configuration',
       type: 'object',
-      properties: {
-        entity: {
-          description: 'Entity to be processed, e.g. walletToken',
-          enum: ENTITIES,
-        },
-      },
-      required: ['entity'],
+      properties: {},
+      required: [],
     };
   }
 
@@ -57,11 +50,11 @@ export class NFTListMapper extends AbstractMapper<
   }
 
   getRequiredEntities(): string[] {
-    return [this.config.entity];
+    return [ENTITY];
   }
 
   map(allItems: Record<string, Entity<any, any, any>[]>): NFTListDatashape {
-    const items = allItems[this.config.entity].map((nft) => nft.meta);
+    const items = allItems[ENTITY].map((nft) => nft.meta);
     return {
       items,
     };

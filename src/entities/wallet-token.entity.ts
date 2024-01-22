@@ -1,5 +1,7 @@
 import { Entity, UnitId } from './entity';
 
+export const ENTITY = 'walletToken';
+
 export type ProtocolId = string;
 
 export type Protocol = {
