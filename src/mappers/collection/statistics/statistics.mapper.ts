@@ -7,13 +7,16 @@ import {
 import {
   PERCENTAGE_CHANGE_SUFFIX,
   Protocol,
+  ENTITY,
 } from '../../../entities/protocol.entity';
 
-type Config = {
-  entity: string;
+type Config = Record<string, never>;
+
+type Params = {
+  dappId: number,
 };
 
-type Params = Record<string, never>;
+class DappStatisticsMapperDappNotFound extends Error {}
 
 export class StatisticsMapper extends AbstractMapper<
   Config,
@@ -22,7 +25,7 @@ export class StatisticsMapper extends AbstractMapper<
   StatisticsDatashape
 > {
   static getName(): string {
-    return 'Statistics';
+    return 'Dapp Statistics';
   }
 
   static getDescription(): string {
@@ -30,21 +33,16 @@ export class StatisticsMapper extends AbstractMapper<
   }
 
   static getType(): string {
-    return 'statistics';
+    return 'dapp-statistics';
   }
 
   public static getConfigSchema(): object {
     return {
       title: 'Config',
-      description: 'StatisticsMapper configuration',
+      description: 'DappStatisticsMapper configuration',
       type: 'object',
-      properties: {
-        entity: {
-          description: 'Entity to be processed, e.g. walletToken',
-          enum: ['protocol'],
-        },
-      },
-      required: ['entity'],
+      properties: {},
+      required: [],
     };
   }
 
@@ -53,8 +51,13 @@ export class StatisticsMapper extends AbstractMapper<
       title: 'Params',
       description: 'StatisticsMapper params',
       type: 'object',
-      properties: {},
-      required: [],
+      properties: {
+        dappId: {
+          description: 'DappId from DappRadar',
+          type: 'integer',
+        },
+      },
+      required: ['dappId'],
     };
   }
 
@@ -63,11 +66,14 @@ export class StatisticsMapper extends AbstractMapper<
   }
 
   getRequiredEntities(): string[] {
-    return [this.config.entity];
+    return [ENTITY];
   }
 
-  map(data: { protocol: Protocol[] }): StatisticsDatashape {
-    const dApp = data.protocol[0];
+  map(data: { protocol: Protocol[] }, {dappId}): StatisticsDatashape {
+    const dApp = data.protocol.find(p => p.id.toString() === dappId);
+    if (!dApp) {
+      throw new DappStatisticsMapperDappNotFound(dappId);
+    }
     const metrics = dApp.metrics;
     const keys = Object.keys(metrics).filter(
       (key) => !key.includes(PERCENTAGE_CHANGE_SUFFIX),
