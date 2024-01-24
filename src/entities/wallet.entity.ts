@@ -1,5 +1,7 @@
 import { Entity, UnitId } from './entity';
 
+export const ENTITY = 'wallet';
+
 type Meta = {
   walletId: string;
 };

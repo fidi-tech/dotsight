@@ -1,24 +1,41 @@
 import {
   META as WALLET_TOKEN_META,
   METRICS as WALLET_TOKEN_METRICS,
+  ENTITY as WALLET_TOKEN_ENTITY,
 } from './wallet-token.entity';
 import {
   META as WALLET_META,
   METRICS as WALLET_METRICS,
+  ENTITY as WALLET_ENTITY,
 } from './wallet.entity';
 import {
   META as PROTOCOL_META,
   METRICS as PROTOCOL_METRICS,
+  ENTITY as PROTOCOL_ENTITY,
 } from './protocol.entity';
-import { META as TOKEN_META, METRICS as TOKEN_METRICS } from './token.entity';
-import { META as CHAIN_META, METRICS as CHAIN_METRICS } from './chain.entity';
+import {
+  META as TOKEN_META,
+  METRICS as TOKEN_METRICS,
+  ENTITY as TOKEN_ENTITY,
+} from './token.entity';
+import {
+  META as CHAIN_META,
+  METRICS as CHAIN_METRICS,
+  ENTITY as CHAIN_ENTITY,
+} from './chain.entity';
+import {
+  META as WALLET_NFT_META,
+  METRICS as WALLET_NFT_METRICS,
+  ENTITY as WALLET_NFT_ENTITY,
+} from './wallet-nft.entity';
 
 export const ENTITIES = [
-  'protocol',
-  'wallet',
-  'walletToken',
-  'token',
-  'chain',
+  PROTOCOL_ENTITY,
+  WALLET_ENTITY,
+  WALLET_TOKEN_ENTITY,
+  TOKEN_ENTITY,
+  CHAIN_ENTITY,
+  WALLET_NFT_ENTITY,
 ] as const;
 
 export const FIELDS: Record<
@@ -44,5 +61,9 @@ export const FIELDS: Record<
   chain: {
     meta: CHAIN_META,
     metrics: CHAIN_METRICS,
+  },
+  walletNFT: {
+    meta: WALLET_NFT_META,
+    metrics: WALLET_NFT_METRICS,
   },
 };

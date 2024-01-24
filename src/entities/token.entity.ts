@@ -1,5 +1,7 @@
 import { Entity, UnitId } from './entity';
 
+export const ENTITY = 'token';
+
 type Meta = {
   id: string;
   symbol?: string;

@@ -1,5 +1,5 @@
 import axios, { AxiosHeaders, AxiosInstance } from 'axios';
-import { Wallet } from '../../../entities/wallet.entity';
+import { Wallet, ENTITY } from '../../../entities/wallet.entity';
 import { Unit, UnitId } from '../../../entities/entity';
 import { USD } from '../../../common/currecies';
 import { AbstractWalletDataSource } from '../../abstract.wallet.data-source';
@@ -76,7 +76,7 @@ export class DebankWalletDatasource extends AbstractWalletDataSource<
     for (const { walletId, totalUsdValue } of response) {
       items.push({
         id: walletId,
-        entity: 'wallet',
+        entity: ENTITY,
         meta: {
           walletId,
         },

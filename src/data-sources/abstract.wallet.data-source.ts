@@ -1,5 +1,5 @@
 import { AbstractDataSource, Meta } from './abstract.data-source';
-import { Wallet } from '../entities/wallet.entity';
+import { Wallet, ENTITY } from '../entities/wallet.entity';
 
 export abstract class AbstractWalletDataSource<C, P> extends AbstractDataSource<
   C,
@@ -8,6 +8,6 @@ export abstract class AbstractWalletDataSource<C, P> extends AbstractDataSource<
   Meta
 > {
   public static getEntity(): string {
-    return 'wallet';
+    return ENTITY;
   }
 }

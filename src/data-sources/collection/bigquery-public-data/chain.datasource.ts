@@ -3,7 +3,7 @@ import { Meta } from '../../abstract.data-source';
 import { CHAINS, ChainType } from './const';
 import { BigQuery, BigQueryTimestamp } from '@google-cloud/bigquery';
 import { TRANSACTIONS_COUNT, BLOCKS_COUNT } from './queries';
-import { Chain } from '../../../entities/chain.entity';
+import { Chain, ENTITY } from '../../../entities/chain.entity';
 
 type Config = Record<string, never>;
 
@@ -125,7 +125,7 @@ export class BigQueryPublicDataChainDatasource extends AbstractChainDataSource<
     return {
       items: datas.map(
         ({ chain, dailyTransactionsCountData, dailyBlocksCountData }) => ({
-          entity: 'chain',
+          entity: ENTITY,
           id: CHAINS[chain].id,
 
           meta: {

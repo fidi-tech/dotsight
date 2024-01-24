@@ -1,5 +1,5 @@
 import axios, { AxiosHeaders, AxiosInstance } from 'axios';
-import { WalletToken } from '../../../entities/wallet-token.entity';
+import { WalletToken, ENTITY } from '../../../entities/wallet-token.entity';
 import { USD } from '../../../common/currecies';
 import {
   AbstractWalletTokenDataSource,
@@ -119,7 +119,7 @@ export class DebankWalletTokenDatasource extends AbstractWalletTokenDataSource<
 
         result.items.push({
           id: `${walletId}-${token.id}`,
-          entity: 'walletToken',
+          entity: ENTITY,
           meta: {
             id: token.id,
             walletId,
