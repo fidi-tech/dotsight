@@ -124,7 +124,7 @@ export class PipelinesController {
   @UseGuards(JwtGuard)
   async createPipeline(
     @AuthId() userId: UserId,
-    @Body() { name = 'Untitled pipeline' }: CreatePipelineDto,
+    @Body() { name = 'New Dashboard' }: CreatePipelineDto,
   ) {
     await this.pipelineAbilityService.claimCreate(userId);
     return this.pipelineService.create(userId, name);
