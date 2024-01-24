@@ -24,7 +24,7 @@ export class HistoricalLinesMapper extends AbstractMapper<
   HistoricalLinesDatashape
 > {
   static getName(): string {
-    return 'Historical Lines';
+    return 'Historical Time-Series Data';
   }
 
   static getDescription(): string {
