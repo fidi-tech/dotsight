@@ -1,44 +1,29 @@
 import { StatisticsMapper } from './statistics.mapper';
 
-describe('StatisticsMapper', () => {
+describe('DappStatisticsMapper', () => {
   it('should have a type of "statistics"', () => {
-    expect(StatisticsMapper.getType()).toEqual('statistics');
-  });
-
-  it('should throw if config is incorrect', () => {
-    expect(() => new StatisticsMapper({} as any)).toThrow();
-    expect(
-      () =>
-        new StatisticsMapper({
-          entity: 'walletToken',
-        } as any),
-    ).toThrow();
+    expect(StatisticsMapper.getType()).toEqual('dapp-statistics');
   });
 
   it('should be instantiated if config is correct', () => {
     expect(
-      new StatisticsMapper({
-        entity: 'protocol',
-      }),
+      new StatisticsMapper({}),
     ).toBeInstanceOf(StatisticsMapper);
   });
 
   it('should return entities from config', () => {
-    const mapper = new StatisticsMapper({
-      entity: 'protocol',
-    });
+    const mapper = new StatisticsMapper({});
 
     expect(mapper.getRequiredEntities()).toEqual(['protocol']);
   });
 
   it('should map the items according to config', () => {
-    const mapper = new StatisticsMapper({
-      entity: 'protocol',
-    });
+    const mapper = new StatisticsMapper({});
     expect(
       mapper.map({
         protocol: [
           {
+            id: 'id1',
             meta: { name: 'Name', logoUrl: 'LogoUrl' },
             metrics: {
               key1: 1,
@@ -49,7 +34,7 @@ describe('StatisticsMapper', () => {
             },
           } as any,
         ],
-      }),
+      }, {dappId: 'id1'}),
     ).toEqual({
       stats: [
         {
@@ -73,4 +58,25 @@ describe('StatisticsMapper', () => {
       logoUrl: 'LogoUrl',
     });
   });
+
+  it('should throw an error if dapp not found', () => {
+    const mapper = new StatisticsMapper({});
+    expect(
+      () => mapper.map({
+        protocol: [
+          {
+            id: 'id1',
+            meta: { name: 'Name', logoUrl: 'LogoUrl' },
+            metrics: {
+              key1: 1,
+              key1PercentageChange: 3,
+              key2: 2,
+              key3: { USD: 5 },
+              key3PercentageChange: 4,
+            },
+          } as any,
+        ],
+      }, {dappId: 'id2'}),
+    ).toThrow();
+  })
 });
