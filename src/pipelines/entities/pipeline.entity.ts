@@ -104,14 +104,14 @@ export class Pipeline {
     }
   }
 
-  @ApiProperty({
-    description: "list of pipeline's widgets",
-    type: [Widget],
-  })
-  @OneToMany(() => Widget, (widget) => widget.pipeline, {
-    eager: true,
-  })
-  widgets: Widget[];
+  // @ApiProperty({
+  //   description: "list of pipeline's widgets",
+  //   type: [Widget],
+  // })
+  // @OneToMany(() => Widget, (widget) => widget.pipeline, {
+  //   eager: true,
+  // })
+  // widgets: Widget[];
 
   @ManyToOne(() => User)
   createdBy: User;

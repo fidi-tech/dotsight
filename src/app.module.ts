@@ -1,10 +1,10 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { PipelinesModule } from './pipelines/pipelines.module';
 import { config } from '../typeorm.config';
-import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
 import { ConfigModule } from '@nestjs/config';
+import { WidgetsModule } from './widgets/widgets.module';
+import { CategoriesModule } from './categories/categories.module';
 
 @Module({
   imports: [
@@ -13,9 +13,9 @@ import { ConfigModule } from '@nestjs/config';
       migrations: [],
       synchronize: process.env.NODE_ENV === 'development',
     }),
-    PipelinesModule,
-    UsersModule,
     AuthModule,
+    WidgetsModule,
+    CategoriesModule,
     ConfigModule.forRoot({
       isGlobal: true,
     }),

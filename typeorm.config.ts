@@ -23,16 +23,7 @@ export const config: DataSourceOptions = {
   password: applicationConfig.get<string>('DB_PASSWORD'),
   database: applicationConfig.get<string>('DB_NAME'),
   migrations: [`./migrations/*.ts`],
-  entities: [
-    Pipeline,
-    DataSource,
-    Mapper,
-    Middleware,
-    Mixer,
-    Widget,
-    User,
-    Credential,
-  ],
+  entities: [Widget, User, Credential],
 };
 
 if (config.url && config.host && config.port) {

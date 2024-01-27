@@ -59,62 +59,62 @@ export class PipelinesController {
     private readonly pipelineAbilityService: PipelineAbilityService,
   ) {}
 
-  @ApiOkResponse({
-    description: "Pipeline's execution result is returned",
-    schema: {
-      type: 'object',
-      description:
-        'dictionary that maps widgetId or mapperCode to corresponding output',
-      additionalProperties: {
-        type: 'object',
-        description: "mapper's output",
-      },
-    },
-  })
-  @Get('/:pipelineId/execute')
-  @UseGuards(JwtGuard)
-  async executePipeline(
-    @AuthId() userId: UserId,
-    @Param('pipelineId') pipelineId: PipelineId,
-    @Query() { mapperCodes, widgetIds, ...params }: ExecutePipelineDto,
-  ): Promise<Record<string, any>> {
-    await this.pipelineAbilityService.claimExecute(userId, pipelineId);
-
-    const mapperCodeToWidgetId = {};
-    if (widgetIds) {
-      const widgets = (await this.widgetService.findByIds(widgetIds)).filter(
-        (widget) => widget.mapper,
-      );
-
-      mapperCodes = [];
-      for (const widget of widgets) {
-        mapperCodes.push(widget.mapper.code);
-        mapperCodeToWidgetId[widget.mapper.code] = widget.id;
-      }
-    }
-
-    if (!mapperCodes || mapperCodes.length === 0) {
-      throw new BadRequestException(
-        `Either mapperCodes or widgetIds param should be specified`,
-      );
-    }
-
-    const mapperResult = await this.executePipelineService.executePipeline(
-      pipelineId,
-      mapperCodes,
-      params,
-    );
-
-    if (widgetIds) {
-      const widgetResult = {};
-      for (const [mapperCode, res] of Object.entries(mapperResult)) {
-        widgetResult[mapperCodeToWidgetId[mapperCode]] = res;
-      }
-      return widgetResult;
-    }
-
-    return mapperResult;
-  }
+  // @ApiOkResponse({
+  //   description: "Pipeline's execution result is returned",
+  //   schema: {
+  //     type: 'object',
+  //     description:
+  //       'dictionary that maps widgetId or mapperCode to corresponding output',
+  //     additionalProperties: {
+  //       type: 'object',
+  //       description: "mapper's output",
+  //     },
+  //   },
+  // })
+  // @Get('/:pipelineId/execute')
+  // @UseGuards(JwtGuard)
+  // async executePipeline(
+  //   @AuthId() userId: UserId,
+  //   @Param('pipelineId') pipelineId: PipelineId,
+  //   @Query() { mapperCodes, widgetIds, ...params }: ExecutePipelineDto,
+  // ): Promise<Record<string, any>> {
+    // await this.pipelineAbilityService.claimExecute(userId, pipelineId);
+    //
+    // const mapperCodeToWidgetId = {};
+    // if (widgetIds) {
+    //   const widgets = (await this.widgetService.findByIds(widgetIds)).filter(
+    //     (widget) => widget.mapper,
+    //   );
+    //
+    //   mapperCodes = [];
+    //   for (const widget of widgets) {
+    //     mapperCodes.push(widget.mapper.code);
+    //     mapperCodeToWidgetId[widget.mapper.code] = widget.id;
+    //   }
+    // }
+    //
+    // if (!mapperCodes || mapperCodes.length === 0) {
+    //   throw new BadRequestException(
+    //     `Either mapperCodes or widgetIds param should be specified`,
+    //   );
+    // }
+    //
+    // const mapperResult = await this.executePipelineService.executePipeline(
+    //   pipelineId,
+    //   mapperCodes,
+    //   params,
+    // );
+    //
+    // if (widgetIds) {
+    //   const widgetResult = {};
+    //   for (const [mapperCode, res] of Object.entries(mapperResult)) {
+    //     widgetResult[mapperCodeToWidgetId[mapperCode]] = res;
+    //   }
+    //   return widgetResult;
+    // }
+    //
+    // return mapperResult;
+  // }
 
   @ApiCreatedResponse({
     description: 'New pipeline is returned',
@@ -201,7 +201,7 @@ export class PipelinesController {
     @Body() { type, config, datashape }: AddWidgetDto,
   ) {
     await this.pipelineAbilityService.claimModify(userId, pipelineId);
-    await this.widgetService.create(pipelineId, type, config, datashape);
+    // await this.widgetService.create(pipelineId, type, config, datashape);
     return this.pipelineService.findByIdForUser(userId, pipelineId);
   }
 
@@ -219,7 +219,7 @@ export class PipelinesController {
   ) {
     await this.pipelineAbilityService.claimRead(userId, pipelineId);
     const widget = await this.widgetService.findById(widgetId);
-    return this.mapperService.queryAllByDatashape(widget.datashape);
+    // return this.mapperService.queryAllByDatashape(widget.datashape);
   }
 
   @ApiOkResponse({
@@ -242,14 +242,14 @@ export class PipelinesController {
     await queryRunner.connect();
     await queryRunner.startTransaction();
     try {
-      await this.widgetService.addMapper(
-        pipelineId,
-        widgetId,
-        code,
-        type,
-        config,
-        queryRunner,
-      );
+      // await this.widgetService.addMapper(
+      //   pipelineId,
+      //   widgetId,
+      //   code,
+      //   type,
+      //   config,
+      //   queryRunner,
+      // );
 
       await queryRunner.commitTransaction();
     } catch (err) {

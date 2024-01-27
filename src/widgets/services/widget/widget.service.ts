@@ -1,20 +1,17 @@
-import {
-  BadRequestException,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { In, QueryRunner, Repository } from 'typeorm';
+import { Like, QueryRunner, Repository } from 'typeorm';
 import { Widget, WidgetId } from '../../entities/widget.entity';
-import { PipelineId } from '../../../pipelines/entities/pipeline.entity';
-import { MapperService } from '../../../mappers/services/mapper/mapper.service';
+import { UserId } from '../../../users/entities/user.entity';
+import { WidgetAbilityService } from '../widget-ability/widget-ability.service';
+import { CategoryId } from '../../../categories/abstract.category';
 
 @Injectable()
 export class WidgetService {
   constructor(
     @InjectRepository(Widget)
     private readonly widgetRepository: Repository<Widget>,
-    private readonly mapperService: MapperService,
+    private readonly widgetAbilityService: WidgetAbilityService,
   ) {}
 
   private getWidgetRepository(qr?: QueryRunner) {
@@ -24,73 +21,53 @@ export class WidgetService {
     return this.widgetRepository;
   }
 
-  async create(
-    pipelineId: PipelineId,
-    type: string,
-    config: object,
-    datashape: string,
+  async queryWidgets(
+    userId: UserId,
+    limit: number,
+    offset: number,
+    query?: string,
     qr?: QueryRunner,
   ) {
-    const widget = this.getWidgetRepository(qr).create({
-      pipeline: { id: pipelineId },
-      type,
-      config,
-      datashape,
-    });
-    return this.getWidgetRepository(qr).save(widget);
-  }
-
-  async findById(id: WidgetId, qr?: QueryRunner) {
-    const widget = await this.getWidgetRepository(qr).findOneBy({ id });
-    if (!widget) {
-      throw new NotFoundException(`Widget #${id} not found`);
-    }
-    return widget;
-  }
-
-  async findByIds(ids: WidgetId[], qr?: QueryRunner) {
     const widgets = await this.getWidgetRepository(qr).find({
-      where: {
-        id: In(ids),
-      },
-      relations: {
-        mapper: true,
+      where: { createdBy: { id: userId }, name: Like(`%${query}%`) },
+      relations: ['createdBy'],
+      order: {
+        createdAt: 'DESC',
       },
     });
-    const notFound = ids.filter(
-      (id) => !widgets.find((widget) => widget.id === id),
-    );
-    if (notFound.length > 0) {
-      throw new NotFoundException(
-        `Widgets #{${notFound.join(', ')}} not found`,
-      );
+    for (const widget of widgets) {
+      this.widgetAbilityService.addAbilities(userId, widget);
     }
     return widgets;
   }
 
-  async addMapper(
-    pipelineId: PipelineId,
-    widgetId: WidgetId,
-    code: string,
-    type: string,
-    config: object,
+  async findById(widgetId: WidgetId, userId?: UserId, qr?: QueryRunner) {
+    const widget = await this.getWidgetRepository(qr).findOne({
+      where: { id: widgetId },
+      relations: ['createdBy'],
+    });
+    if (userId) {
+      this.widgetAbilityService.addAbilities(userId, widget);
+    }
+    return widget;
+  }
+
+  async create(
+    userId: UserId,
+    category: CategoryId,
+    name?: string,
     qr?: QueryRunner,
   ) {
-    const widget = await this.findById(widgetId, qr);
-    const datashape = this.mapperService.getDatashapeByType(type);
-    if (widget.datashape !== datashape) {
-      throw new BadRequestException(
-        `Mapper ${type}'s datashape (${datashape}) did not match widget ${widgetId} datashape (${widget.datashape})`,
-      );
+    const widget = await this.getWidgetRepository(qr).create();
+    widget.category = category;
+    if (name) {
+      widget.name = name;
     }
+    await this.getWidgetRepository(qr).save(widget);
+    return widget;
+  }
 
-    widget.mapper = await this.mapperService.create(
-      pipelineId,
-      code,
-      type,
-      config,
-      qr,
-    );
-    return this.getWidgetRepository(qr).save(widget);
+  async querySubcategories(userId: UserId, widgetId: WidgetId, query?: string, qr?: QueryRunner) {
+    
   }
 }

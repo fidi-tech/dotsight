@@ -1,14 +1,6 @@
-import {
-  Column,
-  Entity,
-  JoinColumn,
-  ManyToOne,
-  OneToOne,
-  PrimaryGeneratedColumn,
-} from 'typeorm';
-import { Pipeline } from '../../pipelines/entities/pipeline.entity';
-import { Mapper } from '../../mappers/entities/mapper.entity';
+import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
+import { User } from '../../users/entities/user.entity';
 
 export type WidgetId = string;
 
@@ -21,28 +13,68 @@ export class Widget {
   id: WidgetId;
 
   @ApiProperty({
-    description: "widget's type",
+    description: "widget's user-given name",
   })
-  @Column({ name: 'type' })
-  type: string;
+  @Column()
+  name: string;
 
   @ApiProperty({
-    description: "widget's config",
+    description: "widget's user-selected category",
   })
-  @Column({ name: 'config', type: 'json' })
-  config: object;
+  @Column('uuid')
+  category: string;
 
   @ApiProperty({
-    description: "widget's compatible datashape",
+    description: "widget's user-selected view",
   })
-  @Column({ name: 'datashape' })
-  datashape: string;
+  @Column()
+  view: string;
 
-  @OneToOne(() => Mapper)
-  @JoinColumn({ name: 'mapper_id' })
-  mapper?: Mapper;
+  @ApiProperty({
+    description: "widget's view's user-selected parameters",
+  })
+  @Column({ type: 'json' })
+  viewParameters: object;
 
-  @ManyToOne(() => Pipeline)
-  @JoinColumn({ name: 'pipeline_id' })
-  pipeline: Pipeline;
+  @ApiProperty({
+    description: "widget's user-selected subcategories",
+  })
+  @Column('uuid', { array: true })
+  subcategories: string[];
+
+  @ApiProperty({
+    description:
+      "widget's user-selected metrics. user can not specify both metrics & metricPreset",
+  })
+  @Column('uuid', { array: true })
+  metrics: string[];
+
+  @ApiProperty({
+    description:
+      "widget's user-selected metricsPreset. user can not specify both metrics & metricPreset",
+  })
+  @Column('uuid')
+  metricsPreset: string;
+
+  @ManyToOne(() => User)
+  createdBy: User;
+
+  @Column('timestamp with time zone', {
+    nullable: false,
+    default: () => 'CURRENT_TIMESTAMP',
+  })
+  createdAt: Date;
+
+  @Column({ default: false })
+  isPublic: boolean;
+
+  @ApiProperty({
+    description: 'if user is allowed to modify the widget',
+  })
+  canModify: boolean;
+
+  @ApiProperty({
+    description: 'if user is allowed to execute the widget',
+  })
+  canExecute: boolean;
 }
