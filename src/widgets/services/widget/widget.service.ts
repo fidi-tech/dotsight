@@ -4,7 +4,9 @@ import { Like, QueryRunner, Repository } from 'typeorm';
 import { Widget, WidgetId } from '../../entities/widget.entity';
 import { UserId } from '../../../users/entities/user.entity';
 import { WidgetAbilityService } from '../widget-ability/widget-ability.service';
-import { CategoryId } from '../../../categories/abstract.category';
+import { CategoryId } from '../../../common/categories/abstract.category';
+import { CategoriesService } from '../../../categories/services/categories.service';
+import { SubcategoryDto } from '../../dto/subcategory.dto';
 
 @Injectable()
 export class WidgetService {
@@ -12,6 +14,7 @@ export class WidgetService {
     @InjectRepository(Widget)
     private readonly widgetRepository: Repository<Widget>,
     private readonly widgetAbilityService: WidgetAbilityService,
+    private readonly categoriesService: CategoriesService,
   ) {}
 
   private getWidgetRepository(qr?: QueryRunner) {
@@ -67,7 +70,26 @@ export class WidgetService {
     return widget;
   }
 
-  async querySubcategories(userId: UserId, widgetId: WidgetId, query?: string, qr?: QueryRunner) {
-    
+  async querySubcategories(
+    userId: UserId,
+    widgetId: WidgetId,
+    query?: string,
+    qr?: QueryRunner,
+  ): Promise<SubcategoryDto[]> {
+    const widget = await this.findById(widgetId, null, qr);
+    if (!widget.category) {
+      return [];
+    }
+    const subcategories = await this.categoriesService.findSubcategories(
+      widget.category,
+      query,
+    );
+    return subcategories.map((subcategory) => ({
+      id: subcategory.id,
+      name: subcategory.name,
+      icon: subcategory.icon,
+      isAvailable: true,
+      isSelected: widget.subcategories.includes(subcategory.id),
+    }));
   }
 }

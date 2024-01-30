@@ -1,12 +1,12 @@
-import { CategoryId } from '../../categories/abstract.category';
+import { CategoryId } from '../../common/categories/abstract.category';
 import { ApiProperty } from '@nestjs/swagger';
-import { IsUUID, IsString } from 'class-validator';
+import { IsString } from 'class-validator';
 
 export class CreateWidgetDto {
   @ApiProperty({
     description: 'selected category',
   })
-  @IsUUID()
+  @IsString()
   readonly category: CategoryId;
 
   @ApiProperty({

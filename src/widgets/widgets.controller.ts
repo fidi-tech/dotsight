@@ -22,9 +22,12 @@ import { WidgetService } from './services/widget/widget.service';
 import { WidgetAbilityService } from './services/widget-ability/widget-ability.service';
 import { CreateWidgetDto } from './dto/create-widget.dto';
 import { GetSubcategoriesDto } from './dto/get-subcategories.dto';
+import { CategoryDto } from '../categories/dto/category.dto';
+import { SubcategoryDto } from './dto/subcategory.dto';
 
 @Controller('widgets')
 @ApiExtraModels(Widget)
+@ApiExtraModels(SubcategoryDto)
 export class WidgetsController {
   constructor(
     private readonly widgetService: WidgetService,
@@ -87,14 +90,29 @@ export class WidgetsController {
     };
   }
 
-  // todo api spec
   @Get('/:widgetId/subcategories')
+  @ApiOkResponse({
+    description:
+      'returns a list of the subcategories inside the specified category',
+    schema: {
+      type: 'object',
+      properties: {
+        subcategories: {
+          type: 'array',
+          items: {
+            $ref: getSchemaPath(CategoryDto),
+          },
+        },
+      },
+      required: ['subcategories'],
+    },
+  })
+  @UseGuards(JwtGuard)
   async getSubcategories(
     @AuthId() userId: UserId,
     @Param('widgetId') widgetId: WidgetId,
     @Query() { query }: GetSubcategoriesDto,
   ) {
-    await this.widgetAbilityService.claimModify(userId, widgetId);
     return {
       subcategories: await this.widgetService.querySubcategories(
         userId,

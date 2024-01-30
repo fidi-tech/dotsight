@@ -21,7 +21,7 @@ export class Widget {
   @ApiProperty({
     description: "widget's user-selected category",
   })
-  @Column('uuid')
+  @Column('text')
   category: string;
 
   @ApiProperty({
@@ -39,7 +39,7 @@ export class Widget {
   @ApiProperty({
     description: "widget's user-selected subcategories",
   })
-  @Column('uuid', { array: true })
+  @Column('text', { array: true })
   subcategories: string[];
 
   @ApiProperty({

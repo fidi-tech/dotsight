@@ -10,7 +10,7 @@ export class CategoriesController {
 
   @Get('/')
   @ApiOkResponse({
-    description: 'returns a list of the widgets available to the user',
+    description: "returns a list of the widgets' categories",
     schema: {
       type: 'object',
       properties: {
@@ -26,7 +26,7 @@ export class CategoriesController {
   })
   async getCategories() {
     return {
-      categories: await this.categoriesService.getCategories(),
+      categories: await this.categoriesService.queryCategories(),
     };
   }
 }

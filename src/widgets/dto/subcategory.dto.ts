@@ -1,4 +1,4 @@
-import { SubcategoryId } from '../abstract.category';
+import { SubcategoryId } from '../../common/categories/abstract.category';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class SubcategoryDto {
