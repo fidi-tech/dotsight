@@ -3,7 +3,7 @@ import { ApiProperty } from '@nestjs/swagger';
 
 export class CategoryDto {
   @ApiProperty({
-    description: "category's uuid",
+    description: "category's id",
   })
   readonly id: CategoryId;
 

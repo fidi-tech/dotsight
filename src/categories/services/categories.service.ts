@@ -27,4 +27,9 @@ export class CategoriesService {
     const category = this.findCategory(categoryId);
     return category.getSubcategoriesByQuery(query);
   }
+
+  async findMetrics(categoryId: CategoryId, query?: string) {
+    const category = this.findCategory(categoryId);
+    return category.getMetricsByQuery(query);
+  }
 }

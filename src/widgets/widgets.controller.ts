@@ -22,12 +22,14 @@ import { WidgetService } from './services/widget/widget.service';
 import { WidgetAbilityService } from './services/widget-ability/widget-ability.service';
 import { CreateWidgetDto } from './dto/create-widget.dto';
 import { GetSubcategoriesDto } from './dto/get-subcategories.dto';
-import { CategoryDto } from '../categories/dto/category.dto';
 import { SubcategoryDto } from './dto/subcategory.dto';
+import { GetMetricsDto } from './dto/get-metrics.dto';
+import { MetricDto } from './dto/metric.dto';
 
 @Controller('widgets')
 @ApiExtraModels(Widget)
 @ApiExtraModels(SubcategoryDto)
+@ApiExtraModels(MetricDto)
 export class WidgetsController {
   constructor(
     private readonly widgetService: WidgetService,
@@ -93,14 +95,14 @@ export class WidgetsController {
   @Get('/:widgetId/subcategories')
   @ApiOkResponse({
     description:
-      'returns a list of the subcategories inside the specified category',
+      "returns a list of the subcategories inside the specified widget's category",
     schema: {
       type: 'object',
       properties: {
         subcategories: {
           type: 'array',
           items: {
-            $ref: getSchemaPath(CategoryDto),
+            $ref: getSchemaPath(SubcategoryDto),
           },
         },
       },
@@ -113,12 +115,42 @@ export class WidgetsController {
     @Param('widgetId') widgetId: WidgetId,
     @Query() { query }: GetSubcategoriesDto,
   ) {
+    await this.widgetAbilityService.claimModify(userId, widgetId);
     return {
       subcategories: await this.widgetService.querySubcategories(
         userId,
         widgetId,
         query,
       ),
+    };
+  }
+
+  @Get('/:widgetId/metrics')
+  @ApiOkResponse({
+    description:
+      "returns a list of the metrics inside the specified widget's category",
+    schema: {
+      type: 'object',
+      properties: {
+        metrics: {
+          type: 'array',
+          items: {
+            $ref: getSchemaPath(MetricDto),
+          },
+        },
+      },
+      required: ['metrics'],
+    },
+  })
+  @UseGuards(JwtGuard)
+  async getMetrics(
+    @AuthId() userId: UserId,
+    @Param('widgetId') widgetId: WidgetId,
+    @Query() { query }: GetMetricsDto,
+  ) {
+    await this.widgetAbilityService.claimModify(userId, widgetId);
+    return {
+      metrics: await this.widgetService.queryMetrics(userId, widgetId, query),
     };
   }
 }

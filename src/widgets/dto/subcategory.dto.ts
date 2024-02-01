@@ -3,7 +3,7 @@ import { ApiProperty } from '@nestjs/swagger';
 
 export class SubcategoryDto {
   @ApiProperty({
-    description: "subcategory's uuid",
+    description: "subcategory's id",
   })
   readonly id: SubcategoryId;
 
@@ -23,7 +23,7 @@ export class SubcategoryDto {
   readonly isSelected: boolean;
 
   @ApiProperty({
-    description: 'if subcategory is available in givenn context',
+    description: 'if subcategory is available in the given context',
   })
   readonly isAvailable: boolean;
 }

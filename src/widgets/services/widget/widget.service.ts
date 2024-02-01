@@ -7,6 +7,7 @@ import { WidgetAbilityService } from '../widget-ability/widget-ability.service';
 import { CategoryId } from '../../../common/categories/abstract.category';
 import { CategoriesService } from '../../../categories/services/categories.service';
 import { SubcategoryDto } from '../../dto/subcategory.dto';
+import {MetricDto} from '../../dto/metric.dto';
 
 @Injectable()
 export class WidgetService {
@@ -90,6 +91,29 @@ export class WidgetService {
       icon: subcategory.icon,
       isAvailable: true,
       isSelected: widget.subcategories.includes(subcategory.id),
+    }));
+  }
+
+  async queryMetrics(
+    userId: UserId,
+    widgetId: WidgetId,
+    query?: string,
+    qr?: QueryRunner,
+  ): Promise<MetricDto[]> {
+    const widget = await this.findById(widgetId, null, qr);
+    if (!widget.category) {
+      return [];
+    }
+    const metrics = await this.categoriesService.findMetrics(
+      widget.category,
+      query,
+    );
+    return metrics.map((metric) => ({
+      id: metric.id,
+      name: metric.name,
+      icon: metric.icon,
+      isAvailable: true,
+      isSelected: widget.metrics.includes(metric.id),
     }));
   }
 }
