@@ -7,7 +7,7 @@ import { WidgetAbilityService } from '../widget-ability/widget-ability.service';
 import { CategoryId } from '../../../common/categories/abstract.category';
 import { CategoriesService } from '../../../categories/services/categories.service';
 import { SubcategoryDto } from '../../dto/subcategory.dto';
-import {MetricDto} from '../../dto/metric.dto';
+import { MetricDto } from '../../dto/metric.dto';
 
 @Injectable()
 export class WidgetService {
