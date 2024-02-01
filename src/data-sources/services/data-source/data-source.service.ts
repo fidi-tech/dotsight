@@ -6,6 +6,11 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { DataSource } from '../../entities/data-source.entity';
 import { ApiProperty } from '@nestjs/swagger';
+import {
+  CategoryId,
+  MetricId,
+  SubcategoryId,
+} from '../../../common/categories/abstract.category';
 
 class DataSourceNotFound extends Error {
   constructor(type) {
@@ -76,15 +81,24 @@ export class DataSourceService {
     return this.dataSourceRepository.save(dataSource);
   }
 
-  getDatasourcesByEntity(entity: string): Array<DatasourceSuggestion> {
-    return Object.entries(collection)
-      .filter(([, datasource]) => datasource.getEntity() === entity)
-      .map(([type, dataSource]) => ({
-        name: dataSource.getName(),
-        description: dataSource.getDescription(),
-        type,
-        configSchema: dataSource.getConfigSchema(),
-      }));
+  async getDatasources(
+    category: CategoryId,
+    subcategories: SubcategoryId[],
+    metrics: MetricId[],
+  ): Promise<Array<AbstractDataSource<any, any, any, any>>> {
+    const datasources = await this.dataSourceRepository.find();
+    return datasources
+      .map((datasource) => ({
+        type: collection[datasource.type],
+        config: datasource.config,
+      }))
+      .filter(
+        ({ type }) =>
+          type.getCategory() === category &&
+          type.getSubcategories(subcategories).length > 0 &&
+          type.getMetrics(metrics).length > 0,
+      )
+      .map(({ type, config }) => new type(config));
   }
 
   getParamsByType(type: string) {

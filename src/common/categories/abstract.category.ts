@@ -26,7 +26,7 @@ export abstract class AbstractCategory<M extends Metrics> {
     query?: string,
   ): Promise<readonly Subcategory[]>;
 
-  async getMetricsByQuery(query?: string): Promise<Array<M[keyof M]>> {
+  async getMetricsByQuery(query?: string): Promise<Metric[]> {
     return Object.values(this.metrics).filter((metric) =>
       metric.name.includes(query),
     ) as Array<M[keyof M]>;

@@ -7,7 +7,7 @@ export abstract class AbstractWalletDataSource<C, P> extends AbstractDataSource<
   Wallet,
   Meta
 > {
-  public static getEntity(): string {
+  public static getCategory(): string {
     return ENTITY;
   }
 }

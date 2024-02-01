@@ -25,15 +25,19 @@ import { GetSubcategoriesDto } from './dto/get-subcategories.dto';
 import { SubcategoryDto } from './dto/subcategory.dto';
 import { GetMetricsDto } from './dto/get-metrics.dto';
 import { MetricDto } from './dto/metric.dto';
+import { ExecuteWidgetDto } from './dto/execute-widget.dto';
+import { ExecuteWidgetService } from './services/widget/execute-widget.service';
 
 @Controller('widgets')
 @ApiExtraModels(Widget)
 @ApiExtraModels(SubcategoryDto)
 @ApiExtraModels(MetricDto)
+@ApiExtraModels(ExecuteWidgetDto)
 export class WidgetsController {
   constructor(
     private readonly widgetService: WidgetService,
     private readonly widgetAbilityService: WidgetAbilityService,
+    private readonly executeWidgetService: ExecuteWidgetService,
   ) {}
 
   @Get('/')
@@ -151,6 +155,30 @@ export class WidgetsController {
     await this.widgetAbilityService.claimModify(userId, widgetId);
     return {
       metrics: await this.widgetService.queryMetrics(userId, widgetId, query),
+    };
+  }
+
+  @Get('/:widgetId/data')
+  @ApiOkResponse({
+    description:
+      "returns a list of the metrics inside the specified widget's category",
+    schema: {
+      type: 'object',
+      properties: {
+        data: {
+          $ref: getSchemaPath(ExecuteWidgetDto),
+        },
+      },
+      required: ['data'],
+    },
+  })
+  async getData(
+    @AuthId() userId: UserId,
+    @Param('widgetId') widgetId: WidgetId,
+  ) {
+    await this.widgetAbilityService.claimExecute(userId, widgetId);
+    return {
+      data: await this.executeWidgetService.executeWidget(userId, widgetId),
     };
   }
 }

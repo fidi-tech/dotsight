@@ -1,9 +1,15 @@
 import { Entity, Unit, UnitId } from '../entities/entity';
 import validator from '@rjsf/validator-ajv8';
+import {
+  MetricId,
+  SubcategoryId,
+} from '../common/categories/abstract.category';
 
 class DataSourceNameNotSpecifiedError extends Error {}
 class DataSourceDescriptionNotSpecifiedError extends Error {}
-class DataSourceEntityNotSpecifiedError extends Error {}
+class DataSourceCategoryNotSpecifiedError extends Error {}
+class DataSourceSubcategoriesNotSpecifiedError extends Error {}
+class DataSourceMetricsNotSpecifiedError extends Error {}
 class DatasourceConfigSchemaNotSpecifiedError extends Error {}
 class DatasourceParamsSchemaNotSpecifiedError extends Error {}
 
@@ -39,8 +45,18 @@ export abstract class AbstractDataSource<
     throw new DataSourceDescriptionNotSpecifiedError();
   }
 
-  public static getEntity(): string {
-    throw new DataSourceEntityNotSpecifiedError();
+  public static getCategory(): string {
+    throw new DataSourceCategoryNotSpecifiedError();
+  }
+
+  public static getSubcategories(
+    subcategories: SubcategoryId[],
+  ): SubcategoryId[] {
+    throw new DataSourceSubcategoriesNotSpecifiedError();
+  }
+
+  public static getMetrics(metrics: MetricId[]): MetricId[] {
+    throw new DataSourceMetricsNotSpecifiedError();
   }
 
   public static getConfigSchema(): object {

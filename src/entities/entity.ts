@@ -6,9 +6,9 @@ export type TimeSeries<T> = Array<{
 export type UnitId = string;
 export type Unit = {
   id: UnitId;
-  symbol?: string;
-  iconUrl?: string;
-  name?: string;
+  symbol: string;
+  icon: string | null;
+  name: string;
 };
 
 export type Units = Record<UnitId, Unit>;

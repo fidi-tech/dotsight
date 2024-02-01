@@ -1,11 +1,4 @@
-import {
-  Column,
-  Entity,
-  JoinColumn,
-  ManyToOne,
-  PrimaryGeneratedColumn,
-} from 'typeorm';
-import { Pipeline } from '../../pipelines/entities/pipeline.entity';
+import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
 
 export type DataSourceId = string;
@@ -29,8 +22,4 @@ export class DataSource {
   })
   @Column({ name: 'config', type: 'json' })
   config: object;
-
-  @ManyToOne(() => Pipeline)
-  @JoinColumn({ name: 'pipeline_id' })
-  pipeline: Pipeline;
 }
