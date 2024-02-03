@@ -78,7 +78,6 @@ export class ExecuteWidgetService {
       data.values[item.id] = {};
       for (const metric of widget.metrics) {
         // TODO think about types here
-        // TODO remove scalar types from data sources
         data.values[metric] = item.historicalMetrics[metric];
       }
     }

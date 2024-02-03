@@ -26,5 +26,4 @@ export type Entity<
   historicalMetrics: Partial<
     Record<keyof V, TimeSeries<number> | TimeSeries<Record<UnitId, number>>>
   >;
-  metrics: V;
 };

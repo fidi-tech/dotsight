@@ -117,9 +117,6 @@ export class GiantSquidStatsWalletTokenDataSource extends AbstractWalletTokenDat
           name: this.config.coin.name,
           symbol: this.config.coin.symbol,
         },
-        metrics: {
-          amount,
-        },
         historicalMetrics: {
           amount: [
             {

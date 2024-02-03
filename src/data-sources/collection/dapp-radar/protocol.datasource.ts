@@ -98,12 +98,6 @@ export class DappRadarProtocolDatasource extends AbstractProtocolDataSource<
               name: dapp.name,
               logoUrl: dapp.logo,
             },
-            metrics: {
-              tvl: dapp.tvl ? { [USD.id]: dapp.tvl } : undefined,
-              marketCap: dapp.marketCap
-                ? { [USD.id]: dapp.marketCap }
-                : undefined,
-            },
             historicalMetrics: {
               tvl: dapp.tvl
                 ? [

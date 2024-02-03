@@ -107,20 +107,6 @@ export class DappRadarDappDatasource extends AbstractProtocolDataSource<
         name: dApp.name,
         logoUrl: dApp.logo,
       },
-      metrics: METRICS.reduce((acc, metric) => {
-        if (
-          dApp.metrics[metric] !== null &&
-          dApp.metrics[metric] !== undefined
-        ) {
-          const changeKey = `${metric}${PERCENTAGE_CHANGE_SUFFIX}`;
-          const value = scalarMetrics.includes(metric)
-            ? dApp.metrics[metric]
-            : { [USD.id]: dApp.metrics[metric] };
-          acc[metric] = value;
-          acc[changeKey] = dApp.metrics[changeKey];
-        }
-        return acc;
-      }, {}),
       historicalMetrics: METRICS.reduce((acc, metric) => {
         if (
           dApp.metrics[metric] !== null &&

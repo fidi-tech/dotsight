@@ -80,11 +80,6 @@ export class DebankWalletDatasource extends AbstractWalletDataSource<
         meta: {
           walletId,
         },
-        metrics: {
-          netWorth: {
-            [USD.id]: totalUsdValue,
-          },
-        },
         historicalMetrics: {
           netWorth: [
             {

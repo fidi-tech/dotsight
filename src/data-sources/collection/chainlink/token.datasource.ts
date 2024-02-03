@@ -223,13 +223,6 @@ export class ChainlinkTokenDataSource extends AbstractTokenDataSource<
             symbol: this.token.symbol,
             name: this.token.name,
           },
-          metrics: {
-            price: {
-              [USD.id]: historical.get(
-                Math.floor(lastUpdatedAt.getTime() / 1000),
-              ),
-            },
-          },
           historicalMetrics: {
             price: Array.from(historical.entries())
               .sort(([dateA], [dateB]) => dateA - dateB)

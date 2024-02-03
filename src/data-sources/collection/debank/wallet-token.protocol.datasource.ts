@@ -179,12 +179,6 @@ export class DebankWalletTokenProtocolDatasource extends AbstractWalletTokenData
                   [USD.id]: token.price,
                 },
               },
-              metrics: {
-                amount: token.amount,
-                value: {
-                  [USD.id]: token.amount * token.price,
-                },
-              },
               historicalMetrics: {
                 amount: [
                   {
