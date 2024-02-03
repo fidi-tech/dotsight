@@ -6,6 +6,7 @@ import { WidgetAbilityService } from './services/widget-ability/widget-ability.s
 import { WidgetsController } from './widgets.controller';
 import { CategoriesModule } from '../categories/categories.module';
 import { DataSourcesModule } from '../data-sources/data-sources.module';
+import { ExecuteWidgetService } from './services/widget/execute-widget.service';
 
 @Module({
   imports: [
@@ -14,7 +15,7 @@ import { DataSourcesModule } from '../data-sources/data-sources.module';
     DataSourcesModule,
   ],
   controllers: [WidgetsController],
-  providers: [WidgetService, WidgetAbilityService],
+  providers: [WidgetService, WidgetAbilityService, ExecuteWidgetService],
   exports: [WidgetService],
 })
 export class WidgetsModule {}

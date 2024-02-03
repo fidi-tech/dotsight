@@ -1,5 +1,5 @@
 import { AbstractDataSource } from '../data-sources/abstract.data-source';
-import { collection } from '../mappers/collection';
+import { collection } from './collection';
 
 class MiddlewareEntityNotSpecifiedError extends Error {}
 

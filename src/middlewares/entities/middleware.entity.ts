@@ -1,12 +1,4 @@
-import {
-  Column,
-  Entity,
-  JoinColumn,
-  ManyToOne,
-  PrimaryGeneratedColumn,
-  Unique,
-} from 'typeorm';
-import { Pipeline } from '../../pipelines/entities/pipeline.entity';
+import { Column, Entity, PrimaryGeneratedColumn, Unique } from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
 
 export type MiddlewareId = string;
@@ -32,10 +24,6 @@ export class Middleware {
   })
   @Column({ name: 'config', type: 'json' })
   config: object;
-
-  @ManyToOne(() => Pipeline)
-  @JoinColumn({ name: 'pipeline_id' })
-  pipeline: Pipeline;
 
   @Column({ name: 'order' })
   order: number;

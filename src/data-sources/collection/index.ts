@@ -26,7 +26,6 @@ export const collection = {
 for (const datasource of Object.values(collection)) {
   datasource.getName();
   datasource.getDescription();
-  datasource.getEntity();
   datasource.getConfigSchema();
   datasource.getParamsSchema();
 }
