@@ -12,6 +12,8 @@ import {
 } from '../../../common/categories/abstract.category';
 import { CategoriesService } from '../../../categories/services/categories.service';
 import { DataSourceService } from '../../../data-sources/services/data-source/data-source.service';
+import { Entity, EntityId } from '../../../entities/entity';
+import { Meta } from '../../../data-sources/abstract.data-source';
 
 @Injectable()
 export class ExecuteWidgetService {
@@ -43,6 +45,25 @@ export class ExecuteWidgetService {
     }, {} as Record<MetricId, Metric>);
   }
 
+  private mixRawDatasourceResponse(
+    chunks: Array<{ items: Array<Entity<any, any, any>>; meta: Meta }>,
+  ): { items: Array<Entity<any, any, any>>; meta: Meta } {
+    const meta = {
+      units: {},
+    };
+    const items: Record<EntityId, Entity<any, any, any>> = {};
+    for (const chunk of chunks) {
+      Object.assign(meta.units, chunk.meta.units);
+      for (const item of chunk.items) {
+        items[item.id] = item;
+      }
+    }
+    return {
+      items: Object.values(items),
+      meta,
+    };
+  }
+
   async executeWidget(
     userId: UserId,
     widgetId: WidgetId,
@@ -66,8 +87,7 @@ export class ExecuteWidgetService {
     const raw = await Promise.all(
       datasources.map((datasource) => datasource.getItems(COMMON_PARAMS)),
     );
-    // TODO mix all results here instead of taking the first one
-    const prepared = raw[0];
+    const prepared = this.mixRawDatasourceResponse(raw);
     const data: ExecuteWidgetDto['data'] = {
       items: [],
       metrics: widget.metrics,
@@ -77,8 +97,7 @@ export class ExecuteWidgetService {
       data.items.push(item.id);
       data.values[item.id] = {};
       for (const metric of widget.metrics) {
-        // TODO think about types here
-        data.values[metric] = item.historicalMetrics[metric];
+        data.values[item.id][metric] = item.historicalMetrics[metric];
       }
     }
 

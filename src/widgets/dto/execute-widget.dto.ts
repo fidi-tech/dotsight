@@ -24,7 +24,7 @@ export class ExecuteWidgetDto {
         MetricId,
         Array<{
           timestamp: number;
-          value: Record<UnitId, number>;
+          value: number | Record<UnitId, number>;
         }>
       >
     >;
