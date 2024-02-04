@@ -6,6 +6,7 @@ import { UserId } from '../../../users/entities/user.entity';
 import { WidgetAbilityService } from '../widget-ability/widget-ability.service';
 import {
   CategoryId,
+  MetricId,
   SubcategoryId,
 } from '../../../common/categories/abstract.category';
 import { CategoriesService } from '../../../categories/services/categories.service';
@@ -133,6 +134,44 @@ export class WidgetService {
       throw new BadRequestException(`Subcategory ${miss} is not found`);
     }
     widget.subcategories = [...new Set(subcategories)];
+    return await this.getWidgetRepository(qr).save(widget);
+  }
+
+  async setMetrics(
+    userId: UserId,
+    widgetId: WidgetId,
+    metrics: MetricId[],
+    qr?: QueryRunner,
+  ) {
+    if (!qr) {
+      const qr = this.dataSource.createQueryRunner();
+      await qr.connect();
+      await qr.startTransaction();
+      try {
+        return await this.setMetrics(userId, widgetId, metrics, qr);
+      } catch (err) {
+        await qr.rollbackTransaction();
+        throw err;
+      } finally {
+        // you need to release a queryRunner which was manually instantiated
+        await qr.release();
+      }
+    }
+
+    const [widget, suggestedMetrics] = await Promise.all([
+      this.findById(widgetId, null, qr),
+      this.queryMetrics(userId, widgetId, undefined, qr),
+    ]);
+    const miss = metrics.find(
+      (metricId) =>
+        !suggestedMetrics.find(
+          (suggest) => suggest.id === metricId && suggest.isAvailable,
+        ),
+    );
+    if (miss) {
+      throw new BadRequestException(`Metric ${miss} is not found`);
+    }
+    widget.metrics = [...new Set(metrics)];
     return await this.getWidgetRepository(qr).save(widget);
   }
 

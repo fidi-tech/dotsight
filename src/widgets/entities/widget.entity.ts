@@ -46,15 +46,8 @@ export class Widget {
     description:
       "widget's user-selected metrics. user can not specify both metrics & metricPreset",
   })
-  @Column('uuid', { array: true, default: [] })
+  @Column('text', { array: true, default: [] })
   metrics: string[];
-
-  @ApiProperty({
-    description:
-      "widget's user-selected metricsPreset. user can not specify both metrics & metricPreset",
-  })
-  @Column('uuid', { nullable: true })
-  metricsPreset?: string;
 
   @ManyToOne(() => User, { nullable: false })
   createdBy: User;

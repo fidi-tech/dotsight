@@ -29,6 +29,7 @@ import { MetricDto } from './dto/metric.dto';
 import { ExecuteWidgetDto } from './dto/execute-widget.dto';
 import { ExecuteWidgetService } from './services/widget/execute-widget.service';
 import { SetSubcategoriesDto } from './dto/set-subcategories.dto';
+import { SetMetricsDto } from './dto/set-metrics.dto';
 
 @Controller('widgets')
 @ApiExtraModels(Widget)
@@ -200,6 +201,45 @@ export class WidgetsController {
     await this.widgetAbilityService.claimModify(userId, widgetId);
     return {
       metrics: await this.widgetService.queryMetrics(userId, widgetId, query),
+    };
+  }
+
+  @Put('/:widgetId/metrics')
+  @ApiOkResponse({
+    description: "sets widget's subcategories",
+    schema: {
+      type: 'object',
+      properties: {
+        metrics: {
+          type: 'array',
+          items: {
+            $ref: getSchemaPath(MetricDto),
+          },
+        },
+        widget: {
+          $ref: getSchemaPath(Widget),
+        },
+      },
+      required: ['metrics', 'widget'],
+    },
+  })
+  @UseGuards(JwtGuard)
+  async setMetrics(
+    @AuthId() userId: UserId,
+    @Param('widgetId') widgetId: WidgetId,
+    @Body() { metrics: selectedMetrics }: SetMetricsDto,
+  ) {
+    await this.widgetAbilityService.claimModify(userId, widgetId);
+
+    await this.widgetService.setMetrics(userId, widgetId, selectedMetrics);
+
+    const [metrics, widget] = await Promise.all([
+      this.widgetService.queryMetrics(userId, widgetId),
+      this.widgetService.findById(widgetId, userId),
+    ]);
+    return {
+      metrics,
+      widget,
     };
   }
 
