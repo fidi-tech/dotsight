@@ -3,6 +3,7 @@ import { config as dotEnvConfig } from 'dotenv';
 import { DataSource as TypeOrmDataSource, DataSourceOptions } from 'typeorm';
 import { Widget } from './src/widgets/entities/widget.entity';
 import { User } from './src/users/entities/user.entity';
+import { DataSource } from './src/data-sources/entities/data-source.entity';
 import { Credential } from './src/users/entities/credential.entity';
 
 dotEnvConfig();
@@ -18,7 +19,7 @@ export const config: DataSourceOptions = {
   password: applicationConfig.get<string>('DB_PASSWORD'),
   database: applicationConfig.get<string>('DB_NAME'),
   migrations: [`./migrations/*.ts`],
-  entities: [Widget, User, Credential],
+  entities: [Widget, User, Credential, DataSource],
 };
 
 if (config.url && config.host && config.port) {

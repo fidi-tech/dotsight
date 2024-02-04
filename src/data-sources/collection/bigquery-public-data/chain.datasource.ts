@@ -4,11 +4,17 @@ import { CHAINS, ChainType } from './const';
 import { BigQuery, BigQueryTimestamp } from '@google-cloud/bigquery';
 import { TRANSACTIONS_COUNT, BLOCKS_COUNT } from './queries';
 import { Chain, ENTITY } from '../../../entities/chain.entity';
+import { NetworkCategory } from '../../../common/categories/collection/network/network.category';
+import { networks } from '../../../common/categories/collection/network/networks';
+import {
+  MetricId,
+  SubcategoryId,
+} from '../../../common/categories/abstract.category';
 
 type Config = Record<string, never>;
 
 type Params = {
-  chains: ChainType[];
+  subcategories: SubcategoryId[];
 };
 
 export class BigQueryPublicDataChainDatasource extends AbstractChainDataSource<
@@ -105,12 +111,16 @@ export class BigQueryPublicDataChainDatasource extends AbstractChainDataSource<
     );
   }
 
-  async getItems({ chains }: Params): Promise<{ items: Chain[]; meta: Meta }> {
+  async getItems({
+    subcategories,
+  }: Params): Promise<{ items: Chain[]; meta: Meta }> {
     const datas = await Promise.all(
-      chains.map(async (chain) => {
+      subcategories.map(async (chain) => {
         const [dailyTransactionsCountData, dailyBlocksCountData] =
           await Promise.all([
+            // @ts-expect-error TODO fix this
             this.getDailyTransactionsCount(chain, 30),
+            // @ts-expect-error TODO fix this
             this.getDailyBlocksCount(chain, 30),
           ]);
 
@@ -130,12 +140,6 @@ export class BigQueryPublicDataChainDatasource extends AbstractChainDataSource<
 
           meta: {
             name: CHAINS[chain].name,
-          },
-
-          metrics: {
-            dailyTransactionsCount:
-              dailyTransactionsCountData[0].dailyTransactionsCount,
-            dailyBlocksCount: dailyBlocksCountData[0].dailyBlocksCount,
           },
 
           historicalMetrics: {
@@ -158,5 +162,23 @@ export class BigQueryPublicDataChainDatasource extends AbstractChainDataSource<
         units: {},
       },
     };
+  }
+
+  static getCategory() {
+    // TODO refactor this
+    return new NetworkCategory().getId();
+  }
+
+  static getSubcategories(subcategories: SubcategoryId[]) {
+    // TODO refactor this
+    return [networks[0].id].filter((subcategoryId) =>
+      subcategories.includes(subcategoryId),
+    );
+  }
+
+  static getMetrics(metrics: MetricId[]): MetricId[] {
+    return ['dailyTransactionsCount', 'dailyBlocksCount'].filter((metricId) =>
+      metrics.includes(metricId),
+    );
   }
 }

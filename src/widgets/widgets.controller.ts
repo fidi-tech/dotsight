@@ -257,6 +257,7 @@ export class WidgetsController {
       required: ['data'],
     },
   })
+  @UseGuards(JwtGuard)
   async getData(
     @AuthId() userId: UserId,
     @Param('widgetId') widgetId: WidgetId,

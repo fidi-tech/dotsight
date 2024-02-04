@@ -85,7 +85,13 @@ export class ExecuteWidgetService {
     // TODO declare global common params type
     const COMMON_PARAMS = {};
     const raw = await Promise.all(
-      datasources.map((datasource) => datasource.getItems(COMMON_PARAMS)),
+      datasources.map((datasource) =>
+        datasource.getItems({
+          ...COMMON_PARAMS,
+          // TODO add metrics also?
+          subcategories: widget.subcategories,
+        }),
+      ),
     );
     const prepared = this.mixRawDatasourceResponse(raw);
     const data: ExecuteWidgetDto['data'] = {
