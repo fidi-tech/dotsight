@@ -27,8 +27,10 @@ export abstract class AbstractCategory<M extends Metrics> {
   ): Promise<readonly Subcategory[]>;
 
   async getMetricsByQuery(query?: string): Promise<Metric[]> {
-    return Object.values(this.metrics).filter((metric) =>
-      metric.name.includes(query),
-    ) as Array<M[keyof M]>;
+    const metrics = Object.values(this.metrics) as Array<M[keyof M]>;
+    if (!query) {
+      return metrics;
+    }
+    return metrics.filter((metric) => metric.name.includes(query));
   }
 }
