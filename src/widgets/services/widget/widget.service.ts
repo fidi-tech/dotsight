@@ -1,10 +1,13 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Like, QueryRunner, Repository } from 'typeorm';
+import { DataSource, Like, QueryRunner, Repository } from 'typeorm';
 import { Widget, WidgetId } from '../../entities/widget.entity';
 import { UserId } from '../../../users/entities/user.entity';
 import { WidgetAbilityService } from '../widget-ability/widget-ability.service';
-import { CategoryId } from '../../../common/categories/abstract.category';
+import {
+  CategoryId,
+  SubcategoryId,
+} from '../../../common/categories/abstract.category';
 import { CategoriesService } from '../../../categories/services/categories.service';
 import { SubcategoryDto } from '../../dto/subcategory.dto';
 import { MetricDto } from '../../dto/metric.dto';
@@ -16,6 +19,7 @@ export class WidgetService {
     private readonly widgetRepository: Repository<Widget>,
     private readonly widgetAbilityService: WidgetAbilityService,
     private readonly categoriesService: CategoriesService,
+    private dataSource: DataSource,
   ) {}
 
   private getWidgetRepository(qr?: QueryRunner) {
@@ -33,7 +37,7 @@ export class WidgetService {
     qr?: QueryRunner,
   ) {
     const widgets = await this.getWidgetRepository(qr).find({
-      where: { createdBy: { id: userId }, name: Like(`%${query}%`) },
+      where: { createdBy: { id: userId }, name: query && Like(`%${query}%`) },
       relations: ['createdBy'],
       order: {
         createdAt: 'DESC',
@@ -59,14 +63,14 @@ export class WidgetService {
   async create(
     userId: UserId,
     category: CategoryId,
-    name?: string,
+    name = 'Untitled widget',
     qr?: QueryRunner,
   ) {
-    const widget = await this.getWidgetRepository(qr).create();
-    widget.category = category;
-    if (name) {
-      widget.name = name;
-    }
+    const widget = await this.getWidgetRepository(qr).create({
+      category,
+      name,
+      createdBy: { id: userId },
+    });
     await this.getWidgetRepository(qr).save(widget);
     return widget;
   }
@@ -92,6 +96,44 @@ export class WidgetService {
       isAvailable: true,
       isSelected: widget.subcategories.includes(subcategory.id),
     }));
+  }
+
+  async setSubcategories(
+    userId: UserId,
+    widgetId: WidgetId,
+    subcategories: SubcategoryId[],
+    qr?: QueryRunner,
+  ) {
+    if (!qr) {
+      const qr = this.dataSource.createQueryRunner();
+      await qr.connect();
+      await qr.startTransaction();
+      try {
+        return await this.setSubcategories(userId, widgetId, subcategories, qr);
+      } catch (err) {
+        await qr.rollbackTransaction();
+        throw err;
+      } finally {
+        // you need to release a queryRunner which was manually instantiated
+        await qr.release();
+      }
+    }
+
+    const [widget, suggestedSubcategories] = await Promise.all([
+      this.findById(widgetId, null, qr),
+      this.querySubcategories(userId, widgetId, undefined, qr),
+    ]);
+    const miss = subcategories.find(
+      (subcategoryId) =>
+        !suggestedSubcategories.find(
+          (suggest) => suggest.id === subcategoryId && suggest.isAvailable,
+        ),
+    );
+    if (miss) {
+      throw new BadRequestException(`Subcategory ${miss} is not found`);
+    }
+    widget.subcategories = subcategories;
+    return await this.getWidgetRepository(qr).save(widget);
   }
 
   async queryMetrics(

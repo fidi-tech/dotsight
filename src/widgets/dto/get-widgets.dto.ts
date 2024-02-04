@@ -1,4 +1,4 @@
-import { IsPositive, IsString, Min } from 'class-validator';
+import { IsOptional, IsPositive, IsString, Min } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class GetWidgetsDto {
@@ -7,6 +7,7 @@ export class GetWidgetsDto {
     required: false,
   })
   @IsString()
+  @IsOptional()
   readonly query?: string;
 
   @ApiProperty({
@@ -14,6 +15,7 @@ export class GetWidgetsDto {
     required: false,
   })
   @IsPositive()
+  @IsOptional()
   readonly limit?: number;
 
   @ApiProperty({
@@ -21,5 +23,6 @@ export class GetWidgetsDto {
     required: false,
   })
   @Min(0)
+  @IsOptional()
   readonly offset?: number;
 }

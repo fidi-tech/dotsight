@@ -1,6 +1,6 @@
 import { CategoryId } from '../../common/categories/abstract.category';
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString } from 'class-validator';
+import { IsOptional, IsString } from 'class-validator';
 
 export class CreateWidgetDto {
   @ApiProperty({
@@ -14,5 +14,6 @@ export class CreateWidgetDto {
     nullable: true,
   })
   @IsString()
+  @IsOptional()
   readonly name?: string;
 }

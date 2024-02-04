@@ -4,6 +4,7 @@ import {
   Get,
   Param,
   Post,
+  Put,
   Query,
   UseGuards,
 } from '@nestjs/common';
@@ -27,6 +28,7 @@ import { GetMetricsDto } from './dto/get-metrics.dto';
 import { MetricDto } from './dto/metric.dto';
 import { ExecuteWidgetDto } from './dto/execute-widget.dto';
 import { ExecuteWidgetService } from './services/widget/execute-widget.service';
+import { SetSubcategoriesDto } from './dto/set-subcategories.dto';
 
 @Controller('widgets')
 @ApiExtraModels(Widget)
@@ -126,6 +128,49 @@ export class WidgetsController {
         widgetId,
         query,
       ),
+    };
+  }
+
+  @Put('/:widgetId/subcategories')
+  @ApiOkResponse({
+    description: "sets widget's subcategories",
+    schema: {
+      type: 'object',
+      properties: {
+        subcategories: {
+          type: 'array',
+          items: {
+            $ref: getSchemaPath(SubcategoryDto),
+          },
+        },
+        widget: {
+          $ref: getSchemaPath(Widget),
+        },
+      },
+      required: ['subcategories', 'widget'],
+    },
+  })
+  @UseGuards(JwtGuard)
+  async setSubcategories(
+    @AuthId() userId: UserId,
+    @Param('widgetId') widgetId: WidgetId,
+    @Body() { subcategories: selectedSubcategories }: SetSubcategoriesDto,
+  ) {
+    await this.widgetAbilityService.claimModify(userId, widgetId);
+
+    await this.widgetService.setSubcategories(
+      userId,
+      widgetId,
+      selectedSubcategories,
+    );
+
+    const [subcategories, widget] = await Promise.all([
+      this.widgetService.querySubcategories(userId, widgetId),
+      this.widgetService.findById(widgetId, userId),
+    ]);
+    return {
+      subcategories,
+      widget,
     };
   }
 

@@ -27,36 +27,36 @@ export class Widget {
   @ApiProperty({
     description: "widget's user-selected view",
   })
-  @Column()
-  view: string;
+  @Column({ nullable: true })
+  view?: string;
 
   @ApiProperty({
     description: "widget's view's user-selected parameters",
   })
-  @Column({ type: 'json' })
-  viewParameters: object;
+  @Column({ type: 'json', nullable: true })
+  viewParameters?: object;
 
   @ApiProperty({
     description: "widget's user-selected subcategories",
   })
-  @Column('text', { array: true })
+  @Column('text', { array: true, default: [] })
   subcategories: string[];
 
   @ApiProperty({
     description:
       "widget's user-selected metrics. user can not specify both metrics & metricPreset",
   })
-  @Column('uuid', { array: true })
+  @Column('uuid', { array: true, default: [] })
   metrics: string[];
 
   @ApiProperty({
     description:
       "widget's user-selected metricsPreset. user can not specify both metrics & metricPreset",
   })
-  @Column('uuid')
-  metricsPreset: string;
+  @Column('uuid', { nullable: true })
+  metricsPreset?: string;
 
-  @ManyToOne(() => User)
+  @ManyToOne(() => User, { nullable: false })
   createdBy: User;
 
   @Column('timestamp with time zone', {
