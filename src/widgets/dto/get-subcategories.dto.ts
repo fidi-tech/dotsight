@@ -1,4 +1,4 @@
-import { IsString } from 'class-validator';
+import { IsOptional, IsString } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class GetSubcategoriesDto {
@@ -7,5 +7,6 @@ export class GetSubcategoriesDto {
     required: false,
   })
   @IsString()
+  @IsOptional()
   readonly query?: string;
 }

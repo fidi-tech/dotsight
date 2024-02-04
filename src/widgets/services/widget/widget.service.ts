@@ -132,7 +132,7 @@ export class WidgetService {
     if (miss) {
       throw new BadRequestException(`Subcategory ${miss} is not found`);
     }
-    widget.subcategories = subcategories;
+    widget.subcategories = [...new Set(subcategories)];
     return await this.getWidgetRepository(qr).save(widget);
   }
 
