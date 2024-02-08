@@ -1,6 +1,9 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { CategoryDto } from '../dto/category.dto';
-import { CategoryId } from '../../common/categories/abstract.category';
+import {
+  CategoryId,
+  SubcategoryId,
+} from '../../common/categories/abstract.category';
 import { categories } from '../../common/categories/collection';
 
 @Injectable()
@@ -26,6 +29,19 @@ export class CategoriesService {
   async findSubcategories(categoryId: CategoryId, query?: string) {
     const category = this.findCategory(categoryId);
     return category.getSubcategoriesByQuery(query);
+  }
+
+  async findSubcategoriesByIds(
+    categoryId: CategoryId,
+    subcategories: SubcategoryId[],
+  ) {
+    const category = this.findCategory(categoryId);
+    const searchResults = await Promise.all(
+      subcategories.map((subcategoryId) =>
+        category.validateSubcategory(subcategoryId),
+      ),
+    );
+    return searchResults.filter(Boolean);
   }
 
   async findMetrics(categoryId: CategoryId, query?: string) {

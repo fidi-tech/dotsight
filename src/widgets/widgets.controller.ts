@@ -156,6 +156,7 @@ export class WidgetsController {
     @AuthId() userId: UserId,
     @Param('widgetId') widgetId: WidgetId,
     @Body() { subcategories: selectedSubcategories }: SetSubcategoriesDto,
+    @Query() { query }: GetSubcategoriesDto,
   ) {
     await this.widgetAbilityService.claimModify(userId, widgetId);
 
@@ -166,7 +167,7 @@ export class WidgetsController {
     );
 
     const [subcategories, widget] = await Promise.all([
-      this.widgetService.querySubcategories(userId, widgetId),
+      this.widgetService.querySubcategories(userId, widgetId, query),
       this.widgetService.findById(widgetId, userId),
     ]);
     return {
@@ -228,13 +229,14 @@ export class WidgetsController {
     @AuthId() userId: UserId,
     @Param('widgetId') widgetId: WidgetId,
     @Body() { metrics: selectedMetrics }: SetMetricsDto,
+    @Query() { query }: GetMetricsDto,
   ) {
     await this.widgetAbilityService.claimModify(userId, widgetId);
 
     await this.widgetService.setMetrics(userId, widgetId, selectedMetrics);
 
     const [metrics, widget] = await Promise.all([
-      this.widgetService.queryMetrics(userId, widgetId),
+      this.widgetService.queryMetrics(userId, widgetId, query),
       this.widgetService.findById(widgetId, userId),
     ]);
     return {

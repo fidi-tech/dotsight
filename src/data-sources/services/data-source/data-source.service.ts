@@ -53,6 +53,7 @@ export class DataSourceService {
       }))
       .filter(
         ({ type }) =>
+          // TODO ensure all data source have this
           type.getCategory() === category &&
           type.getSubcategories(subcategories).length > 0 &&
           type.getMetrics(metrics).length > 0,

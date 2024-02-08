@@ -86,17 +86,22 @@ export class WidgetService {
     if (!widget.category) {
       return [];
     }
-    const subcategories = await this.categoriesService.findSubcategories(
-      widget.category,
-      query,
+    const [subcategoriesByQuery, selectedSubcategroies] = await Promise.all([
+      this.categoriesService.findSubcategories(widget.category, query),
+      this.categoriesService.findSubcategoriesByIds(
+        widget.category,
+        widget.subcategories || [],
+      ),
+    ]);
+    return [...selectedSubcategroies, ...subcategoriesByQuery].map(
+      (subcategory) => ({
+        id: subcategory.id,
+        name: subcategory.name,
+        icon: subcategory.icon,
+        isAvailable: true,
+        isSelected: widget.subcategories.includes(subcategory.id),
+      }),
     );
-    return subcategories.map((subcategory) => ({
-      id: subcategory.id,
-      name: subcategory.name,
-      icon: subcategory.icon,
-      isAvailable: true,
-      isSelected: widget.subcategories.includes(subcategory.id),
-    }));
   }
 
   async setSubcategories(
@@ -120,15 +125,15 @@ export class WidgetService {
       }
     }
 
-    const [widget, suggestedSubcategories] = await Promise.all([
-      this.findById(widgetId, null, qr),
-      this.querySubcategories(userId, widgetId, undefined, qr),
-    ]);
+    const widget = await this.findById(widgetId, null, qr);
+    const foundSubcategories =
+      await this.categoriesService.findSubcategoriesByIds(
+        widget.category,
+        subcategories,
+      );
     const miss = subcategories.find(
       (subcategoryId) =>
-        !suggestedSubcategories.find(
-          (suggest) => suggest.id === subcategoryId && suggest.isAvailable,
-        ),
+        !foundSubcategories.find((found) => found.id === subcategoryId),
     );
     if (miss) {
       throw new BadRequestException(`Subcategory ${miss} is not found`);
