@@ -1,8 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { collection } from '../../collection';
 import { AbstractDataSource } from '../../abstract.data-source';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
 import { DataSource } from '../../entities/data-source.entity';
 import { ApiProperty } from '@nestjs/swagger';
 import {
@@ -35,17 +33,24 @@ export class DatasourceSuggestion {
 
 @Injectable()
 export class DataSourceService {
-  constructor(
-    @InjectRepository(DataSource)
-    private readonly dataSourceRepository: Repository<DataSource>,
-  ) {}
+  private datasources: DataSource[];
+
+  constructor() {
+    this.datasources = [
+      {
+        id: '1-bigquery-public-data-chains',
+        type: 'bigquery-public-data-chains',
+        config: {},
+      },
+    ];
+  }
 
   async getDatasources(
     category: CategoryId,
     subcategories: SubcategoryId[],
     metrics: MetricId[],
   ): Promise<Array<AbstractDataSource<any, any, any, any>>> {
-    const datasources = await this.dataSourceRepository.find();
+    const datasources = this.datasources;
     return datasources
       .map((datasource) => ({
         type: collection[datasource.type],
@@ -53,7 +58,6 @@ export class DataSourceService {
       }))
       .filter(
         ({ type }) =>
-          // TODO ensure all data source have this
           type.getCategory() === category &&
           type.getSubcategories(subcategories).length > 0 &&
           type.getMetrics(metrics).length > 0,
