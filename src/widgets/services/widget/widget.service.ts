@@ -76,6 +76,28 @@ export class WidgetService {
     return widget;
   }
 
+  async save(
+    userId: UserId,
+    widgetId: WidgetId,
+    name?: string,
+    view?: string,
+    viewParameters?: object,
+    qr?: QueryRunner,
+  ) {
+    const widget = await this.findById(widgetId, undefined, qr);
+    if (name) {
+      widget.name = name;
+    }
+    if (view) {
+      widget.view = view;
+    }
+    if (viewParameters) {
+      widget.viewParameters = viewParameters;
+    }
+    await this.getWidgetRepository(qr).save(widget);
+    return widget;
+  }
+
   async querySubcategories(
     userId: UserId,
     widgetId: WidgetId,

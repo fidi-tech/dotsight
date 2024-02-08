@@ -3,6 +3,7 @@ import {
   Controller,
   Get,
   Param,
+  Patch,
   Post,
   Put,
   Query,
@@ -30,6 +31,7 @@ import { ExecuteWidgetDto } from './dto/execute-widget.dto';
 import { ExecuteWidgetService } from './services/widget/execute-widget.service';
 import { SetSubcategoriesDto } from './dto/set-subcategories.dto';
 import { SetMetricsDto } from './dto/set-metrics.dto';
+import { SaveWidgetDto } from './dto/save-widget.dto';
 
 @Controller('widgets')
 @ApiExtraModels(Widget)
@@ -96,6 +98,32 @@ export class WidgetsController {
     const widget = await this.widgetService.create(userId, category, name);
     return {
       widget: await this.widgetService.findById(widget.id, userId),
+    };
+  }
+
+  @Patch('/:widgetId')
+  @ApiOkResponse({
+    description: 'returns updated widget',
+    schema: {
+      type: 'object',
+      properties: {
+        widget: {
+          $ref: getSchemaPath(Widget),
+        },
+      },
+      required: ['widget'],
+    },
+  })
+  @UseGuards(JwtGuard)
+  async saveWidget(
+    @AuthId() userId: UserId,
+    @Param('widgetId') widgetId: WidgetId,
+    @Body() { name, view, viewParameters }: SaveWidgetDto,
+  ) {
+    await this.widgetAbilityService.claimModify(userId, widgetId);
+    await this.widgetService.save(userId, widgetId, name, view, viewParameters);
+    return {
+      widget: await this.widgetService.findById(widgetId, userId),
     };
   }
 
