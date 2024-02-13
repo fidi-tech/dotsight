@@ -105,7 +105,7 @@ describe('Erc20Datasource', () => {
       items: [
         {
           entity: 'walletToken',
-          historicalMetrics: {
+          metrics: {
             amount: [
               {
                 timestamp: Math.floor(Date.now() / 1000),
@@ -126,7 +126,7 @@ describe('Erc20Datasource', () => {
         },
         {
           entity: 'walletToken',
-          historicalMetrics: {
+          metrics: {
             amount: [
               {
                 timestamp: Math.floor(Date.now() / 1000),

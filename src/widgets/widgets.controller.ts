@@ -217,8 +217,14 @@ export class WidgetsController {
             $ref: getSchemaPath(MetricDto),
           },
         },
+        presets: {
+          type: 'array',
+          items: {
+            $ref: getSchemaPath(MetricDto),
+          },
+        },
       },
-      required: ['metrics'],
+      required: ['metrics', 'presets'],
     },
   })
   @UseGuards(JwtGuard)
@@ -228,14 +234,12 @@ export class WidgetsController {
     @Query() { query }: GetMetricsDto,
   ) {
     await this.widgetAbilityService.claimModify(userId, widgetId);
-    return {
-      metrics: await this.widgetService.queryMetrics(userId, widgetId, query),
-    };
+    return await this.widgetService.queryMetrics(userId, widgetId, query);
   }
 
   @Put('/:widgetId/metrics')
   @ApiOkResponse({
-    description: "sets widget's subcategories",
+    description: "sets widget's metrics",
     schema: {
       type: 'object',
       properties: {
@@ -256,12 +260,17 @@ export class WidgetsController {
   async setMetrics(
     @AuthId() userId: UserId,
     @Param('widgetId') widgetId: WidgetId,
-    @Body() { metrics: selectedMetrics }: SetMetricsDto,
+    @Body() { metrics: selectedMetrics, preset }: SetMetricsDto,
     @Query() { query }: GetMetricsDto,
   ) {
     await this.widgetAbilityService.claimModify(userId, widgetId);
 
-    await this.widgetService.setMetrics(userId, widgetId, selectedMetrics);
+    await this.widgetService.setMetrics(
+      userId,
+      widgetId,
+      selectedMetrics,
+      preset,
+    );
 
     const [metrics, widget] = await Promise.all([
       this.widgetService.queryMetrics(userId, widgetId, query),

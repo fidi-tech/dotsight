@@ -7,6 +7,7 @@ import { WidgetAbilityService } from '../widget-ability/widget-ability.service';
 import {
   CategoryId,
   MetricId,
+  PresetId,
   SubcategoryId,
 } from '../../../common/categories/abstract.category';
 import { CategoriesService } from '../../../categories/services/categories.service';
@@ -167,15 +168,22 @@ export class WidgetService {
   async setMetrics(
     userId: UserId,
     widgetId: WidgetId,
-    metrics: MetricId[],
+    metrics?: MetricId[],
+    preset?: PresetId,
     qr?: QueryRunner,
   ) {
+    if ((metrics && preset) || (!metrics && !preset)) {
+      throw new BadRequestException(
+        'You should specify exactly one of [metrics,preset]',
+      );
+    }
+
     if (!qr) {
       const qr = this.dataSource.createQueryRunner();
       await qr.connect();
       await qr.startTransaction();
       try {
-        return await this.setMetrics(userId, widgetId, metrics, qr);
+        return await this.setMetrics(userId, widgetId, metrics, preset, qr);
       } catch (err) {
         await qr.rollbackTransaction();
         throw err;
@@ -185,20 +193,33 @@ export class WidgetService {
       }
     }
 
-    const [widget, suggestedMetrics] = await Promise.all([
+    const [widget, suggested] = await Promise.all([
       this.findById(widgetId, null, qr),
       this.queryMetrics(userId, widgetId, undefined, qr),
     ]);
-    const miss = metrics.find(
-      (metricId) =>
-        !suggestedMetrics.find(
-          (suggest) => suggest.id === metricId && suggest.isAvailable,
-        ),
-    );
-    if (miss) {
-      throw new BadRequestException(`Metric ${miss} is not found`);
+    if (preset) {
+      const presetExists = suggested.presets.find(
+        (suggested) => suggested.id === preset,
+      );
+      if (!presetExists) {
+        throw new BadRequestException(`Preset ${preset} is not found`);
+      }
+      widget.preset = preset;
+    } else if (metrics) {
+      const miss = metrics.find(
+        (metricId) =>
+          !suggested.metrics.find(
+            (suggest) => suggest.id === metricId && suggest.isAvailable,
+          ),
+      );
+      if (miss) {
+        throw new BadRequestException(`Metric ${miss} is not found`);
+      }
+      widget.metrics = [...new Set(metrics)];
+    } else {
+      // not reachable, exactly one should be specified
     }
-    widget.metrics = [...new Set(metrics)];
+
     return await this.getWidgetRepository(qr).save(widget);
   }
 
@@ -207,21 +228,32 @@ export class WidgetService {
     widgetId: WidgetId,
     query?: string,
     qr?: QueryRunner,
-  ): Promise<MetricDto[]> {
+  ): Promise<{ metrics: MetricDto[]; presets: MetricDto[] }> {
     const widget = await this.findById(widgetId, null, qr);
     if (!widget.category) {
-      return [];
+      return { metrics: [], presets: [] };
     }
-    const metrics = await this.categoriesService.findMetrics(
-      widget.category,
-      query,
-    );
-    return metrics.map((metric) => ({
-      id: metric.id,
-      name: metric.name,
-      icon: metric.icon,
-      isAvailable: true,
-      isSelected: widget.metrics.includes(metric.id),
-    }));
+
+    const [metrics, presets] = await Promise.all([
+      this.categoriesService.findMetrics(widget.category, query),
+      this.categoriesService.findPresets(widget.category, query),
+    ]);
+
+    return {
+      metrics: metrics.map((metric) => ({
+        id: metric.id,
+        name: metric.name,
+        icon: metric.icon,
+        isAvailable: true,
+        isSelected: widget.metrics?.includes(metric.id) ?? false,
+      })),
+      presets: presets.map((preset) => ({
+        id: preset.id,
+        name: preset.name,
+        icon: preset.icon,
+        isAvailable: true,
+        isSelected: widget.preset === preset.id,
+      })),
+    };
   }
 }

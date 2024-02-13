@@ -84,7 +84,7 @@ describe('DappRadarDappDatasource', () => {
       items: [
         {
           entity: 'protocol',
-          historicalMetrics: {
+          metrics: {
             uaw: [
               {
                 timestamp: Math.floor(Date.now() / 1000),

@@ -1,26 +1,23 @@
-import { AbstractChainDataSource } from '../../abstract.chain.data-source';
-import { Meta } from '../../abstract.data-source';
+import { Entity, Meta, Params } from '../../abstract.data-source';
 import { CHAINS, ChainType } from './const';
 import { BigQuery, BigQueryTimestamp } from '@google-cloud/bigquery';
 import { TRANSACTIONS_COUNT, BLOCKS_COUNT } from './queries';
-import { Chain, ENTITY } from '../../../entities/chain.entity';
-import { NetworkCategory } from '../../../common/categories/collection/network/network.category';
 import { networks } from '../../../common/categories/collection/network/networks';
 import {
   MetricId,
+  PresetId,
   SubcategoryId,
 } from '../../../common/categories/abstract.category';
+import { AbstractNetworkDataSource } from '../../abstract.network.data-source';
+import { metrics as networkMetrics } from '../../../common/categories/collection/network/metrics';
+import {
+  Metrics,
+  Presets,
+} from '../../../common/categories/collection/network/network.category';
 
 type Config = Record<string, never>;
 
-type Params = {
-  subcategories: SubcategoryId[];
-};
-
-export class BigQueryPublicDataChainDatasource extends AbstractChainDataSource<
-  Config,
-  Params
-> {
+export class BigQueryPublicDataChainDatasource extends AbstractNetworkDataSource<Config> {
   private bigquery: BigQuery;
 
   constructor(props) {
@@ -35,34 +32,6 @@ export class BigQueryPublicDataChainDatasource extends AbstractChainDataSource<
 
   public static getDescription(): string {
     return `Consult https://cloud.google.com/blockchain-analytics/docs/supported-datasets for more info.`;
-  }
-
-  public static getConfigSchema(): object {
-    return {
-      title: 'Config',
-      description: 'BigQueryPublicDataChainDatasource configuration',
-      type: 'object',
-      properties: {},
-      required: [],
-    };
-  }
-
-  public static getParamsSchema(): object {
-    return {
-      title: 'Params',
-      description: 'ChainlinkTokenDataSource params',
-      type: 'object',
-      properties: {
-        chains: {
-          description: "Which chains' data to show",
-          type: 'array',
-          items: {
-            enum: Object.keys(CHAINS),
-          },
-        },
-      },
-      required: ['chains'],
-    };
   }
 
   private async getDailyTransactionsCount(chain: ChainType, daysAgo: number) {
@@ -113,7 +82,12 @@ export class BigQueryPublicDataChainDatasource extends AbstractChainDataSource<
 
   async getItems({
     subcategories,
-  }: Params): Promise<{ items: Chain[]; meta: Meta }> {
+    metrics,
+    preset,
+  }: Params<typeof networkMetrics>): Promise<{
+    items: Entity<Metrics, Presets>[];
+    meta: Meta;
+  }> {
     const datas = await Promise.all(
       subcategories.map(async (chain) => {
         const [dailyTransactionsCountData, dailyBlocksCountData] =
@@ -135,14 +109,11 @@ export class BigQueryPublicDataChainDatasource extends AbstractChainDataSource<
     return {
       items: datas.map(
         ({ chain, dailyTransactionsCountData, dailyBlocksCountData }) => ({
-          entity: ENTITY,
           id: CHAINS[chain].id,
+          name: CHAINS[chain].name,
+          icon: null,
 
-          meta: {
-            name: CHAINS[chain].name,
-          },
-
-          historicalMetrics: {
+          metrics: {
             dailyTransactionsCount: dailyTransactionsCountData.map(
               ({ timestamp, dailyTransactionsCount }) => ({
                 timestamp: Math.floor(timestamp.getTime() / 1000),
@@ -164,21 +135,19 @@ export class BigQueryPublicDataChainDatasource extends AbstractChainDataSource<
     };
   }
 
-  static getCategory() {
-    // TODO refactor this
-    return new NetworkCategory().getId();
-  }
-
   static getSubcategories(subcategories: SubcategoryId[]) {
-    // TODO refactor this
-    return [networks[0].id].filter((subcategoryId) =>
-      subcategories.includes(subcategoryId),
-    );
+    return Object.values(networks)
+      .filter((network) => subcategories.includes(network.id))
+      .map((network) => network.id);
   }
 
   static getMetrics(metrics: MetricId[]): MetricId[] {
     return ['dailyTransactionsCount', 'dailyBlocksCount'].filter((metricId) =>
       metrics.includes(metricId),
     );
+  }
+
+  public static hasPreset(preset: PresetId): boolean {
+    return false;
   }
 }

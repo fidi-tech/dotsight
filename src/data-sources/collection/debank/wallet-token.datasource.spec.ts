@@ -112,7 +112,7 @@ describe('DebankWalletTokenDatasource', () => {
       items: [
         {
           entity: 'walletToken',
-          historicalMetrics: {
+          metrics: {
             amount: [
               {
                 timestamp: Math.floor(Date.now() / 1000),
@@ -148,7 +148,7 @@ describe('DebankWalletTokenDatasource', () => {
         },
         {
           entity: 'walletToken',
-          historicalMetrics: {
+          metrics: {
             amount: [
               {
                 timestamp: Math.floor(Date.now() / 1000),
@@ -182,7 +182,7 @@ describe('DebankWalletTokenDatasource', () => {
         },
         {
           entity: 'walletToken',
-          historicalMetrics: {
+          metrics: {
             amount: [
               {
                 timestamp: Math.floor(Date.now() / 1000),

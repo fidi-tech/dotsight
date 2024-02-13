@@ -63,7 +63,8 @@ All supported entities are organized in [./entities](./src/entities). Contributo
 - ```id```: A unique identifier employed in mixers to effectively handle entities originating from diverse data sources.
 - ```meta```: A set of fields elaborating on the characteristics of the entity, such as the dApp's ```name``` for the [Protocol entity](./src/entities/protocol.entity.ts)).
 - ```metrics```:  A key-value structure representing the metrics collected by data sources for a given entity. Examples include a ```netWorth``` for [Wallet entity](./src/entities/wallet.entity.ts).
-- ```historicalMetrics```: Similar to metrics, this component captures multiple metric values over time, each associated with a corresponding timestamp.
+
+- ```metrics```: Similar to metrics, this component captures multiple metric values over time, each associated with a corresponding timestamp.
 
 ### Data Sources
 The data source can be any data stream able to provide a complete set of specific ```entity``` data within a given context. Every data source within DotSight inherits the capabilities of the [AbstractDataSource](./src/data-sources/abstract.data-source.ts) class. To accommodate the diversity of entities, DotSight offers abstract classes tailored to each entity type, e.g., [AbstractProtocolDataSource](./src/data-sources/abstract.protocol.data-source.ts)).

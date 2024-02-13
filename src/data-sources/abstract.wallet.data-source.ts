@@ -1,13 +1,25 @@
-import { AbstractDataSource, Meta } from './abstract.data-source';
-import { Wallet, ENTITY } from '../entities/wallet.entity';
+import {
+  AbstractDataSource,
+  Entity,
+  Meta,
+  Params,
+} from './abstract.data-source';
+import { metrics } from '../common/categories/collection/wallet/metrics';
+import { presets } from '../common/categories/collection/wallet/presets';
+import { WalletCategory } from '../common/categories/collection/wallet/wallet.category';
 
-export abstract class AbstractWalletDataSource<C, P> extends AbstractDataSource<
+export abstract class AbstractWalletDataSource<C> extends AbstractDataSource<
   C,
-  P,
-  Wallet,
+  typeof metrics,
+  typeof presets,
   Meta
 > {
   public static getCategory(): string {
-    return ENTITY;
+    return new WalletCategory().getId();
   }
+
+  abstract getItems(params: Params<typeof metrics>): Promise<{
+    items: Entity<typeof metrics, typeof presets>[];
+    meta: Meta;
+  }>;
 }

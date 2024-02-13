@@ -42,26 +42,38 @@ export class DataSourceService {
         type: 'bigquery-public-data-chains',
         config: {},
       },
+      {
+        id: '1-debank-wallet-tokens',
+        type: 'debank-wallet-tokens',
+        config: {
+          key: process.env.DEBANK,
+        },
+      },
     ];
   }
 
   async getDatasources(
     category: CategoryId,
     subcategories: SubcategoryId[],
-    metrics: MetricId[],
+    metrics?: MetricId[],
+    preset?: MetricId,
   ): Promise<Array<AbstractDataSource<any, any, any, any>>> {
     const datasources = this.datasources;
     return datasources
       .map((datasource) => ({
-        type: collection[datasource.type],
+        type: collection[
+          datasource.type
+        ] as (typeof collection)[keyof typeof collection],
         config: datasource.config,
       }))
-      .filter(
-        ({ type }) =>
+      .filter(({ type }) => {
+        return (
           type.getCategory() === category &&
           type.getSubcategories(subcategories).length > 0 &&
-          type.getMetrics(metrics).length > 0,
-      )
+          ((metrics && type.getMetrics(metrics).length > 0) ||
+            (preset && type.hasPreset(preset)))
+        );
+      })
       .map(({ type, config }) => new type(config));
   }
 }

@@ -91,7 +91,7 @@ describe('DebankWalletDatasource', () => {
       items: [
         {
           entity: 'wallet',
-          historicalMetrics: {
+          metrics: {
             netWorth: [
               {
                 timestamp: Math.floor(Date.now() / 1000),
@@ -113,7 +113,7 @@ describe('DebankWalletDatasource', () => {
         },
         {
           entity: 'wallet',
-          historicalMetrics: {
+          metrics: {
             netWorth: [
               {
                 timestamp: Math.floor(Date.now() / 1000),

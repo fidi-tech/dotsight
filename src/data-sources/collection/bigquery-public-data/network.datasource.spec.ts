@@ -1,4 +1,4 @@
-import { BigQueryPublicDataChainDatasource } from './chain.datasource';
+import { BigQueryPublicDataChainDatasource } from './network.datasource';
 
 const createQueryJob = jest.fn();
 jest.mock('@google-cloud/bigquery', () => ({
@@ -36,7 +36,7 @@ describe('BigQueryPublicDataChainDatasource', () => {
       items: [
         {
           entity: 'chain',
-          historicalMetrics: {
+          metrics: {
             dailyBlocksCount: [
               {
                 timestamp: 1,
@@ -69,7 +69,7 @@ describe('BigQueryPublicDataChainDatasource', () => {
         },
         {
           entity: 'chain',
-          historicalMetrics: {
+          metrics: {
             dailyBlocksCount: [
               {
                 timestamp: 1,

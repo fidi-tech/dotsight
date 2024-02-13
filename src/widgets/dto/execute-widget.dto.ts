@@ -1,5 +1,5 @@
 import { Metric, MetricId } from '../../common/categories/abstract.category';
-import { UnitId, Unit } from '../../entities/entity';
+import { Unit, UnitId } from '../../data-sources/abstract.data-source';
 
 type ItemId = string;
 
@@ -9,7 +9,6 @@ class Item {
   icon: string | null;
 }
 
-// TODO move Unit
 // TODO api spec
 export class ExecuteWidgetDto {
   items: Record<ItemId, Item>;

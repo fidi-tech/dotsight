@@ -90,7 +90,7 @@ describe('ChainlinkTokenDataSource', () => {
       items: [
         {
           entity: 'token',
-          historicalMetrics: {
+          metrics: {
             price: [],
           },
           id: 'BTC',
@@ -117,7 +117,7 @@ describe('ChainlinkTokenDataSource', () => {
       },
     };
     for (let current = 0; current <= 24 * 60 * 60; current += 60 * 60) {
-      expected.items[0].historicalMetrics.price.push({
+      expected.items[0].metrics.price.push({
         timestamp: current,
         value: {
           usd: Math.floor(current / 10 ** 2),

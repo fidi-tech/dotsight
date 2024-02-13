@@ -1,16 +1,19 @@
 import {
   AbstractCategory,
+  PresetId,
   Subcategory,
   SubcategoryId,
 } from '../../abstract.category';
 import { isSupportedAddress, normalizeWalletId } from './validators';
 import { metrics } from './metrics';
+import { presets } from './presets';
 
-type Metrics = typeof metrics;
+export type Metrics = typeof metrics;
+export type Presets = typeof presets;
 
-export class WalletCategory extends AbstractCategory<Metrics> {
+export class WalletCategory extends AbstractCategory<Metrics, Presets> {
   constructor() {
-    super(metrics);
+    super(metrics, presets);
   }
 
   getIcon() {
@@ -38,5 +41,9 @@ export class WalletCategory extends AbstractCategory<Metrics> {
   async getSubcategoriesByQuery(query?: string): Promise<Subcategory[]> {
     const subcategory = await this.validateSubcategory(query);
     return subcategory ? [subcategory] : [];
+  }
+
+  getMetricsByPreset(presetId: PresetId) {
+    return presets[presetId]?.metrics ?? null;
   }
 }

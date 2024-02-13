@@ -13,8 +13,17 @@ export type Metric = {
 };
 export type Metrics = Record<MetricId, Metric>;
 
-export abstract class AbstractCategory<M extends Metrics> {
-  protected constructor(private metrics: M) {}
+export type PresetId = string;
+export type Preset = {
+  id: PresetId;
+  name: string;
+  icon: string | null;
+  metrics: Metrics;
+};
+export type Presets = Record<PresetId, Preset>;
+
+export abstract class AbstractCategory<M extends Metrics, P extends Presets> {
+  protected constructor(private metrics: M, private presets: P) {}
 
   abstract getId(): CategoryId;
   abstract validateSubcategory(
@@ -33,4 +42,14 @@ export abstract class AbstractCategory<M extends Metrics> {
     }
     return metrics.filter((metric) => metric.name.includes(query));
   }
+
+  async getPresetsByQuery(query?: string): Promise<Preset[]> {
+    const presets = Object.values(this.presets) as Array<P[keyof P]>;
+    if (!query) {
+      return presets;
+    }
+    return presets.filter((preset) => preset.name.includes(query));
+  }
+
+  abstract getMetricsByPreset(presetId: PresetId): P[string]['metrics'] | null;
 }

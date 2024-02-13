@@ -1,11 +1,21 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString } from 'class-validator';
+import { IsOptional, IsString } from 'class-validator';
 
 export class SetMetricsDto {
   @ApiProperty({
     description: 'selected metrics',
     isArray: true,
+    required: false,
   })
   @IsString({ each: true })
-  readonly metrics: string[];
+  @IsOptional()
+  readonly metrics?: string[];
+
+  @ApiProperty({
+    description: 'selected preset',
+    required: false,
+  })
+  @IsString()
+  @IsOptional()
+  readonly preset?: string;
 }

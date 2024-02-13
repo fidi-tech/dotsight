@@ -123,7 +123,7 @@ describe('DappRadarProtocolDatasource', () => {
       items: [
         {
           entity: 'protocol',
-          historicalMetrics: {
+          metrics: {
             marketCap: [
               {
                 timestamp: Math.floor(Date.now() / 1000),
@@ -153,7 +153,7 @@ describe('DappRadarProtocolDatasource', () => {
         },
         {
           entity: 'protocol',
-          historicalMetrics: {
+          metrics: {
             marketCap: [
               {
                 timestamp: Math.floor(Date.now() / 1000),
@@ -183,7 +183,7 @@ describe('DappRadarProtocolDatasource', () => {
         },
         {
           entity: 'protocol',
-          historicalMetrics: {
+          metrics: {
             marketCap: [
               {
                 timestamp: Math.floor(Date.now() / 1000),

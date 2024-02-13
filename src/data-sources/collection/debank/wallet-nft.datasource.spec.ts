@@ -122,7 +122,7 @@ describe('DebankWalletNFTDatasource', () => {
         {
           entity: 'walletNFT',
           metrics: {},
-          historicalMetrics: {},
+          metrics: {},
           id: 'cid1-nid1',
           meta: {
             id: 'nid1',
@@ -140,7 +140,7 @@ describe('DebankWalletNFTDatasource', () => {
         {
           entity: 'walletNFT',
           metrics: {},
-          historicalMetrics: {},
+          metrics: {},
           id: 'cid2-nid2',
           meta: {
             id: 'nid2',
@@ -156,7 +156,7 @@ describe('DebankWalletNFTDatasource', () => {
         {
           entity: 'walletNFT',
           metrics: {},
-          historicalMetrics: {},
+          metrics: {},
           id: 'cid3-nid3',
           meta: {
             id: 'nid3',

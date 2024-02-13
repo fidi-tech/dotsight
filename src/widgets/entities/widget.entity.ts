@@ -26,12 +26,14 @@ export class Widget {
 
   @ApiProperty({
     description: "widget's user-selected view",
+    required: false,
   })
   @Column({ nullable: true })
   view?: string;
 
   @ApiProperty({
     description: "widget's view's user-selected parameters",
+    required: false,
   })
   @Column({ type: 'json', nullable: true })
   viewParameters?: object;
@@ -44,10 +46,19 @@ export class Widget {
 
   @ApiProperty({
     description:
-      "widget's user-selected metrics. user can not specify both metrics & metricPreset",
+      "widget's user-selected metrics. user can not specify both metrics & preset",
+    required: false,
   })
-  @Column('text', { array: true, default: [] })
-  metrics: string[];
+  @Column('text', { array: true, nullable: true })
+  metrics?: string[];
+
+  @ApiProperty({
+    description:
+      "widget's user-selected preset. user can not specify both metrics & preset",
+    required: false,
+  })
+  @Column('text', { nullable: true })
+  preset?: string;
 
   @ManyToOne(() => User, { nullable: false })
   createdBy: User;

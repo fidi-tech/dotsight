@@ -9,17 +9,15 @@ import { categories } from '../../common/categories/collection';
 @Injectable()
 export class CategoriesService {
   async queryCategories(): Promise<CategoryDto[]> {
-    return categories.map((category) => ({
+    return Object.values(categories).map((category) => ({
       id: category.getId(),
       name: category.getName(),
       icon: category.getIcon(),
     }));
   }
 
-  private findCategory(categoryId: CategoryId) {
-    const category = categories.find(
-      (category) => category.getId() === categoryId,
-    );
+  public findCategory(categoryId: CategoryId) {
+    const category = categories[categoryId];
     if (!category) {
       throw new NotFoundException(`Category ${categoryId} not found`);
     }
@@ -47,5 +45,10 @@ export class CategoriesService {
   async findMetrics(categoryId: CategoryId, query?: string) {
     const category = this.findCategory(categoryId);
     return category.getMetricsByQuery(query);
+  }
+
+  async findPresets(categoryId: CategoryId, query?: string) {
+    const category = this.findCategory(categoryId);
+    return category.getPresetsByQuery(query);
   }
 }

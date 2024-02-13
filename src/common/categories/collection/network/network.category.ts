@@ -1,16 +1,19 @@
 import {
   AbstractCategory,
+  PresetId,
   Subcategory,
   SubcategoryId,
 } from '../../abstract.category';
 import { networks } from './networks';
 import { metrics } from './metrics';
 
-type Metrics = typeof metrics;
+export type Metrics = typeof metrics;
+// eslint-disable-next-line
+export type Presets = {};
 
-export class NetworkCategory extends AbstractCategory<Metrics> {
+export class NetworkCategory extends AbstractCategory<Metrics, Presets> {
   constructor() {
-    super(metrics);
+    super(metrics, {});
   }
 
   getIcon() {
@@ -48,5 +51,9 @@ export class NetworkCategory extends AbstractCategory<Metrics> {
     return subcategories.find(
       (subcategory) => subcategory.id === subcategoryId,
     );
+  }
+
+  getMetricsByPreset(presetId: PresetId) {
+    return null;
   }
 }
