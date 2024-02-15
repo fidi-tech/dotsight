@@ -102,6 +102,29 @@ export class WidgetsController {
     };
   }
 
+  @Get('/:widgetId')
+  @ApiOkResponse({
+    description: 'returns a widget by id',
+    schema: {
+      type: 'object',
+      properties: {
+        widget: {
+          $ref: getSchemaPath(Widget),
+        },
+      },
+      required: ['widget'],
+    },
+  })
+  @UseGuards(JwtGuard)
+  async getWidgetById(
+    @AuthId() userId: UserId,
+    @Param('widgetId') widgetId: WidgetId,
+  ) {
+    return {
+      widget: await this.widgetService.findById(widgetId, userId),
+    };
+  }
+
   @Patch('/:widgetId')
   @ApiOkResponse({
     description: 'returns updated widget',
