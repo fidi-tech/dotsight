@@ -1,7 +1,6 @@
 import axios, { AxiosHeaders, AxiosInstance } from 'axios';
 import { USD } from '../../../common/currecies';
 import { AbstractWalletDataSource } from '../../abstract.wallet.data-source';
-import { BadRequestException } from '@nestjs/common';
 import { addLogging } from '../../../common/http';
 import { Entity, Meta, Params } from '../../abstract.data-source';
 import { metrics } from '../../../common/categories/collection/wallet/metrics';
@@ -65,10 +64,6 @@ export class DebankWalletTokenDatasource extends AbstractWalletDataSource<Config
     items: Entity<typeof metrics, typeof presets>[];
     meta: Meta;
   }> {
-    if (!Array.isArray(walletIds)) {
-      throw new BadRequestException('walletIds parameter was not specified');
-    }
-
     const data = await Promise.all(
       walletIds.map(async (walletId) => {
         const tokens = await this.getWalletTokens({ walletId });

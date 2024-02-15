@@ -2,34 +2,11 @@ import { Injectable } from '@nestjs/common';
 import { collection } from '../../collection';
 import { AbstractDataSource } from '../../abstract.data-source';
 import { DataSource } from '../../entities/data-source.entity';
-import { ApiProperty } from '@nestjs/swagger';
 import {
   CategoryId,
   MetricId,
   SubcategoryId,
 } from '../../../common/categories/abstract.category';
-
-export class DatasourceSuggestion {
-  @ApiProperty({
-    description: "data source's name",
-  })
-  name: string;
-
-  @ApiProperty({
-    description: "data source's description",
-  })
-  description: string;
-
-  @ApiProperty({
-    description: "data source's type",
-  })
-  type: string;
-
-  @ApiProperty({
-    description: "data source's config schema",
-  })
-  configSchema: object;
-}
 
 @Injectable()
 export class DataSourceService {
@@ -45,6 +22,13 @@ export class DataSourceService {
       {
         id: '1-debank-wallet-tokens',
         type: 'debank-wallet-tokens',
+        config: {
+          key: process.env.DEBANK,
+        },
+      },
+      {
+        id: '1-debank-wallet-nft',
+        type: 'debank-wallet-nft',
         config: {
           key: process.env.DEBANK,
         },

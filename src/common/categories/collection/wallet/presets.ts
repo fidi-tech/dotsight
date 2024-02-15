@@ -21,4 +21,16 @@ export const presets = {
       },
     },
   },
+  nfts: {
+    id: 'nfts',
+    name: 'NFTs',
+    icon: null,
+    metrics: {
+      price: {
+        id: 'price',
+        name: 'Last price',
+        icon: null,
+      },
+    },
+  },
 } as const;
