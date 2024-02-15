@@ -4,7 +4,7 @@
 import { DebankWalletTokenDatasource } from './debank/wallet-token.datasource';
 // import { DebankWalletTokenProtocolDatasource } from './debank/wallet-token.protocol.datasource';
 // import { Erc20Datasource } from './rpc/erc20.datasource';
-// import { ChainlinkTokenDataSource } from './chainlink/token.datasource';
+import { ChainlinkTokenDataSource } from './chainlink/token.datasource';
 import { BigQueryPublicDataChainDatasource } from './bigquery-public-data/network.datasource';
 import { DebankWalletNFTDatasource } from './debank/wallet-nft.datasource';
 
@@ -15,7 +15,7 @@ export const collection = {
   'debank-wallet-tokens': DebankWalletTokenDatasource,
   // 'debank-protocol-tokens': DebankWalletTokenProtocolDatasource,
   // 'erc20-wallet-tokens': Erc20Datasource,
-  // 'chainlink-tokens': ChainlinkTokenDataSource,
+  'chainlink-tokens': ChainlinkTokenDataSource,
   'bigquery-public-data-chains': BigQueryPublicDataChainDatasource,
   'debank-wallet-nft': DebankWalletNFTDatasource,
 } as const;

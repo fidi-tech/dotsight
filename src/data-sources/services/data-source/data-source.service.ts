@@ -33,6 +33,13 @@ export class DataSourceService {
           key: process.env.DEBANK,
         },
       },
+      {
+        id: '1-chainlink-tokens',
+        type: 'chainlink-tokens',
+        config: {
+          rpc: 'https://rpc.ankr.com/eth',
+        },
+      },
     ];
   }
 
@@ -58,6 +65,6 @@ export class DataSourceService {
             (preset && type.hasPreset(preset)))
         );
       })
-      .map(({ type, config }) => new type(config));
+      .map(({ type, config }) => new type(config as any));
   }
 }

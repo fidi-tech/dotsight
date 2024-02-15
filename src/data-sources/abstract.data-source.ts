@@ -24,7 +24,19 @@ export type Meta = {
   units: Record<UnitId, Unit>;
 };
 
-export type Params<Me> = {
+export const HISTORICAL_SCOPE = {
+  DAY: 'day',
+  MONTH: 'month',
+} as const;
+
+export type HistoricalScope =
+  (typeof HISTORICAL_SCOPE)[keyof typeof HISTORICAL_SCOPE];
+
+export type CommonParams = {
+  historicalScope?: HistoricalScope;
+};
+
+export type Params<Me> = CommonParams & {
   subcategories: SubcategoryId[];
   metrics?: Array<keyof Me>;
   preset?: MetricId;

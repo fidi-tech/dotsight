@@ -13,6 +13,7 @@ import {
 import { CategoriesService } from '../../../categories/services/categories.service';
 import { DataSourceService } from '../../../data-sources/services/data-source/data-source.service';
 import {
+  CommonParams,
   Entity,
   EntityId,
   Meta,
@@ -34,8 +35,9 @@ export class ExecuteWidgetService {
   }
 
   private async getItems(widget: Widget) {
-    const subcategories = await this.categoriesService.findSubcategories(
+    const subcategories = await this.categoriesService.findSubcategoriesByIds(
       widget.category,
+      widget.subcategories,
     );
     return subcategories.reduce((acc, subcategory) => {
       acc[subcategory.id] = subcategory;
@@ -70,7 +72,7 @@ export class ExecuteWidgetService {
     };
   }
 
-  private async getData(widget: Widget) {
+  private async getData(widget: Widget, params: CommonParams) {
     const datasources = await this.datasourceService.getDatasources(
       widget.category,
       widget.subcategories,
@@ -81,6 +83,7 @@ export class ExecuteWidgetService {
     const responses = await Promise.all(
       datasources.map((datasource) =>
         datasource.getItems({
+          ...params,
           subcategories: widget.subcategories,
           metrics: widget.metrics,
           preset: widget.preset,
@@ -91,11 +94,11 @@ export class ExecuteWidgetService {
     return this.mixRawDatasourceResponse(responses);
   }
 
-  private async executeMetricsWidget(widget: Widget) {
+  private async executeMetricsWidget(widget: Widget, params: CommonParams) {
     const itemsPromise = this.getItems(widget);
     const metricsPromise = this.getMetrics(widget);
 
-    const data = await this.getData(widget);
+    const data = await this.getData(widget, params);
 
     const result: ExecuteWidgetDto['data'] = {
       items: [],
@@ -123,8 +126,8 @@ export class ExecuteWidgetService {
     return category.getMetricsByPreset(widget.preset);
   }
 
-  private async executePresetWidget(widget: Widget) {
-    const data = await this.getData(widget);
+  private async executePresetWidget(widget: Widget, params: CommonParams) {
+    const data = await this.getData(widget, params);
 
     const items: ExecuteWidgetDto['items'] = {};
     const metrics: ExecuteWidgetDto['metrics'] = this.getPresetMetrics(widget);
@@ -158,6 +161,7 @@ export class ExecuteWidgetService {
   async executeWidget(
     userId: UserId,
     widgetId: WidgetId,
+    params: CommonParams,
     qr?: QueryRunner,
   ): Promise<ExecuteWidgetDto> {
     const widget = await this.widgetService.findById(widgetId, null, qr);
@@ -166,9 +170,9 @@ export class ExecuteWidgetService {
     }
 
     if (widget.metrics && widget.metrics.length > 0) {
-      return await this.executeMetricsWidget(widget);
+      return await this.executeMetricsWidget(widget, params);
     } else if (widget.preset) {
-      return await this.executePresetWidget(widget);
+      return await this.executePresetWidget(widget, params);
     } else {
       // impossible, either metrics or preset are specified
     }

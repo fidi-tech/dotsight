@@ -32,6 +32,7 @@ import { ExecuteWidgetService } from './services/widget/execute-widget.service';
 import { SetSubcategoriesDto } from './dto/set-subcategories.dto';
 import { SetMetricsDto } from './dto/set-metrics.dto';
 import { SaveWidgetDto } from './dto/save-widget.dto';
+import { ExecuteParamsDto } from './dto/execute-params.dto';
 
 @Controller('widgets')
 @ApiExtraModels(Widget)
@@ -300,10 +301,15 @@ export class WidgetsController {
   async getData(
     @AuthId() userId: UserId,
     @Param('widgetId') widgetId: WidgetId,
+    @Query() params: ExecuteParamsDto,
   ) {
     await this.widgetAbilityService.claimExecute(userId, widgetId);
     return {
-      data: await this.executeWidgetService.executeWidget(userId, widgetId),
+      data: await this.executeWidgetService.executeWidget(
+        userId,
+        widgetId,
+        params,
+      ),
     };
   }
 }
