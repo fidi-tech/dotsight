@@ -4,7 +4,7 @@ import { IsObject, IsOptional, IsString } from 'class-validator';
 export class SaveWidgetDto {
   @ApiProperty({
     description: "widget's name",
-    nullable: true,
+    required: false,
   })
   @IsString()
   @IsOptional()
@@ -12,7 +12,7 @@ export class SaveWidgetDto {
 
   @ApiProperty({
     description: "widget's view",
-    nullable: true,
+    required: false,
   })
   @IsString()
   @IsOptional()
@@ -20,7 +20,7 @@ export class SaveWidgetDto {
 
   @ApiProperty({
     description: "widget's view's config",
-    nullable: true,
+    required: false,
   })
   @IsObject()
   @IsOptional()

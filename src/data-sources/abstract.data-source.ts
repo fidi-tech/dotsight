@@ -4,6 +4,7 @@ import {
   Presets,
   SubcategoryId,
 } from '../common/categories/abstract.category';
+import { ApiProperty } from '@nestjs/swagger';
 
 class DataSourceNameNotSpecifiedError extends Error {}
 class DataSourceDescriptionNotSpecifiedError extends Error {}
@@ -13,12 +14,28 @@ class DataSourceMetricsNotSpecifiedError extends Error {}
 class DataSourcePresetNotSpecifiedError extends Error {}
 
 export type UnitId = string;
-export type Unit = {
+export class Unit {
+  @ApiProperty({
+    description: 'unit id',
+  })
   id: UnitId;
+
+  @ApiProperty({
+    description: 'unit symbol',
+  })
   symbol: string;
+
+  @ApiProperty({
+    description: 'unit icon',
+    nullable: true,
+  })
   icon: string | null;
+
+  @ApiProperty({
+    description: 'unit name',
+  })
   name: string;
-};
+}
 
 export type Meta = {
   units: Record<UnitId, Unit>;

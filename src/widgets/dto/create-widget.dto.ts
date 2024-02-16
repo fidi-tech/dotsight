@@ -11,7 +11,7 @@ export class CreateWidgetDto {
 
   @ApiProperty({
     description: "widget's name",
-    nullable: true,
+    required: false,
   })
   @IsString()
   @IsOptional()

@@ -9,6 +9,7 @@ export class ExecuteParamsDto {
   @ApiProperty({
     description: 'historical scope for the data',
     required: false,
+    enum: HISTORICAL_SCOPE,
   })
   @IsEnum(HISTORICAL_SCOPE)
   @IsOptional()

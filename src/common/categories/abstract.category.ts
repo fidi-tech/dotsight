@@ -1,3 +1,5 @@
+import { ApiProperty } from '@nestjs/swagger';
+
 export type CategoryId = string;
 export type SubcategoryId = string;
 export type Subcategory = {
@@ -6,11 +8,23 @@ export type Subcategory = {
   icon: string | null;
 };
 export type MetricId = string;
-export type Metric = {
+export class Metric {
+  @ApiProperty({
+    description: 'metric id',
+  })
   id: MetricId;
+
+  @ApiProperty({
+    description: 'metric name',
+  })
   name: string;
+
+  @ApiProperty({
+    description: 'metric icon',
+    nullable: true,
+  })
   icon: string | null;
-};
+}
 export type Metrics = Record<MetricId, Metric>;
 
 export type PresetId = string;
