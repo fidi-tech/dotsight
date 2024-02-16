@@ -120,6 +120,7 @@ export class WidgetsController {
     @AuthId() userId: UserId,
     @Param('widgetId') widgetId: WidgetId,
   ) {
+    await this.widgetAbilityService.claimRead(userId, widgetId);
     return {
       widget: await this.widgetService.findById(widgetId, userId),
     };
