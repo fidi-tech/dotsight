@@ -3,6 +3,7 @@ import { CHAINS, ChainType } from './const';
 import { BigQuery, BigQueryTimestamp } from '@google-cloud/bigquery';
 import { TRANSACTIONS_COUNT, BLOCKS_COUNT } from './queries';
 import { networks } from '../../../common/categories/collection/network/networks';
+import { dapps } from '../../../common/categories/collection/network/dapps';
 import {
   MetricId,
   PresetId,
@@ -136,7 +137,7 @@ export class BigQueryPublicDataChainDatasource extends AbstractNetworkDataSource
   }
 
   static getSubcategories(subcategories: SubcategoryId[]) {
-    return Object.values(networks)
+    return [...Object.values(networks), ...Object.values(dapps)]
       .filter((network) => subcategories.includes(network.id))
       .map((network) => network.id);
   }

@@ -5,6 +5,7 @@ import {
   SubcategoryId,
 } from '../../abstract.category';
 import { networks } from './networks';
+import { dapps } from './dapps';
 import { metrics } from './metrics';
 
 export type Metrics = typeof metrics;
@@ -29,7 +30,7 @@ export class NetworkCategory extends AbstractCategory<Metrics, Presets> {
   }
 
   private async getSubcategories(): Promise<readonly Subcategory[]> {
-    return networks;
+    return [...networks, ...dapps];
   }
 
   async getSubcategoriesByQuery(

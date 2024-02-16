@@ -40,6 +40,13 @@ export class DataSourceService {
           rpc: 'https://rpc.ankr.com/eth',
         },
       },
+      {
+        id: '1-dapp-radar-dapp',
+        type: 'dapp-radar-dapp',
+        config: {
+          key: process.env.DAPP_RADAR,
+        },
+      },
     ];
   }
 

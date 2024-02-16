@@ -9,4 +9,14 @@ export const metrics = {
     name: 'Daily produced blocks count',
     icon: null,
   },
+  dailyUaw: {
+    id: 'dailyUaw',
+    name: 'Daily unique Active Wallets',
+    icon: null,
+  },
+  dailyVolume: {
+    id: 'dailyVolume',
+    name: 'Daily volume',
+    icon: null,
+  },
 } as const;
