@@ -39,8 +39,10 @@ export class TokenCategory extends AbstractCategory<Metrics, Presets> {
     if (!query) {
       return subcategories;
     }
-    return subcategories.filter((subcategory) =>
-      subcategory.name.includes(query),
+    return subcategories.filter(
+      (subcategory) =>
+        subcategory.name.toLowerCase().includes(query.toLowerCase()) ||
+        subcategory.id.toLowerCase().includes(query.toLowerCase()),
     );
   }
 

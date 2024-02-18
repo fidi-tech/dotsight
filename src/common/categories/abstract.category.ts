@@ -54,7 +54,11 @@ export abstract class AbstractCategory<M extends Metrics, P extends Presets> {
     if (!query) {
       return metrics;
     }
-    return metrics.filter((metric) => metric.name.includes(query));
+    return metrics.filter(
+      (metric) =>
+        metric.name.toLowerCase().includes(query.toLowerCase()) ||
+        metric.id.toLowerCase().includes(query.toLowerCase()),
+    );
   }
 
   async getPresetsByQuery(query?: string): Promise<Preset[]> {
@@ -62,7 +66,11 @@ export abstract class AbstractCategory<M extends Metrics, P extends Presets> {
     if (!query) {
       return presets;
     }
-    return presets.filter((preset) => preset.name.includes(query));
+    return presets.filter(
+      (preset) =>
+        preset.name.toLowerCase().includes(query.toLowerCase()) ||
+        preset.id.toLowerCase().includes(query.toLowerCase()),
+    );
   }
 
   abstract getMetricsByPreset(presetId: PresetId): P[string]['metrics'] | null;
