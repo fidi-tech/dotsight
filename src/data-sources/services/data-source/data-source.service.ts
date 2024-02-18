@@ -34,6 +34,13 @@ export class DataSourceService {
         },
       },
       {
+        id: '1-debank-wallet',
+        type: 'debank-wallet',
+        config: {
+          key: process.env.DEBANK,
+        },
+      },
+      {
         id: '1-chainlink-tokens',
         type: 'chainlink-tokens',
         config: {
