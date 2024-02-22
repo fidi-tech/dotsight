@@ -94,6 +94,10 @@ export class DappRadarDappDatasource extends AbstractNetworkDataSource<Config> {
     const promises = [];
     for (const dappId of dappIds) {
       for (const metric of metrics) {
+        if (!REVERSE_METRIC_MAP[metric]) {
+          continue;
+        }
+
         promises.push(
           this.fetchDAppMetric(items, {
             dappId,
