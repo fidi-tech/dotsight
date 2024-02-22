@@ -72,13 +72,14 @@ export class DappRadarDappDatasource extends AbstractNetworkDataSource<Config> {
   }
 
   async getItems({
-    subcategories: dappIds,
+    subcategories,
     metrics,
     historicalScope,
   }: Params<typeof networkMetrics>): Promise<{
     items: Entity<Metrics, Presets>[];
     meta: Meta;
   }> {
+    const dappIds = DappRadarDappDatasource.getSubcategories(subcategories);
     const items: Record<string, Entity<Metrics, Presets>> = {};
 
     const dateTo = new Date();

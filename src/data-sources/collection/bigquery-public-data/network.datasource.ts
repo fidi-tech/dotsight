@@ -89,8 +89,10 @@ export class BigQueryPublicDataChainDatasource extends AbstractNetworkDataSource
     items: Entity<Metrics, Presets>[];
     meta: Meta;
   }> {
+    const networks =
+      BigQueryPublicDataChainDatasource.getSubcategories(subcategories);
     const datas = await Promise.all(
-      subcategories.map(async (chain) => {
+      networks.map(async (chain) => {
         const [dailyTransactionsCountData, dailyBlocksCountData] =
           await Promise.all([
             // @ts-expect-error TODO fix this
