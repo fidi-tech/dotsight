@@ -95,9 +95,7 @@ export class BigQueryPublicDataChainDatasource extends AbstractNetworkDataSource
       networks.map(async (chain) => {
         const [dailyTransactionsCountData, dailyBlocksCountData] =
           await Promise.all([
-            // @ts-expect-error TODO fix this
             this.getDailyTransactionsCount(chain, 30),
-            // @ts-expect-error TODO fix this
             this.getDailyBlocksCount(chain, 30),
           ]);
 
@@ -139,7 +137,7 @@ export class BigQueryPublicDataChainDatasource extends AbstractNetworkDataSource
   }
 
   static getSubcategories(subcategories: SubcategoryId[]) {
-    return [...Object.values(networks), ...Object.values(dapps)]
+    return [...Object.values(networks)]
       .filter((network) => subcategories.includes(network.id))
       .map((network) => network.id);
   }
