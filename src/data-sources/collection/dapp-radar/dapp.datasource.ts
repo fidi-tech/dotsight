@@ -167,7 +167,9 @@ export class DappRadarDappDatasource extends AbstractNetworkDataSource<Config> {
   }
 
   static getSubcategories(subcategories: SubcategoryId[]) {
-    return dapps.map((dapp) => dapp.id);
+    return dapps
+      .map((dapp) => dapp.id)
+      .filter((dappId) => subcategories.includes(dappId));
   }
 
   static getMetrics(metrics: MetricId[]): MetricId[] {
