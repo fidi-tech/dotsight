@@ -205,6 +205,7 @@ export class WidgetService {
         throw new BadRequestException(`Preset ${preset} is not found`);
       }
       widget.preset = preset;
+      widget.metrics = null;
     } else if (metrics) {
       const miss = metrics.find(
         (metricId) =>
@@ -216,6 +217,7 @@ export class WidgetService {
         throw new BadRequestException(`Metric ${miss} is not found`);
       }
       widget.metrics = [...new Set(metrics)];
+      widget.preset = null;
     } else {
       // not reachable, exactly one should be specified
     }

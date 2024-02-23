@@ -78,9 +78,10 @@ export class DebankWalletTokenDatasource extends AbstractWalletDataSource<Config
 
     for (const { tokens } of data) {
       for (const token of tokens) {
-        if (!items[token.id]) {
-          items[token.id] = {
-            id: token.id,
+        const id = `${token.id}-${token.chain}`;
+        if (!items[id]) {
+          items[id] = {
+            id,
             name: token.name,
             icon: null,
             metrics: {
@@ -111,9 +112,9 @@ export class DebankWalletTokenDatasource extends AbstractWalletDataSource<Config
         } else {
           // assuming one element in the time series here
           // @ts-expect-error bad typings
-          items[token.id].metrics.amount[0].value += token.amount;
+          items[id].metrics.amount[0].value += token.amount;
           // @ts-expect-error bad typings
-          items[token.id].metrics.value[0].value[USD.id] +=
+          items[id].metrics.value[0].value[USD.id] +=
             token.amount * token.price;
         }
       }
@@ -139,6 +140,7 @@ export class DebankWalletTokenDatasource extends AbstractWalletDataSource<Config
       {
         params: {
           id: walletId,
+          is_all: false,
         },
       },
     );
