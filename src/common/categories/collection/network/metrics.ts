@@ -19,4 +19,19 @@ export const metrics = {
     name: 'Daily volume',
     icon: null,
   },
+  monthlyTransactionCount: {
+    id: 'monthlyTransactionCount',
+    name: 'Monthly transactions count',
+    icon: null,
+  },
+  monthlyUniqueAddresses: {
+    id: 'monthlyUniqueAddresses',
+    name: 'Monthly unique addresses',
+    icon: null,
+  },
+  monthlyActiveAddresses: {
+    id: 'monthlyActiveAddresses',
+    name: 'Monthly active addresses',
+    icon: null,
+  },
 } as const;

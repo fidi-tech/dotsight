@@ -63,7 +63,14 @@ export class ExecuteWidgetService {
     for (const chunk of chunks) {
       Object.assign(meta.units, chunk.meta.units);
       for (const item of chunk.items) {
-        items[item.id] = item;
+        if (!items[item.id]) {
+          items[item.id] = item;
+        } else {
+          items[item.id].metrics = {
+            ...items[item.id].metrics,
+            ...item.metrics,
+          };
+        }
       }
     }
     return {

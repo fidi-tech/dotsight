@@ -54,6 +54,21 @@ export class DataSourceService {
           key: process.env.DAPP_RADAR,
         },
       },
+      {
+        id: '1-parity-active-addresses',
+        type: 'parity-active-addresses',
+        config: {},
+      },
+      {
+        id: '1-parity-transactions',
+        type: 'parity-transactions',
+        config: {},
+      },
+      {
+        id: '1-parity-unique-addresses',
+        type: 'parity-unique-addresses',
+        config: {},
+      },
     ];
   }
 

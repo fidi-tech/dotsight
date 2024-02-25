@@ -3,7 +3,6 @@ import { CHAINS, ChainType } from './const';
 import { BigQuery, BigQueryTimestamp } from '@google-cloud/bigquery';
 import { TRANSACTIONS_COUNT, BLOCKS_COUNT } from './queries';
 import { networks } from '../../../common/categories/collection/network/networks';
-import { dapps } from '../../../common/categories/collection/network/dapps';
 import {
   MetricId,
   PresetId,
@@ -81,11 +80,7 @@ export class BigQueryPublicDataChainDatasource extends AbstractNetworkDataSource
     );
   }
 
-  async getItems({
-    subcategories,
-    metrics,
-    preset,
-  }: Params<typeof networkMetrics>): Promise<{
+  async getItems({ subcategories }: Params<typeof networkMetrics>): Promise<{
     items: Entity<Metrics, Presets>[];
     meta: Meta;
   }> {
@@ -95,7 +90,9 @@ export class BigQueryPublicDataChainDatasource extends AbstractNetworkDataSource
       networks.map(async (chain) => {
         const [dailyTransactionsCountData, dailyBlocksCountData] =
           await Promise.all([
+            // @ts-expect-error TODO fix this
             this.getDailyTransactionsCount(chain, 30),
+            // @ts-expect-error TODO fix this
             this.getDailyBlocksCount(chain, 30),
           ]);
 
