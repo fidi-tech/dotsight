@@ -37,6 +37,14 @@ type UserToken = {
 export class DebankWalletTokenDatasource extends AbstractWalletDataSource<Config> {
   private httpClient: AxiosInstance;
 
+  public getCopyright(): { id: string; name: string; icon: string | null } {
+    return {
+      id: 'debank',
+      name: 'Debank',
+      icon: null,
+    };
+  }
+
   public static getName(): string {
     return `Debank wallet's tokens`;
   }

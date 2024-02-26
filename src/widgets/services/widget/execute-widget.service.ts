@@ -13,6 +13,7 @@ import {
 import { CategoriesService } from '../../../categories/services/categories.service';
 import { DataSourceService } from '../../../data-sources/services/data-source/data-source.service';
 import {
+  AbstractDataSource,
   CommonParams,
   Entity,
   EntityId,
@@ -54,22 +55,48 @@ export class ExecuteWidgetService {
   }
 
   private mixRawDatasourceResponse(
-    chunks: Array<{ items: Array<Entity<any, any>>; meta: Meta }>,
-  ): { items: Array<Entity<any, any>>; meta: Meta } {
+    chunks: Array<{
+      items: Array<Entity<any, any>>;
+      meta: Meta;
+      copyright: { id: string; name: string; icon: string | null };
+    }>,
+  ): {
+    items: Array<
+      Entity<any, any> & {
+        copyrights: Record<
+          string,
+          { id: string; name: string; icon: string | null }
+        >;
+      }
+    >;
+    meta: Meta;
+  } {
     const meta = {
       units: {},
     };
-    const items: Record<EntityId, Entity<any, any>> = {};
+    const items: Record<
+      EntityId,
+      Entity<any, any> & {
+        copyrights: Record<
+          string,
+          { id: string; name: string; icon: string | null }
+        >;
+      }
+    > = {};
     for (const chunk of chunks) {
       Object.assign(meta.units, chunk.meta.units);
       for (const item of chunk.items) {
         if (!items[item.id]) {
-          items[item.id] = item;
+          items[item.id] = {
+            ...item,
+            copyrights: { [chunk.copyright.id]: chunk.copyright },
+          };
         } else {
           items[item.id].metrics = {
             ...items[item.id].metrics,
             ...item.metrics,
           };
+          items[item.id].copyrights[chunk.copyright.id] = chunk.copyright;
         }
       }
     }
@@ -88,14 +115,20 @@ export class ExecuteWidgetService {
     );
 
     const responses = await Promise.all(
-      datasources.map((datasource) =>
-        datasource.getItems({
+      datasources.map(async (datasource) => {
+        const items = await datasource.getItems({
           ...params,
           subcategories: widget.subcategories,
           metrics: widget.metrics,
           preset: widget.preset,
-        }),
-      ),
+        });
+        const copyright = datasource.getCopyright();
+        return {
+          items: items.items,
+          meta: items.meta,
+          copyright,
+        };
+      }),
     );
 
     return this.mixRawDatasourceResponse(responses);
@@ -111,10 +144,12 @@ export class ExecuteWidgetService {
       items: [],
       metrics: widget.metrics,
       values: {},
+      copyrights: {},
     };
     for (const item of data.items) {
       result.items.push(item.id);
       result.values[item.id] = {};
+      result.copyrights[item.id] = item.copyrights;
       for (const metric of widget.metrics) {
         result.values[item.id][metric] = item.metrics[metric];
       }
@@ -143,6 +178,7 @@ export class ExecuteWidgetService {
       items: [],
       metrics: Object.keys(metrics),
       values: {},
+      copyrights: {},
     };
     for (const item of data.items) {
       items[item.id] = {
@@ -152,6 +188,7 @@ export class ExecuteWidgetService {
       };
       result.items.push(item.id);
       result.values[item.id] = {};
+      result.copyrights[item.id] = item.copyrights;
       for (const metric of Object.keys(metrics)) {
         result.values[item.id][metric] = item.metrics[metric];
       }

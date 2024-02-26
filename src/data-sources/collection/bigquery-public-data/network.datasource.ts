@@ -26,6 +26,14 @@ export class BigQueryPublicDataChainDatasource extends AbstractNetworkDataSource
     this.bigquery = new BigQuery();
   }
 
+  public getCopyright(): { id: string; name: string; icon: string | null } {
+    return {
+      id: 'bigquery-public-data',
+      name: 'BigQuery Public Dataset',
+      icon: null,
+    };
+  }
+
   public static getName(): string {
     return `BigQuery Public Dataset`;
   }
@@ -134,9 +142,9 @@ export class BigQueryPublicDataChainDatasource extends AbstractNetworkDataSource
   }
 
   static getSubcategories(subcategories: SubcategoryId[]) {
-    return [...Object.values(networks)]
-      .filter((network) => subcategories.includes(network.id))
-      .map((network) => network.id);
+    return ['ethereum', 'avalanche', 'arbitrum'].filter((network) =>
+      subcategories.includes(network),
+    );
   }
 
   static getMetrics(metrics: MetricId[]): MetricId[] {

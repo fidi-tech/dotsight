@@ -21,6 +21,14 @@ const MAPPING: Partial<Record<keyof Metrics, string>> = {
   monthlyUniqueAddresses: 'number_of_unique_addresses',
 } as const;
 export class ParityUniqueAddressesNetworkDatasource extends AbstractNetworkDataSource<Config> {
+  public getCopyright(): { id: string; name: string; icon: string | null } {
+    return {
+      id: 'parity',
+      name: 'Parity',
+      icon: null,
+    };
+  }
+
   private static data: Array<Record<string, string>> = parse(
     fs.readFileSync(__dirname + '/unique-addresses.csv', {
       encoding: 'utf-8',

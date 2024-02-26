@@ -48,6 +48,14 @@ const REVERSE_METRIC_MAP = {
 export class DappRadarDappDatasource extends AbstractNetworkDataSource<Config> {
   private httpClient: AxiosInstance;
 
+  public getCopyright(): { id: string; name: string; icon: string | null } {
+    return {
+      id: 'dapp-radar',
+      name: 'DappRadar',
+      icon: null,
+    };
+  }
+
   public static getName(): string {
     return `DappRadar DApp information`;
   }

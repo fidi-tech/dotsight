@@ -98,6 +98,8 @@ export abstract class AbstractDataSource<
     throw new DataSourceNameNotSpecifiedError();
   }
 
+  abstract getCopyright(): { id: string; name: string; icon: null | string };
+
   public static getDescription(): string {
     throw new DataSourceDescriptionNotSpecifiedError();
   }

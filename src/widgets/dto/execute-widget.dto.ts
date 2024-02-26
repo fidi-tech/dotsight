@@ -62,6 +62,36 @@ export class ExecuteWidgetDto {
           type: 'string',
         },
       },
+      copyrights: {
+        type: 'object',
+        example: {
+          item1id: {
+            dotsight: {
+              id: 'dotsight',
+              name: 'Dotsight',
+              icon: null,
+            },
+          },
+        },
+        additionalProperties: {
+          type: 'object',
+          additionalProperties: {
+            type: 'object',
+            properties: {
+              id: {
+                type: 'string',
+              },
+              name: {
+                type: 'string',
+              },
+              icon: {
+                type: 'string',
+              },
+            },
+            required: ['id', 'name'],
+          },
+        },
+      },
       values: {
         type: 'object',
         example: {
@@ -109,6 +139,17 @@ export class ExecuteWidgetDto {
   data: {
     items: ItemId[];
     metrics: MetricId[];
+    copyrights: Record<
+      ItemId,
+      Record<
+        string,
+        {
+          id: string;
+          name: string;
+          icon: string | null;
+        }
+      >
+    >;
     values: Record<
       ItemId,
       Record<

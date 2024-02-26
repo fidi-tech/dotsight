@@ -30,6 +30,14 @@ const MONTH = 30 * DAY;
 export class ChainlinkTokenDataSource extends AbstractTokenDataSource<Config> {
   private web3: Web3;
 
+  public getCopyright(): { id: string; name: string; icon: string | null } {
+    return {
+      id: 'chainlink',
+      name: 'Chainlink',
+      icon: null,
+    };
+  }
+
   public static getName(): string {
     return `Chainlink API`;
   }

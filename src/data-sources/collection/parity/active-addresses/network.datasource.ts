@@ -27,6 +27,14 @@ export class ParityActiveAddressesNetworkDatasource extends AbstractNetworkDataS
     }),
   );
 
+  public getCopyright(): { id: string; name: string; icon: string | null } {
+    return {
+      id: 'parity',
+      name: 'Parity',
+      icon: null,
+    };
+  }
+
   async getItems({ subcategories }: Params<typeof networkMetrics>): Promise<{
     items: Entity<Metrics, Presets>[];
     meta: Meta;
