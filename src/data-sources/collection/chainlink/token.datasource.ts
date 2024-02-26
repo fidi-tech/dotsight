@@ -88,7 +88,7 @@ export class ChainlinkTokenDataSource extends AbstractTokenDataSource<Config> {
 
   async getTokenData(
     token: keyof typeof config,
-    historicalScope?: HistoricalScope,
+    historicalScope: HistoricalScope = HISTORICAL_SCOPE.MONTH,
   ) {
     const contract = new this.web3.eth.Contract(abi, config[token].address);
 
