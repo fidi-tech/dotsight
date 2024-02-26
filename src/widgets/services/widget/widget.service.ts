@@ -116,15 +116,15 @@ export class WidgetService {
         widget.subcategories || [],
       ),
     ]);
-    return [...selectedSubcategroies, ...subcategoriesByQuery].map(
-      (subcategory) => ({
+    return [...selectedSubcategroies, ...subcategoriesByQuery]
+      .sort(({ name: nameA }, { name: nameB }) => nameA.localeCompare(nameB))
+      .map((subcategory) => ({
         id: subcategory.id,
         name: subcategory.name,
         icon: subcategory.icon,
         isAvailable: true,
         isSelected: widget.subcategories.includes(subcategory.id),
-      }),
-    );
+      }));
   }
 
   async setSubcategories(
@@ -242,20 +242,24 @@ export class WidgetService {
     ]);
 
     return {
-      metrics: metrics.map((metric) => ({
-        id: metric.id,
-        name: metric.name,
-        icon: metric.icon,
-        isAvailable: true,
-        isSelected: widget.metrics?.includes(metric.id) ?? false,
-      })),
-      presets: presets.map((preset) => ({
-        id: preset.id,
-        name: preset.name,
-        icon: preset.icon,
-        isAvailable: true,
-        isSelected: widget.preset === preset.id,
-      })),
+      metrics: metrics
+        .sort(({ name: nameA }, { name: nameB }) => nameA.localeCompare(nameB))
+        .map((metric) => ({
+          id: metric.id,
+          name: metric.name,
+          icon: metric.icon,
+          isAvailable: true,
+          isSelected: widget.metrics?.includes(metric.id) ?? false,
+        })),
+      presets: presets
+        .sort(({ name: nameA }, { name: nameB }) => nameA.localeCompare(nameB))
+        .map((preset) => ({
+          id: preset.id,
+          name: preset.name,
+          icon: preset.icon,
+          isAvailable: true,
+          isSelected: widget.preset === preset.id,
+        })),
     };
   }
 }
