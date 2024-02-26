@@ -79,21 +79,25 @@ export class DataSourceService {
     preset?: MetricId,
   ): Promise<Array<AbstractDataSource<any, any, any, any>>> {
     const datasources = this.datasources;
-    return datasources
-      .map((datasource) => ({
-        type: collection[
-          datasource.type
-        ] as (typeof collection)[keyof typeof collection],
-        config: datasource.config,
-      }))
-      .filter(({ type }) => {
-        return (
-          type.getCategory() === category &&
-          type.getSubcategories(subcategories).length > 0 &&
-          ((metrics && type.getMetrics(metrics).length > 0) ||
-            (preset && type.hasPreset(preset)))
-        );
-      })
-      .map(({ type, config }) => new type(config as any));
+    return (
+      datasources
+        .map((datasource) => ({
+          type: collection[
+            datasource.type
+          ] as (typeof collection)[keyof typeof collection],
+          config: datasource.config,
+        }))
+        .filter(({ type }) => {
+          return (
+            type.getCategory() === category &&
+            type.getSubcategories(subcategories).length > 0 &&
+            ((metrics && type.getMetrics(metrics).length > 0) ||
+              (preset && type.hasPreset(preset)))
+          );
+        })
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore smth weird
+        .map(({ type, config }) => new type(config as any))
+    );
   }
 }
