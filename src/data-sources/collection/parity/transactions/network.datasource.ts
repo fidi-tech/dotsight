@@ -50,8 +50,11 @@ export class ParityTransactionsNetworkDatasource extends AbstractNetworkDataSour
             if (!networkMetrics[metric]) {
               networkMetrics[metric] = [];
             }
+            const date = new Date(piece.month);
+            date.setMonth(date.getMonth() + 1);
+            date.setSeconds(date.getSeconds() - 1);
             networkMetrics[metric].push({
-              timestamp: new Date(piece.month).getTime() / 1000,
+              timestamp: date.getTime() / 1000,
               value: +piece[MAPPING[metric]],
             });
           }
