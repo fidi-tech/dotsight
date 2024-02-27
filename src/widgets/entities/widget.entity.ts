@@ -78,6 +78,11 @@ export class Widget {
   canModify: boolean;
 
   @ApiProperty({
+    description: 'if user is allowed to delete the widget',
+  })
+  canDelete: boolean;
+
+  @ApiProperty({
     description: 'if user is allowed to execute the widget',
   })
   canExecute: boolean;

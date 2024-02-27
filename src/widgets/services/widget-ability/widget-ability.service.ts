@@ -35,6 +35,10 @@ export class WidgetAbilityService {
     return this.isOwnerOrPublic(userId, widget);
   }
 
+  private canDelete(userId: UserId, widget: Readonly<Widget>) {
+    return this.isOwner(userId, widget);
+  }
+
   private claimFailed(widgetId: WidgetId) {
     throw new ForbiddenException(
       `You do not have access to widget #${widgetId}`,
@@ -65,11 +69,20 @@ export class WidgetAbilityService {
     }
   }
 
+  async claimDelete(userId: UserId, widgetId: WidgetId) {
+    const widget = await this.widgetService.findById(widgetId);
+
+    if (!this.canDelete(userId, widget)) {
+      this.claimFailed(widgetId);
+    }
+  }
+
   // eslint-disable-next-line @typescript-eslint/no-empty-function,@typescript-eslint/no-unused-vars
   async claimCreate(userId: UserId) {}
 
   addAbilities(userId: UserId, widget: Widget) {
     widget.canExecute = this.canExecute(userId, widget);
     widget.canModify = this.canModify(userId, widget);
+    widget.canDelete = this.canDelete(userId, widget);
   }
 }

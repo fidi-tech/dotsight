@@ -79,6 +79,10 @@ export class WidgetService {
     return widget;
   }
 
+  async deleteWidget(widgetId: WidgetId) {
+    await this.getWidgetRepository().delete({ id: widgetId });
+  }
+
   async save(
     userId: UserId,
     widgetId: WidgetId,

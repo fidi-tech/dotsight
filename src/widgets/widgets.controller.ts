@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   Patch,
@@ -150,6 +151,20 @@ export class WidgetsController {
     return {
       widget: await this.widgetService.findById(widgetId, userId),
     };
+  }
+
+  @Delete('/:widgetId')
+  @ApiOkResponse({
+    description: 'widget successfully deleted',
+  })
+  @UseGuards(JwtGuard)
+  async deleteWidget(
+    @AuthId() userId: UserId,
+    @Param('widgetId') widgetId: WidgetId,
+  ) {
+    await this.widgetAbilityService.claimDelete(userId, widgetId);
+    await this.widgetService.deleteWidget(widgetId);
+    return {};
   }
 
   @Get('/:widgetId/subcategories')
