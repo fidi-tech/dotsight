@@ -5,6 +5,7 @@ import { DataSource } from '../../entities/data-source.entity';
 import {
   CategoryId,
   MetricId,
+  PresetId,
   SubcategoryId,
 } from '../../../common/categories/abstract.category';
 
@@ -104,5 +105,49 @@ export class DataSourceService {
         // @ts-ignore smth weird
         .map(({ type, config }) => new type(config as any))
     );
+  }
+
+  async getSupportedPresets(
+    category: CategoryId,
+    subcategories: SubcategoryId[],
+    presets: PresetId[],
+  ) {
+    const datasources = this.datasources.filter(
+      ({ type }) =>
+        collection[type].getCategory() === category &&
+        collection[type].getSubcategories(subcategories).length > 0,
+    );
+
+    const presetsResult = new Set();
+    for (const datasource of datasources) {
+      for (const presetId of presets) {
+        if (collection[datasource.type].hasPreset(presetId)) {
+          presetsResult.add(presetId);
+        }
+      }
+    }
+
+    return Array.from(presetsResult.values());
+  }
+
+  async getSupportedMetrics(
+    category: CategoryId,
+    subcategories: SubcategoryId[],
+    metrics: MetricId[],
+  ) {
+    const datasources = this.datasources.filter(
+      ({ type }) =>
+        collection[type].getCategory() === category &&
+        collection[type].getSubcategories(subcategories).length > 0,
+    );
+
+    const metricsResult = new Set();
+    for (const datasource of datasources) {
+      for (const metricId of collection[datasource.type].getMetrics(metrics)) {
+        metricsResult.add(metricId);
+      }
+    }
+
+    return Array.from(metricsResult.values());
   }
 }

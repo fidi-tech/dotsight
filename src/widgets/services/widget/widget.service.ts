@@ -13,6 +13,7 @@ import {
 import { CategoriesService } from '../../../categories/services/categories.service';
 import { SubcategoryDto } from '../../dto/subcategory.dto';
 import { MetricDto } from '../../dto/metric.dto';
+import { DataSourceService } from '../../../data-sources/services/data-source/data-source.service';
 
 @Injectable()
 export class WidgetService {
@@ -21,6 +22,7 @@ export class WidgetService {
     private readonly widgetRepository: Repository<Widget>,
     private readonly widgetAbilityService: WidgetAbilityService,
     private readonly categoriesService: CategoriesService,
+    private readonly datasourceService: DataSourceService,
     private dataSource: DataSource,
   ) {}
 
@@ -237,8 +239,26 @@ export class WidgetService {
     }
 
     const [metrics, presets] = await Promise.all([
-      this.categoriesService.findMetrics(widget.category, query),
-      this.categoriesService.findPresets(widget.category, query),
+      this.categoriesService
+        .findMetrics(widget.category, query)
+        .then(async (metrics) => {
+          const metricIds = await this.datasourceService.getSupportedMetrics(
+            widget.category,
+            widget.subcategories,
+            metrics.map((metric) => metric.id),
+          );
+          return metrics.filter(({ id }) => metricIds.includes(id));
+        }),
+      this.categoriesService
+        .findPresets(widget.category, query)
+        .then(async (presets) => {
+          const presetIds = await this.datasourceService.getSupportedPresets(
+            widget.category,
+            widget.subcategories,
+            presets.map((preset) => preset.id),
+          );
+          return presets.filter(({ id }) => presetIds.includes(id));
+        }),
     ]);
 
     return {
