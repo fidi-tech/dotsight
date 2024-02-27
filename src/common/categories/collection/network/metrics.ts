@@ -34,4 +34,9 @@ export const metrics = {
     name: 'Monthly active addresses',
     icon: null,
   },
+  monthlyTreasuryBalance: {
+    id: 'monthlyTreasuryBalance',
+    name: 'Monthly treasury balance',
+    icon: null,
+  },
 } as const;

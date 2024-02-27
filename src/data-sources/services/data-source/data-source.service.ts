@@ -69,6 +69,11 @@ export class DataSourceService {
         type: 'parity-unique-addresses',
         config: {},
       },
+      {
+        id: '1-polkadot-treasury',
+        type: 'polkadot-treasury',
+        config: {},
+      },
     ];
   }
 

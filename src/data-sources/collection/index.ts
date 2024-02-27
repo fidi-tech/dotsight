@@ -7,6 +7,7 @@ import { DebankWalletNFTDatasource } from './debank/wallet-nft.datasource';
 import { ParityActiveAddressesNetworkDatasource } from './parity/active-addresses/network.datasource';
 import { ParityTransactionsNetworkDatasource } from './parity/transactions/network.datasource';
 import { ParityUniqueAddressesNetworkDatasource } from './parity/unique-addresses/network.datasource';
+import { ParityPolkadotTreasuryNetworkDatasource } from './parity/polkadot-treasury/network.datasource';
 
 export const collection = {
   'dapp-radar-dapp': DappRadarDappDatasource,
@@ -18,4 +19,5 @@ export const collection = {
   'parity-active-addresses': ParityActiveAddressesNetworkDatasource,
   'parity-transactions': ParityTransactionsNetworkDatasource,
   'parity-unique-addresses': ParityUniqueAddressesNetworkDatasource,
+  'polkadot-treasury': ParityPolkadotTreasuryNetworkDatasource,
 } as const;
