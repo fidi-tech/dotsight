@@ -1,4 +1,10 @@
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
 import { User } from '../../users/entities/user.entity';
 
@@ -63,10 +69,7 @@ export class Widget {
   @ManyToOne(() => User, { nullable: false })
   createdBy: User;
 
-  @Column('timestamp with time zone', {
-    nullable: false,
-    default: () => 'CURRENT_TIMESTAMP',
-  })
+  @CreateDateColumn()
   createdAt: Date;
 
   @Column({ default: false })
