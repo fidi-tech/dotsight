@@ -72,7 +72,6 @@ export type Entity<M extends Metrics, P extends Presets> = {
   name: string;
   icon: string | null;
 
-  // TODO update README.md
   metrics: Partial<
     Record<
       keyof (M | P[string]['metrics']),
