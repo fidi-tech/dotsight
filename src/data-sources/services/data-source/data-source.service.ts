@@ -20,21 +20,21 @@ export class DataSourceService {
         type: 'bigquery-public-data-chains',
         config: {},
       },
-      {
+      process.env.DEBANK && {
         id: '1-debank-wallet-tokens',
         type: 'debank-wallet-tokens',
         config: {
           key: process.env.DEBANK,
         },
       },
-      {
+      process.env.DEBANK && {
         id: '1-debank-wallet-nft',
         type: 'debank-wallet-nft',
         config: {
           key: process.env.DEBANK,
         },
       },
-      {
+      process.env.DEBANK && {
         id: '1-debank-wallet',
         type: 'debank-wallet',
         config: {
@@ -48,7 +48,7 @@ export class DataSourceService {
           rpc: 'https://rpc.ankr.com/eth',
         },
       },
-      {
+      process.env.DAPP_RADAR && {
         id: '1-dapp-radar-dapp',
         type: 'dapp-radar-dapp',
         config: {
@@ -75,7 +75,7 @@ export class DataSourceService {
         type: 'polkadot-treasury',
         config: {},
       },
-    ];
+    ].filter(Boolean);
   }
 
   async getDatasources(
