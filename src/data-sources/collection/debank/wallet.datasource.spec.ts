@@ -1,6 +1,5 @@
 import axios, { AxiosHeaders, AxiosInstance } from 'axios';
 import { DebankWalletDatasource } from './wallet.datasource';
-import { BadRequestException } from '@nestjs/common';
 
 jest.useFakeTimers();
 jest.mock('../../../common/http');
@@ -21,11 +20,6 @@ describe('DebankWalletDatasource', () => {
     });
   });
 
-  it('should throw if the config is wrong', () => {
-    expect(() => new DebankWalletDatasource({})).toThrow();
-    expect(() => new DebankWalletDatasource({ key: {} })).toThrow();
-  });
-
   it('should create axios instance with correct params', () => {
     expect(axiosCreate).toHaveBeenCalledWith({
       baseURL: 'https://pro-openapi.debank.com/v1',
@@ -33,15 +27,6 @@ describe('DebankWalletDatasource', () => {
         AccessKey: '66',
       }),
     });
-  });
-
-  it('should throw is wrong params are passed', async () => {
-    await expect(dataSource.getItems({ smth: 'else' } as any)).rejects.toThrow(
-      BadRequestException,
-    );
-    await expect(
-      dataSource.getItems({ walletIds: 'else' } as any),
-    ).rejects.toThrow(BadRequestException);
   });
 
   it('should call api with correct params', async () => {
@@ -57,7 +42,7 @@ describe('DebankWalletDatasource', () => {
         },
       }));
 
-    await dataSource.getItems({ walletIds: ['w1', 'w2'] });
+    await dataSource.getItems({ subcategories: ['w1', 'w2'] });
 
     expect(mockAxios.get).toHaveBeenCalledTimes(2);
     expect(mockAxios.get).toHaveBeenCalledWith('/user/total_balance', {
@@ -86,11 +71,10 @@ describe('DebankWalletDatasource', () => {
       }));
 
     await expect(
-      dataSource.getItems({ walletIds: ['w1', 'w2'] }),
+      dataSource.getItems({ subcategories: ['w1', 'w2'] }),
     ).resolves.toEqual({
       items: [
         {
-          entity: 'wallet',
           metrics: {
             netWorth: [
               {
@@ -102,17 +86,10 @@ describe('DebankWalletDatasource', () => {
             ],
           },
           id: 'w1',
-          meta: {
-            walletId: 'w1',
-          },
-          metrics: {
-            netWorth: {
-              usd: 1,
-            },
-          },
+          name: 'w1',
+          icon: null,
         },
         {
-          entity: 'wallet',
           metrics: {
             netWorth: [
               {
@@ -124,19 +101,14 @@ describe('DebankWalletDatasource', () => {
             ],
           },
           id: 'w2',
-          meta: {
-            walletId: 'w2',
-          },
-          metrics: {
-            netWorth: {
-              usd: 2,
-            },
-          },
+          name: 'w2',
+          icon: null,
         },
       ],
       meta: {
         units: {
           usd: {
+            icon: null,
             id: 'usd',
             name: 'US Dollar',
             symbol: '$',

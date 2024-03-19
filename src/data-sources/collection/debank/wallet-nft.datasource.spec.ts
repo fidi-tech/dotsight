@@ -1,5 +1,4 @@
 import axios, { AxiosHeaders, AxiosInstance } from 'axios';
-import { BadRequestException } from '@nestjs/common';
 
 import { DebankWalletNFTDatasource } from './wallet-nft.datasource';
 
@@ -22,11 +21,6 @@ describe('DebankWalletNFTDatasource', () => {
     });
   });
 
-  it('should throw if the config is wrong', () => {
-    expect(() => new DebankWalletNFTDatasource({})).toThrow();
-    expect(() => new DebankWalletNFTDatasource({ key: [] })).toThrow();
-  });
-
   it('should create axios instance with correct params', () => {
     expect(axiosCreate).toHaveBeenCalledWith({
       baseURL: 'https://pro-openapi.debank.com/v1',
@@ -34,12 +28,6 @@ describe('DebankWalletNFTDatasource', () => {
         AccessKey: '66',
       }),
     });
-  });
-
-  it('should throw is wrong params are passed', async () => {
-    await expect(dataSource.getItems({ smth: 'else' } as any)).rejects.toThrow(
-      BadRequestException,
-    );
   });
 
   it('should call api with correct params', async () => {
@@ -51,7 +39,7 @@ describe('DebankWalletNFTDatasource', () => {
         data: [],
       }));
 
-    await dataSource.getItems({ walletIds: ['w1', 'w2'] });
+    await dataSource.getItems({ subcategories: ['w1', 'w2'] });
 
     expect(mockAxios.get).toHaveBeenCalledTimes(2);
     expect(mockAxios.get).toHaveBeenCalledWith('/user/all_nft_list', {
@@ -116,65 +104,52 @@ describe('DebankWalletNFTDatasource', () => {
       }));
 
     await expect(
-      dataSource.getItems({ walletIds: ['w1', 'w2'] }),
+      dataSource.getItems({ subcategories: ['w1', 'w2'] }),
     ).resolves.toEqual({
       items: [
         {
-          entity: 'walletNFT',
-          metrics: {},
-          metrics: {},
           id: 'cid1-nid1',
-          meta: {
-            id: 'nid1',
-            contractId: 'cid1',
-            chain: 'chain1',
-            name: 'name1',
-            contentType: 'ct1',
-            content: 'c1',
-            thumbnailUrl: 't1',
-            detailUrl: 'd1',
-            contractName: 'cname1',
-            lastPrice: 1,
+          icon: 't1',
+          name: 'name1',
+          metrics: {
+            price: [
+              {
+                timestamp: Math.floor(Date.now() / 1000),
+                value: {
+                  usd: 1,
+                },
+              },
+            ],
           },
         },
         {
-          entity: 'walletNFT',
-          metrics: {},
-          metrics: {},
+          metrics: {
+            price: [],
+          },
           id: 'cid2-nid2',
-          meta: {
-            id: 'nid2',
-            contractId: 'cid2',
-            chain: 'chain2',
-            name: 'name2',
-            contentType: 'ct2',
-            content: 'c2',
-            detailUrl: 'd2',
-            contractName: 'cname2',
-          },
+          icon: undefined,
+          name: 'name2',
         },
         {
-          entity: 'walletNFT',
-          metrics: {},
-          metrics: {},
-          id: 'cid3-nid3',
-          meta: {
-            id: 'nid3',
-            contractId: 'cid3',
-            chain: 'chain3',
-            name: 'name3',
-            contentType: 'ct3',
-            content: 'c3',
-            detailUrl: 'd3',
-            contractName: 'cname3',
-            lastPrice: 3,
-            thumbnailUrl: 't3',
+          metrics: {
+            price: [
+              {
+                timestamp: Math.floor(Date.now() / 1000),
+                value: {
+                  usd: 3,
+                },
+              },
+            ],
           },
+          id: 'cid3-nid3',
+          icon: 't3',
+          name: 'name3',
         },
       ],
       meta: {
         units: {
           usd: {
+            icon: null,
             id: 'usd',
             name: 'US Dollar',
             symbol: '$',

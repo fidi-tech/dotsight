@@ -67,8 +67,6 @@ export class DappRadarDappDatasource extends AbstractNetworkDataSource<Config> {
   constructor(config: Config) {
     super(config);
 
-    console.log(this.config);
-
     this.httpClient = axios.create({
       baseURL: 'https://apis.dappradar.com/v2',
       headers: new AxiosHeaders({
@@ -95,6 +93,7 @@ export class DappRadarDappDatasource extends AbstractNetworkDataSource<Config> {
     switch (historicalScope) {
       case HISTORICAL_SCOPE.DAY:
         dateFrom = new Date(Date.now() - 24 * 60 * 60 * 1000);
+        break;
       case HISTORICAL_SCOPE.MONTH:
       default:
         dateFrom = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
@@ -169,7 +168,7 @@ export class DappRadarDappDatasource extends AbstractNetworkDataSource<Config> {
     }
 
     items[dappId].metrics[METRIC_MAP[metric]] = data.results.map((item) => ({
-      timestamp: item.timestamp,
+      timestamp: Math.floor(new Date(item.timestamp).getTime() / 1000),
       value: item.value,
     }));
   }
