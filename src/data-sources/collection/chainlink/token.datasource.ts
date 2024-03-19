@@ -1,24 +1,24 @@
 import { AbstractTokenDataSource } from '../../abstract.token.data-source';
 import { config } from './config';
-import { Token, ENTITY } from '../../../entities/token.entity';
-import { Meta } from '../../abstract.data-source';
+import {
+  Entity,
+  HISTORICAL_SCOPE,
+  HistoricalScope,
+  Meta,
+  Params,
+} from '../../abstract.data-source';
 import { Contract, Web3 } from 'web3';
 import { abi } from './abi';
 import { USD } from '../../../common/currecies';
-import { URL_REGEXP } from '../../../common/regexp';
-
-const HISTORICAL_SCOPE = {
-  DAY: 'day',
-  MONTH: 'month',
-} as const;
+import { metrics } from '../../../common/categories/collection/token/metrics';
+import {
+  MetricId,
+  PresetId,
+  SubcategoryId,
+} from '../../../common/categories/abstract.category';
 
 type Config = {
-  token: keyof typeof config;
   rpc: string;
-};
-
-type Params = {
-  historicalScope?: (typeof HISTORICAL_SCOPE)[keyof typeof HISTORICAL_SCOPE];
 };
 
 const fractionDigits = 4;
@@ -27,12 +27,16 @@ const HOUR = 60 * 60 * 1000;
 const DAY = 24 * HOUR;
 const MONTH = 30 * DAY;
 
-export class ChainlinkTokenDataSource extends AbstractTokenDataSource<
-  Config,
-  Params
-> {
-  private contract: Contract<any>;
-  private token: (typeof config)[keyof typeof config];
+export class ChainlinkTokenDataSource extends AbstractTokenDataSource<Config> {
+  private web3: Web3;
+
+  public getCopyright(): { id: string; name: string; icon: string | null } {
+    return {
+      id: 'chainlink',
+      name: 'Chainlink',
+      icon: null,
+    };
+  }
 
   public static getName(): string {
     return `Chainlink API`;
@@ -42,49 +46,10 @@ export class ChainlinkTokenDataSource extends AbstractTokenDataSource<
     return `Data source powered by Chainlink API that returns the price for the token. Consult https://docs.chain.link/data-feeds/price-feeds/addresses?network=ethereum&categories=verified for more info.`;
   }
 
-  public static getConfigSchema(): object {
-    return {
-      title: 'Config',
-      description: 'ChainlinkTokenDataSource configuration',
-      type: 'object',
-      properties: {
-        rpc: {
-          description: 'Url of the ethereum RPC endpoint',
-          type: 'string',
-          pattern: URL_REGEXP,
-          default: 'https://rpc.ankr.com/eth',
-        },
-        token: {
-          description: 'Choose token',
-          enum: Object.keys(config),
-        },
-      },
-      required: ['rpc', 'token'],
-    };
-  }
-
-  public static getParamsSchema(): object {
-    return {
-      title: 'Params',
-      description: 'ChainlinkTokenDataSource params',
-      type: 'object',
-      properties: {
-        historicalScope: {
-          description: "How long metrics' history should be",
-          enum: Object.values(HISTORICAL_SCOPE),
-        },
-      },
-      required: [],
-    };
-  }
-
   constructor(c: Config) {
     super(c);
 
-    this.token = config[c.token];
-
-    const web3 = new Web3(c.rpc);
-    this.contract = new web3.eth.Contract(abi, this.token.address);
+    this.web3 = new Web3(c.rpc);
   }
 
   private convertPrice(answer, decimals) {
@@ -111,14 +76,14 @@ export class ChainlinkTokenDataSource extends AbstractTokenDataSource<
     return (phaseId << 64n) | aggregatorRoundId;
   }
 
-  private async getCurrentState() {
+  private async getCurrentState(contract: Contract<any>) {
     const [
       decimals,
       // @ts-expect-error bad typings
       { roundId: lastRoundId, updatedAt, answer },
     ] = await Promise.all([
-      this.contract.methods.decimals().call(),
-      this.contract.methods.latestRoundData().call(),
+      contract.methods.decimals().call(),
+      contract.methods.latestRoundData().call(),
     ]);
 
     return {
@@ -129,11 +94,14 @@ export class ChainlinkTokenDataSource extends AbstractTokenDataSource<
     };
   }
 
-  async getItems({
-    historicalScope,
-  }: Params): Promise<{ items: Token[]; meta: Meta }> {
+  async getTokenData(
+    token: keyof typeof config,
+    historicalScope: HistoricalScope = HISTORICAL_SCOPE.MONTH,
+  ) {
+    const contract = new this.web3.eth.Contract(abi, config[token].address);
+
     const { decimals, lastRoundId, lastUpdatedAt, answer } =
-      await this.getCurrentState();
+      await this.getCurrentState(contract);
     const { phaseId, aggregatorRoundId: lastAggregatorRoundId } =
       this.fromRoundIdToAggregatorRoundId(BigInt(lastRoundId));
 
@@ -154,14 +122,11 @@ export class ChainlinkTokenDataSource extends AbstractTokenDataSource<
         phaseId,
         aggregatorRoundId,
       );
-      // @ts-expect-error bad typings
-      const response = await this.contract.methods.getRoundData(roundId).call();
-      // @ts-expect-error bad typings
+      const response = await contract.methods.getRoundData(roundId).call();
       const timestamp = Number(response.updatedAt) * 1000;
 
       historical.set(
         Math.floor(timestamp / 1000),
-        // @ts-expect-error bad typings
         this.convertPrice(response.answer, decimals),
       );
 
@@ -214,37 +179,57 @@ export class ChainlinkTokenDataSource extends AbstractTokenDataSource<
     }
 
     return {
-      items: [
-        {
-          id: this.token.id,
-          entity: ENTITY,
-          meta: {
-            id: this.token.id,
-            symbol: this.token.symbol,
-            name: this.token.name,
-          },
-          metrics: {
-            price: {
-              [USD.id]: historical.get(
-                Math.floor(lastUpdatedAt.getTime() / 1000),
-              ),
-            },
-          },
-          historicalMetrics: {
-            price: Array.from(historical.entries())
-              .sort(([dateA], [dateB]) => dateA - dateB)
-              .map(([date, price]) => ({
-                timestamp: date,
-                value: { [USD.id]: price },
-              })),
-          },
-        },
-      ],
+      id: config[token].id,
+      name: config[token].name,
+      icon: null,
+
+      metrics: {
+        price: Array.from(historical.entries())
+          .sort(([dateA], [dateB]) => dateA - dateB)
+          .map(([date, price]) => ({
+            timestamp: date,
+            value: { [USD.id]: price },
+          })),
+      },
+    };
+  }
+
+  async getItems({
+    subcategories: tokenIds,
+    historicalScope,
+  }: Params<typeof metrics>): Promise<{
+    // eslint-disable-next-line
+    items: Entity<typeof metrics, {}>[];
+    meta: Meta;
+  }> {
+    const data = await Promise.all(
+      tokenIds.map((tokenId) =>
+        this.getTokenData(
+          tokenId as any as keyof typeof config,
+          historicalScope,
+        ),
+      ),
+    );
+
+    return {
+      items: data,
       meta: {
         units: {
           [USD.id]: USD,
         },
       },
     };
+  }
+
+  static getSubcategories(subcategories: SubcategoryId[]) {
+    return subcategories.filter((tokenId) => config[tokenId]);
+  }
+
+  static getMetrics(metrics: MetricId[]): MetricId[] {
+    return ['price'].filter((metricId) => metrics.includes(metricId));
+  }
+
+  public static hasPreset(preset: PresetId): boolean {
+    return false;
   }
 }

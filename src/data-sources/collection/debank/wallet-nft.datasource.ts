@@ -1,32 +1,33 @@
 import axios, { AxiosHeaders, AxiosInstance } from 'axios';
-import { BadRequestException } from '@nestjs/common';
 
 import { USD } from '../../../common/currecies';
 import { addLogging } from '../../../common/http';
-import {
-  AbstractWalletNFTDataSource,
-  WalletNFTMeta,
-} from '../../abstract.wallet-nft.data-source';
 import { NFTRaw } from './types';
+import { AbstractWalletDataSource } from '../../abstract.wallet.data-source';
+import { Entity, Meta, Params } from '../../abstract.data-source';
+import { metrics } from '../../../common/categories/collection/wallet/metrics';
+import { presets } from '../../../common/categories/collection/wallet/presets';
 import {
-  ENTITY as WALLET_NFT_ENTITY,
-  WalletNFT,
-} from '../../../entities/wallet-nft.entity';
-import { normalizeNFT } from './helpers';
+  MetricId,
+  PresetId,
+  SubcategoryId,
+} from '../../../common/categories/abstract.category';
+import { isEthereumAddress } from '../../../common/categories/collection/wallet/validators';
 
 type Config = {
   key: string;
 };
 
-type Params = {
-  walletIds: string[];
-};
-
-export class DebankWalletNFTDatasource extends AbstractWalletNFTDataSource<
-  Config,
-  Params
-> {
+export class DebankWalletNFTDatasource extends AbstractWalletDataSource<Config> {
   private httpClient: AxiosInstance;
+
+  public getCopyright(): { id: string; name: string; icon: string | null } {
+    return {
+      id: 'debank',
+      name: 'Debank',
+      icon: null,
+    };
+  }
 
   public static getName(): string {
     return `Debank wallet's NFTs`;
@@ -34,22 +35,6 @@ export class DebankWalletNFTDatasource extends AbstractWalletNFTDataSource<
 
   public static getDescription(): string {
     return `Data source powered by DeBank Cloud API that returns all of the NFT for the specified wallet. Consult https://docs.cloud.debank.com for more info.`;
-  }
-
-  public static getConfigSchema(): object {
-    return {
-      title: 'Config',
-      description: 'DebankWalletNFTDatasource configuration',
-      type: 'object',
-      properties: {
-        key: {
-          description: 'API key for the DeBank Cloud API',
-          type: 'string',
-          minLength: 1,
-        },
-      },
-      required: ['key'],
-    };
   }
 
   constructor(props) {
@@ -65,14 +50,12 @@ export class DebankWalletNFTDatasource extends AbstractWalletNFTDataSource<
     addLogging('DebankWalletNFTDatasource', this.httpClient);
   }
 
-  async getItems({ walletIds }: Params): Promise<{
-    items: WalletNFT[];
-    meta: WalletNFTMeta;
+  async getItems({
+    subcategories: walletIds,
+  }: Params<typeof metrics>): Promise<{
+    items: Entity<typeof metrics, typeof presets>[];
+    meta: Meta;
   }> {
-    if (!Array.isArray(walletIds)) {
-      throw new BadRequestException('walletIds parameter was not specified');
-    }
-
     const data = await Promise.all(
       walletIds.map((walletId) => this.getWalletNFTs({ walletId })),
     );
@@ -80,10 +63,20 @@ export class DebankWalletNFTDatasource extends AbstractWalletNFTDataSource<
     return {
       items: data.flat().map((token) => ({
         id: `${token.contract_id}-${token.id}`,
-        entity: WALLET_NFT_ENTITY,
-        meta: normalizeNFT(token),
-        metrics: {},
-        historicalMetrics: {},
+        name: token.name,
+        icon: token.thumbnail_url,
+        metrics: {
+          price: token.pay_token?.amount
+            ? [
+                {
+                  timestamp: Math.floor(Date.now() / 1000),
+                  value: {
+                    [USD.id]: token.pay_token?.amount,
+                  },
+                },
+              ]
+            : [],
+        },
       })),
       meta: {
         units: {
@@ -102,22 +95,15 @@ export class DebankWalletNFTDatasource extends AbstractWalletNFTDataSource<
     return response.data;
   }
 
-  public static getParamsSchema(): object {
-    return {
-      title: 'Params',
-      description: 'DebankWalletTokenDatasource params',
-      type: 'object',
-      properties: {
-        walletIds: {
-          description: 'Wallets',
-          type: 'array',
-          items: {
-            type: 'string',
-          },
-          minItems: 1,
-        },
-      },
-      required: ['walletIds'],
-    };
+  static getSubcategories(subcategories: SubcategoryId[]) {
+    return subcategories.filter((walletId) => isEthereumAddress(walletId));
+  }
+
+  static getMetrics(): MetricId[] {
+    return [];
+  }
+
+  public static hasPreset(preset: PresetId): boolean {
+    return ([presets.nfts.id] as PresetId[]).includes(preset);
   }
 }

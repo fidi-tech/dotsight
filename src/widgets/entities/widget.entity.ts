@@ -1,14 +1,12 @@
 import {
   Column,
+  CreateDateColumn,
   Entity,
-  JoinColumn,
   ManyToOne,
-  OneToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
-import { Pipeline } from '../../pipelines/entities/pipeline.entity';
-import { Mapper } from '../../mappers/entities/mapper.entity';
 import { ApiProperty } from '@nestjs/swagger';
+import { User } from '../../users/entities/user.entity';
 
 export type WidgetId = string;
 
@@ -21,28 +19,74 @@ export class Widget {
   id: WidgetId;
 
   @ApiProperty({
-    description: "widget's type",
+    description: "widget's user-given name",
   })
-  @Column({ name: 'type' })
-  type: string;
+  @Column()
+  name: string;
 
   @ApiProperty({
-    description: "widget's config",
+    description: "widget's user-selected category",
   })
-  @Column({ name: 'config', type: 'json' })
-  config: object;
+  @Column('text')
+  category: string;
 
   @ApiProperty({
-    description: "widget's compatible datashape",
+    description: "widget's user-selected view",
+    required: false,
   })
-  @Column({ name: 'datashape' })
-  datashape: string;
+  @Column({ nullable: true })
+  view?: string;
 
-  @OneToOne(() => Mapper)
-  @JoinColumn({ name: 'mapper_id' })
-  mapper?: Mapper;
+  @ApiProperty({
+    description: "widget's view's user-selected parameters",
+    required: false,
+  })
+  @Column({ type: 'json', nullable: true })
+  viewParameters?: object;
 
-  @ManyToOne(() => Pipeline)
-  @JoinColumn({ name: 'pipeline_id' })
-  pipeline: Pipeline;
+  @ApiProperty({
+    description: "widget's user-selected subcategories",
+  })
+  @Column('text', { array: true, default: [] })
+  subcategories: string[];
+
+  @ApiProperty({
+    description:
+      "widget's user-selected metrics. user can not specify both metrics & preset",
+    required: false,
+  })
+  @Column('text', { array: true, nullable: true })
+  metrics?: string[];
+
+  @ApiProperty({
+    description:
+      "widget's user-selected preset. user can not specify both metrics & preset",
+    required: false,
+  })
+  @Column('text', { nullable: true })
+  preset?: string;
+
+  @ManyToOne(() => User, { nullable: false })
+  createdBy: User;
+
+  @CreateDateColumn()
+  createdAt: Date;
+
+  @Column({ default: false })
+  isPublic: boolean;
+
+  @ApiProperty({
+    description: 'if user is allowed to modify the widget',
+  })
+  canModify: boolean;
+
+  @ApiProperty({
+    description: 'if user is allowed to delete the widget',
+  })
+  canDelete: boolean;
+
+  @ApiProperty({
+    description: 'if user is allowed to execute the widget',
+  })
+  canExecute: boolean;
 }

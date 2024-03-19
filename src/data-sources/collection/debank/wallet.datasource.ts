@@ -1,25 +1,30 @@
 import axios, { AxiosHeaders, AxiosInstance } from 'axios';
-import { Wallet, ENTITY } from '../../../entities/wallet.entity';
-import { Unit, UnitId } from '../../../entities/entity';
 import { USD } from '../../../common/currecies';
 import { AbstractWalletDataSource } from '../../abstract.wallet.data-source';
-import { Meta } from '../../abstract.data-source';
-import { BadRequestException } from '@nestjs/common';
+import { Entity, Meta, Params, Unit, UnitId } from '../../abstract.data-source';
 import { addLogging } from '../../../common/http';
+import { metrics } from '../../../common/categories/collection/wallet/metrics';
+import { presets } from '../../../common/categories/collection/wallet/presets';
+import {
+  MetricId,
+  SubcategoryId,
+} from '../../../common/categories/abstract.category';
+import { isEthereumAddress } from '../../../common/categories/collection/wallet/validators';
 
 type Config = {
   key: string;
 };
 
-type Params = {
-  walletIds: string[];
-};
-
-export class DebankWalletDatasource extends AbstractWalletDataSource<
-  Config,
-  Params
-> {
+export class DebankWalletDatasource extends AbstractWalletDataSource<Config> {
   private httpClient: AxiosInstance;
+
+  public getCopyright(): { id: string; name: string; icon: string | null } {
+    return {
+      id: 'debank',
+      name: 'Debank',
+      icon: null,
+    };
+  }
 
   public static getName(): string {
     return `Debank wallet info`;
@@ -27,22 +32,6 @@ export class DebankWalletDatasource extends AbstractWalletDataSource<
 
   public static getDescription(): string {
     return `Data source powered by DeBank Cloud API that returns wallets' net worth. Consult https://docs.cloud.debank.com for more info.`;
-  }
-
-  public static getConfigSchema(): object {
-    return {
-      title: 'Config',
-      description: 'DebankWalletDatasource configuration',
-      type: 'object',
-      properties: {
-        key: {
-          description: 'API key for the DeBank Cloud API',
-          type: 'string',
-          minLength: 1,
-        },
-      },
-      required: ['key'],
-    };
   }
 
   constructor(props) {
@@ -58,34 +47,25 @@ export class DebankWalletDatasource extends AbstractWalletDataSource<
     addLogging('DebankWalletDatasource', this.httpClient);
   }
 
-  async getItems({ walletIds }: Params): Promise<{
-    items: Wallet[];
+  async getItems({
+    subcategories: walletIds,
+  }: Params<typeof metrics>): Promise<{
+    items: Entity<typeof metrics, typeof presets>[];
     meta: Meta;
   }> {
-    if (!Array.isArray(walletIds)) {
-      throw new BadRequestException('walletIds parameter was not specified');
-    }
-
     const response = await this.getTotalBalance({ walletIds });
 
     const units: Record<UnitId, Unit> = {
       [USD.id]: USD,
     };
-    const items: Wallet[] = [];
+    const items: Entity<typeof metrics, typeof presets>[] = [];
 
     for (const { walletId, totalUsdValue } of response) {
       items.push({
         id: walletId,
-        entity: ENTITY,
-        meta: {
-          walletId,
-        },
+        name: walletId,
+        icon: null,
         metrics: {
-          netWorth: {
-            [USD.id]: totalUsdValue,
-          },
-        },
-        historicalMetrics: {
           netWorth: [
             {
               timestamp: Math.floor(Date.now() / 1000),
@@ -106,7 +86,11 @@ export class DebankWalletDatasource extends AbstractWalletDataSource<
     };
   }
 
-  private async getTotalBalance({ walletIds }: Params): Promise<
+  private async getTotalBalance({
+    walletIds,
+  }: {
+    walletIds: string[];
+  }): Promise<
     Array<{
       walletId;
       totalUsdValue: number;
@@ -130,22 +114,15 @@ export class DebankWalletDatasource extends AbstractWalletDataSource<
     );
   }
 
-  public static getParamsSchema(): object {
-    return {
-      title: 'Params',
-      description: 'DebankWalletDatasource params',
-      type: 'object',
-      properties: {
-        walletIds: {
-          description: 'Wallets',
-          type: 'array',
-          items: {
-            type: 'string',
-          },
-          minItems: 1,
-        },
-      },
-      required: ['walletIds'],
-    };
+  static getSubcategories(subcategories: SubcategoryId[]) {
+    return subcategories.filter((walletId) => isEthereumAddress(walletId));
+  }
+
+  static getMetrics(metrics: MetricId[]): MetricId[] {
+    return ['netWorth'].filter((metricId) => metrics.includes(metricId));
+  }
+
+  public static hasPreset(): boolean {
+    return false;
   }
 }

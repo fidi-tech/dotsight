@@ -1,93 +1,153 @@
 import { Injectable } from '@nestjs/common';
 import { collection } from '../../collection';
 import { AbstractDataSource } from '../../abstract.data-source';
-import { PipelineId } from '../../../pipelines/entities/pipeline.entity';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
 import { DataSource } from '../../entities/data-source.entity';
-import { ApiProperty } from '@nestjs/swagger';
-
-class DataSourceNotFound extends Error {
-  constructor(type) {
-    super(`Datasource with type "${type}" not found`);
-  }
-}
-
-export class DatasourceSuggestion {
-  @ApiProperty({
-    description: "data source's name",
-  })
-  name: string;
-
-  @ApiProperty({
-    description: "data source's description",
-  })
-  description: string;
-
-  @ApiProperty({
-    description: "data source's type",
-  })
-  type: string;
-
-  @ApiProperty({
-    description: "data source's config schema",
-  })
-  configSchema: object;
-}
+import {
+  CategoryId,
+  MetricId,
+  PresetId,
+  SubcategoryId,
+} from '../../../common/categories/abstract.category';
 
 @Injectable()
 export class DataSourceService {
-  constructor(
-    @InjectRepository(DataSource)
-    private readonly dataSourceRepository: Repository<DataSource>,
-  ) {}
+  private datasources: DataSource[];
 
-  instantiate(
-    type: string,
-    config: object,
-  ): AbstractDataSource<any, any, any, any> {
-    const dataSource = collection[type];
-    if (!dataSource) {
-      throw new DataSourceNotFound(type);
+  constructor() {
+    this.datasources = [
+      {
+        id: '1-bigquery-public-data-chains',
+        type: 'bigquery-public-data-chains',
+        config: {},
+      },
+      {
+        id: '1-debank-wallet-tokens',
+        type: 'debank-wallet-tokens',
+        config: {
+          key: process.env.DEBANK,
+        },
+      },
+      {
+        id: '1-debank-wallet-nft',
+        type: 'debank-wallet-nft',
+        config: {
+          key: process.env.DEBANK,
+        },
+      },
+      {
+        id: '1-debank-wallet',
+        type: 'debank-wallet',
+        config: {
+          key: process.env.DEBANK,
+        },
+      },
+      {
+        id: '1-chainlink-tokens',
+        type: 'chainlink-tokens',
+        config: {
+          rpc: 'https://rpc.ankr.com/eth',
+        },
+      },
+      {
+        id: '1-dapp-radar-dapp',
+        type: 'dapp-radar-dapp',
+        config: {
+          key: process.env.DAPP_RADAR,
+        },
+      },
+      {
+        id: '1-parity-active-addresses',
+        type: 'parity-active-addresses',
+        config: {},
+      },
+      {
+        id: '1-parity-transactions',
+        type: 'parity-transactions',
+        config: {},
+      },
+      {
+        id: '1-parity-unique-addresses',
+        type: 'parity-unique-addresses',
+        config: {},
+      },
+      {
+        id: '1-polkadot-treasury',
+        type: 'polkadot-treasury',
+        config: {},
+      },
+    ];
+  }
+
+  async getDatasources(
+    category: CategoryId,
+    subcategories: SubcategoryId[],
+    metrics?: MetricId[],
+    preset?: MetricId,
+  ): Promise<Array<AbstractDataSource<any, any, any, any>>> {
+    const datasources = this.datasources;
+    return (
+      datasources
+        .map((datasource) => ({
+          type: collection[
+            datasource.type
+          ] as (typeof collection)[keyof typeof collection],
+          config: datasource.config,
+        }))
+        .filter(({ type }) => {
+          return (
+            type.getCategory() === category &&
+            type.getSubcategories(subcategories).length > 0 &&
+            ((metrics && type.getMetrics(metrics).length > 0) ||
+              (preset && type.hasPreset(preset)))
+          );
+        })
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore smth weird
+        .map(({ type, config }) => new type(config as any))
+    );
+  }
+
+  async getSupportedPresets(
+    category: CategoryId,
+    subcategories: SubcategoryId[],
+    presets: PresetId[],
+  ) {
+    const datasources = this.datasources.filter(
+      ({ type }) =>
+        collection[type].getCategory() === category &&
+        collection[type].getSubcategories(subcategories).length > 0,
+    );
+
+    const presetsResult = new Set();
+    for (const datasource of datasources) {
+      for (const presetId of presets) {
+        if (collection[datasource.type].hasPreset(presetId)) {
+          presetsResult.add(presetId);
+        }
+      }
     }
-    return new dataSource(config);
+
+    return Array.from(presetsResult.values());
   }
 
-  getEntityByType(type: string): string {
-    const dataSource = collection[type];
-    if (!dataSource) {
-      throw new DataSourceNotFound(type);
+  async getSupportedMetrics(
+    category: CategoryId,
+    subcategories: SubcategoryId[],
+    metrics: MetricId[],
+  ) {
+    const datasources = this.datasources.filter(
+      ({ type }) =>
+        collection[type].getCategory() === category &&
+        collection[type].getSubcategories(subcategories).length > 0,
+    );
+
+    const metricsResult = new Set();
+    for (const datasource of datasources) {
+      for (const metricId of collection[datasource.type].getMetrics(metrics)) {
+        metricsResult.add(metricId);
+      }
     }
-    return dataSource.getEntity();
-  }
 
-  private checkTypeAndConfig(type: string, config: object) {
-    this.instantiate(type, config);
-  }
-
-  async create(pipelineId: PipelineId, type: string, config: object) {
-    this.checkTypeAndConfig(type, config);
-
-    const dataSource = this.dataSourceRepository.create({
-      pipeline: { id: pipelineId },
-      type,
-      config,
-    });
-    return this.dataSourceRepository.save(dataSource);
-  }
-
-  getDatasourcesByEntity(entity: string): Array<DatasourceSuggestion> {
-    return Object.entries(collection)
-      .filter(([, datasource]) => datasource.getEntity() === entity)
-      .map(([type, dataSource]) => ({
-        name: dataSource.getName(),
-        description: dataSource.getDescription(),
-        type,
-        configSchema: dataSource.getConfigSchema(),
-      }));
-  }
-
-  getParamsByType(type: string) {
-    return collection[type].getParamsSchema();
+    return Array.from(metricsResult.values());
   }
 }

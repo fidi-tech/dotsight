@@ -1,29 +1,29 @@
-import { BadRequestException } from '@nestjs/common';
 import axios, { AxiosHeaders, AxiosInstance } from 'axios';
 
-import {
-  Protocol,
-  METRICS,
-  PERCENTAGE_CHANGE_SUFFIX,
-} from '../../../entities/protocol.entity';
-import { Units } from '../../../entities/entity';
 import { USD } from '../../../common/currecies';
-import { Meta } from '../../abstract.data-source';
+import {
+  Entity,
+  HISTORICAL_SCOPE,
+  Meta,
+  Params,
+} from '../../abstract.data-source';
 import { addLogging } from '../../../common/http';
-import { URL_REGEXP } from '../../../common/regexp';
-import { AbstractProtocolDataSource } from '../../abstract.protocol.data-source';
+import { AbstractNetworkDataSource } from '../../abstract.network.data-source';
+import { metrics as networkMetrics } from '../../../common/categories/collection/network/metrics';
+import {
+  Metrics,
+  Presets,
+} from '../../../common/categories/collection/network/network.category';
+import {
+  MetricId,
+  PresetId,
+  SubcategoryId,
+} from '../../../common/categories/abstract.category';
+import { dapps } from '../../../common/categories/collection/network/dapps';
 
 type Config = {
   key: string;
   endpoint: string;
-};
-
-const RANGES = ['24h', '7d', '30d'];
-type Range = (typeof RANGES)[number];
-
-type Params = {
-  dappId: number;
-  range: Range;
 };
 
 type DappRadarApp = {
@@ -34,13 +34,27 @@ type DappRadarApp = {
   metrics: Record<string, number>;
 };
 
-const scalarMetrics = ['transactions', 'uaw'];
+const METRIC_MAP = {
+  transactions: 'dailyTransactionsCount',
+  uaw: 'dailyUaw',
+  volume: 'dailyVolume',
+} as const;
+const REVERSE_METRIC_MAP = {
+  dailyTransactionsCount: 'transactions',
+  dailyUaw: 'uaw',
+  dailyVolume: 'volume',
+};
 
-export class DappRadarDappDatasource extends AbstractProtocolDataSource<
-  Config,
-  Params
-> {
+export class DappRadarDappDatasource extends AbstractNetworkDataSource<Config> {
   private httpClient: AxiosInstance;
+
+  public getCopyright(): { id: string; name: string; icon: string | null } {
+    return {
+      id: 'dapp-radar',
+      name: 'DappRadar',
+      icon: null,
+    };
+  }
 
   public static getName(): string {
     return `DappRadar DApp information`;
@@ -50,128 +64,128 @@ export class DappRadarDappDatasource extends AbstractProtocolDataSource<
     return `Data source powered by DappRadar API that returns users, transactions, volume, balance for a specific DApp, powered by DappRadar API. Consult https://api-docs.dappradar.com/#operation/getDappItem for more info.`;
   }
 
-  public static getConfigSchema(): object {
-    return {
-      title: 'Config',
-      description: 'DappRadarDappDatasource configuration',
-      type: 'object',
-      properties: {
-        key: {
-          description: 'API key for the DappRadar API',
-          type: 'string',
-          minLength: 1,
-        },
-        endpoint: {
-          description: 'API endpoint for the DappRadar API',
-          type: 'string',
-          pattern: URL_REGEXP,
-        },
-      },
-      required: ['key', 'endpoint'],
-    };
-  }
-
   constructor(config: Config) {
     super(config);
 
     this.httpClient = axios.create({
-      baseURL: this.config.endpoint,
+      baseURL: 'https://apis.dappradar.com/v2',
       headers: new AxiosHeaders({
-        'X-BLOBR-KEY': this.config.key,
+        'X-API-KEY': this.config.key,
       }),
     });
 
     addLogging('DappRadarDappDatasource', this.httpClient);
   }
 
-  public async getItems({ dappId, range }: Params): Promise<{
-    items: Protocol[];
+  async getItems({
+    subcategories,
+    metrics,
+    historicalScope,
+  }: Params<typeof networkMetrics>): Promise<{
+    items: Entity<Metrics, Presets>[];
     meta: Meta;
   }> {
-    if (!RANGES.includes(range)) {
-      throw new BadRequestException(
-        `Wrong range param. ${RANGES.join('|')} are available`,
-      );
+    const dappIds = DappRadarDappDatasource.getSubcategories(subcategories);
+    const items: Record<string, Entity<Metrics, Presets>> = {};
+
+    const dateTo = new Date();
+    let dateFrom;
+    switch (historicalScope) {
+      case HISTORICAL_SCOPE.DAY:
+        dateFrom = new Date(Date.now() - 24 * 60 * 60 * 1000);
+        break;
+      case HISTORICAL_SCOPE.MONTH:
+      default:
+        dateFrom = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
     }
-    const items: Protocol[] = [];
-    const units: Units = {
-      [USD.id]: USD,
-    };
 
-    const response = await this.fetchDApp({ dappId, range });
-    const dApp = response.data.results;
-    items.push({
-      id: dApp.dappId.toString(),
-      entity: 'protocol',
-      meta: {
-        name: dApp.name,
-        logoUrl: dApp.logo,
-      },
-      metrics: METRICS.reduce((acc, metric) => {
-        if (
-          dApp.metrics[metric] !== null &&
-          dApp.metrics[metric] !== undefined
-        ) {
-          const changeKey = `${metric}${PERCENTAGE_CHANGE_SUFFIX}`;
-          const value = scalarMetrics.includes(metric)
-            ? dApp.metrics[metric]
-            : { [USD.id]: dApp.metrics[metric] };
-          acc[metric] = value;
-          acc[changeKey] = dApp.metrics[changeKey];
+    const promises = [];
+    for (const dappId of dappIds) {
+      for (const metric of metrics) {
+        if (!REVERSE_METRIC_MAP[metric]) {
+          continue;
         }
-        return acc;
-      }, {}),
-      historicalMetrics: METRICS.reduce((acc, metric) => {
-        if (
-          dApp.metrics[metric] !== null &&
-          dApp.metrics[metric] !== undefined
-        ) {
-          const value = scalarMetrics.includes(metric)
-            ? dApp.metrics[metric]
-            : { [USD.id]: dApp.metrics[metric] };
-          acc[metric] = [
-            {
-              timestamp: Math.floor(Date.now() / 1000),
-              value,
-            },
-          ];
-        }
-        return acc;
-      }, {}),
-    });
+
+        promises.push(
+          this.fetchDAppMetric(items, {
+            dappId,
+            metric: REVERSE_METRIC_MAP[metric],
+            dateFrom,
+            dateTo,
+          }).catch(console.error),
+        );
+      }
+    }
+
+    await Promise.all(promises);
 
     return {
-      items,
+      items: Object.values(items),
       meta: {
-        units,
-      },
-    };
-  }
-
-  public static getParamsSchema(): object {
-    return {
-      title: 'Params',
-      description: 'DappRadarDappDatasource params',
-      type: 'object',
-      properties: {
-        dappId: {
-          description: 'DappId from DappRadar',
-          type: 'integer',
+        units: {
+          [USD.id]: USD,
         },
       },
-      required: ['dappId'],
     };
   }
 
-  private fetchDApp({ dappId, range }: { dappId: number; range?: Range }) {
-    return this.httpClient.get<{
+  private async fetchDAppMetric(
+    items: Record<string, Entity<Metrics, Presets>>,
+    {
+      dappId,
+      metric,
+      dateFrom,
+      dateTo,
+    }: {
+      dappId: string;
+      metric: 'transactions' | 'uaw' | 'volume';
+      dateFrom: Date;
+      dateTo: Date;
+    },
+  ) {
+    const { data } = (await this.httpClient.get<{
       results: DappRadarApp;
       page: number;
       pageCount: number;
-    }>(`/dapps/${dappId}`, {
+    }>(`/dapps/${dappId}/history/${metric}`, {
       params: {
-        range,
+        dateFrom: dateFrom.toISOString(),
+        dateTo: dateTo.toISOString(),
       },
-    });
+    })) as any as {
+      data: {
+        results: Array<{ timestamp: number; date: string; value: number }>;
+      };
+    };
+
+    if (!items[dappId]) {
+      items[dappId] = {
+        id: dappId,
+        name: dappId,
+        icon: null,
+        metrics: {},
+      };
+    }
+
+    items[dappId].metrics[METRIC_MAP[metric]] = data.results.map((item) => ({
+      timestamp: Math.floor(new Date(item.timestamp).getTime() / 1000),
+      value: item.value,
+    }));
+  }
+
+  static getSubcategories(subcategories: SubcategoryId[]) {
+    return dapps
+      .map((dapp) => dapp.id)
+      .filter((dappId) => subcategories.includes(dappId));
+  }
+
+  static getMetrics(metrics: MetricId[]): MetricId[] {
+    return Object.keys(REVERSE_METRIC_MAP).filter((metric) =>
+      metrics.includes(metric),
+    );
+  }
+
+  public static hasPreset(preset: PresetId): boolean {
+    return false;
   }
 }

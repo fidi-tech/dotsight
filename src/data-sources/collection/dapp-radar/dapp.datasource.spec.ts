@@ -1,7 +1,7 @@
 import axios, { AxiosHeaders, AxiosInstance } from 'axios';
-import { BadRequestException } from '@nestjs/common';
 
 import { DappRadarDappDatasource } from './dapp.datasource';
+import { HISTORICAL_SCOPE } from '../../abstract.data-source';
 
 jest.useFakeTimers();
 jest.mock('../../../common/http');
@@ -23,22 +23,11 @@ describe('DappRadarDappDatasource', () => {
     });
   });
 
-  it('should throw if the config is wrong', () => {
-    expect(() => new DappRadarDappDatasource({} as any)).toThrow();
-    expect(() => new DappRadarDappDatasource({ key: '66' } as any)).toThrow();
-    expect(
-      () => new DappRadarDappDatasource({ key: '66', endpoint: [] } as any),
-    ).toThrow();
-    expect(
-      () => new DappRadarDappDatasource({ key: [], endpoint: '42' } as any),
-    ).toThrow();
-  });
-
   it('should create axios instance with correct params', () => {
     expect(axiosCreate).toHaveBeenCalledWith({
-      baseURL: 'https://some-valid-url.com',
+      baseURL: 'https://apis.dappradar.com/v2',
       headers: new AxiosHeaders({
-        'X-BLOBR-KEY': '66',
+        'X-API-KEY': '66',
       }),
     });
   });
@@ -46,66 +35,71 @@ describe('DappRadarDappDatasource', () => {
   it('should call dapp-radar api with correct params', async () => {
     mockAxios.get.mockImplementationOnce(() => ({
       data: {
-        results: {
-          dappId: 1,
-          metrics: {},
-        },
+        results: [
+          {
+            timestamp: new Date().toISOString(),
+            value: 100,
+          },
+        ],
       },
     }));
 
-    await dataSource.getItems({ dappId: 1, range: '24h' });
+    await dataSource.getItems({
+      subcategories: ['46618'],
+      metrics: ['dailyTransactionsCount'],
+      historicalScope: HISTORICAL_SCOPE.DAY,
+    });
 
     expect(mockAxios.get).toHaveBeenCalledTimes(1);
-    expect(mockAxios.get).toHaveBeenCalledWith('/dapps/1', {
-      params: {
-        range: '24h',
+    expect(mockAxios.get).toHaveBeenCalledWith(
+      '/dapps/46618/history/transactions',
+      {
+        params: {
+          dateFrom: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
+          dateTo: new Date().toISOString(),
+        },
       },
-    });
+    );
   });
 
   it('should reduce items correctly', async () => {
     mockAxios.get.mockImplementationOnce(() => ({
       data: {
-        results: {
-          dappId: '1',
-          name: 'n1',
-          logo: 'l1',
-          metrics: {
-            uaw: 1,
-            uawPercentageChange: 2,
+        results: [
+          {
+            timestamp: new Date().toISOString(),
+            value: 100,
           },
-        },
+        ],
       },
     }));
 
     await expect(
-      dataSource.getItems({ dappId: 1, range: '24h' }),
+      dataSource.getItems({
+        subcategories: ['46618'],
+        metrics: ['dailyTransactionsCount'],
+        historicalScope: 'day',
+      }),
     ).resolves.toEqual({
       items: [
         {
-          entity: 'protocol',
-          historicalMetrics: {
-            uaw: [
+          metrics: {
+            dailyTransactionsCount: [
               {
                 timestamp: Math.floor(Date.now() / 1000),
-                value: 1,
+                value: 100,
               },
             ],
           },
-          id: '1',
-          meta: {
-            logoUrl: 'l1',
-            name: 'n1',
-          },
-          metrics: {
-            uaw: 1,
-            uawPercentageChange: 2,
-          },
+          id: '46618',
+          icon: null,
+          name: '46618',
         },
       ],
       meta: {
         units: {
           usd: {
+            icon: null,
             id: 'usd',
             name: 'US Dollar',
             symbol: '$',
@@ -113,11 +107,5 @@ describe('DappRadarDappDatasource', () => {
         },
       },
     });
-  });
-
-  it('should throw an error in case of wrong range', () => {
-    expect(dataSource.getItems({ dappId: 1, range: '1h' })).rejects.toThrow(
-      BadRequestException,
-    );
   });
 });

@@ -1,19 +1,19 @@
 import axios, { AxiosHeaders, AxiosInstance } from 'axios';
-import { WalletToken, ENTITY } from '../../../entities/wallet-token.entity';
 import { USD } from '../../../common/currecies';
-import {
-  AbstractWalletTokenDataSource,
-  WalletTokenMeta,
-} from '../../abstract.wallet-token.data-source';
-import { BadRequestException } from '@nestjs/common';
+import { AbstractWalletDataSource } from '../../abstract.wallet.data-source';
 import { addLogging } from '../../../common/http';
+import { Entity, Meta, Params } from '../../abstract.data-source';
+import { metrics } from '../../../common/categories/collection/wallet/metrics';
+import { presets } from '../../../common/categories/collection/wallet/presets';
+import {
+  MetricId,
+  PresetId,
+  SubcategoryId,
+} from '../../../common/categories/abstract.category';
+import { isEthereumAddress } from '../../../common/categories/collection/wallet/validators';
 
 type Config = {
   key: string;
-};
-
-type Params = {
-  walletIds: string[];
 };
 
 type UserToken = {
@@ -34,11 +34,16 @@ type UserToken = {
   time_at: number;
 };
 
-export class DebankWalletTokenDatasource extends AbstractWalletTokenDataSource<
-  Config,
-  Params
-> {
+export class DebankWalletTokenDatasource extends AbstractWalletDataSource<Config> {
   private httpClient: AxiosInstance;
+
+  public getCopyright(): { id: string; name: string; icon: string | null } {
+    return {
+      id: 'debank',
+      name: 'Debank',
+      icon: null,
+    };
+  }
 
   public static getName(): string {
     return `Debank wallet's tokens`;
@@ -46,22 +51,6 @@ export class DebankWalletTokenDatasource extends AbstractWalletTokenDataSource<
 
   public static getDescription(): string {
     return `Data source powered by DeBank Cloud API that returns all of the tokens for the specified wallets. Consult https://docs.cloud.debank.com for more info.`;
-  }
-
-  public static getConfigSchema(): object {
-    return {
-      title: 'Config',
-      description: 'DebankWalletTokenDatasource configuration',
-      type: 'object',
-      properties: {
-        key: {
-          description: 'API key for the DeBank Cloud API',
-          type: 'string',
-          minLength: 1,
-        },
-      },
-      required: ['key'],
-    };
   }
 
   constructor(props) {
@@ -77,14 +66,12 @@ export class DebankWalletTokenDatasource extends AbstractWalletTokenDataSource<
     addLogging('DebankWalletTokenDatasource', this.httpClient);
   }
 
-  async getItems({ walletIds }: Params): Promise<{
-    items: WalletToken[];
-    meta: WalletTokenMeta;
+  async getItems({
+    subcategories: walletIds,
+  }: Params<typeof metrics>): Promise<{
+    items: Entity<typeof metrics, typeof presets>[];
+    meta: Meta;
   }> {
-    if (!Array.isArray(walletIds)) {
-      throw new BadRequestException('walletIds parameter was not specified');
-    }
-
     const data = await Promise.all(
       walletIds.map(async (walletId) => {
         const tokens = await this.getWalletTokens({ walletId });
@@ -95,70 +82,60 @@ export class DebankWalletTokenDatasource extends AbstractWalletTokenDataSource<
       }),
     );
 
-    const result: {
-      items: WalletToken[];
-      meta: WalletTokenMeta;
-    } = {
-      items: [],
+    const items: Record<string, Entity<typeof metrics, typeof presets>> = {};
+
+    for (const { tokens } of data) {
+      for (const token of tokens) {
+        const id = `${token.id}-${token.chain}`;
+        if (!items[id]) {
+          items[id] = {
+            id,
+            name: token.name,
+            icon: null,
+            metrics: {
+              amount: [
+                {
+                  timestamp: Math.floor(Date.now() / 1000),
+                  value: token.amount,
+                },
+              ],
+              price: [
+                {
+                  timestamp: Math.floor(Date.now() / 1000),
+                  value: {
+                    [USD.id]: token.price,
+                  },
+                },
+              ],
+              value: [
+                {
+                  timestamp: Math.floor(Date.now() / 1000),
+                  value: {
+                    [USD.id]: token.amount * token.price,
+                  },
+                },
+              ],
+            },
+          };
+        } else {
+          // assuming one element in the time series here
+          // @ts-expect-error bad typings
+          items[id].metrics.amount[0].value += token.amount;
+          // @ts-expect-error bad typings
+          items[id].metrics.value[0].value[USD.id] +=
+            token.amount * token.price;
+        }
+      }
+    }
+
+    return {
+      items: Object.values(items),
       meta: {
         units: {
           [USD.id]: USD,
         },
-        protocols: {},
-        chains: {},
       },
     };
-
-    for (const { walletId, tokens } of data) {
-      for (const token of tokens) {
-        if (!result.meta.chains[token.chain]) {
-          result.meta.chains[token.chain] = {
-            id: token.chain,
-          };
-        }
-
-        result.items.push({
-          id: `${walletId}-${token.id}`,
-          entity: ENTITY,
-          meta: {
-            id: token.id,
-            walletId,
-            symbol: token.symbol,
-            iconUrl: token.logo_url,
-            name: token.name,
-            protocolId: null,
-            chainId: token.chain,
-            price: {
-              [USD.id]: token.price,
-            },
-          },
-          metrics: {
-            amount: token.amount,
-            value: {
-              [USD.id]: token.amount * token.price,
-            },
-          },
-          historicalMetrics: {
-            amount: [
-              {
-                timestamp: Math.floor(Date.now() / 1000),
-                value: token.amount,
-              },
-            ],
-            value: [
-              {
-                timestamp: Math.floor(Date.now() / 1000),
-                value: {
-                  [USD.id]: token.amount * token.price,
-                },
-              },
-            ],
-          },
-        });
-      }
-    }
-
-    return result;
   }
 
   async getWalletTokens({
@@ -171,28 +148,22 @@ export class DebankWalletTokenDatasource extends AbstractWalletTokenDataSource<
       {
         params: {
           id: walletId,
+          is_all: false,
         },
       },
     );
     return response.data;
   }
 
-  public static getParamsSchema(): object {
-    return {
-      title: 'Params',
-      description: 'DebankWalletTokenDatasource params',
-      type: 'object',
-      properties: {
-        walletIds: {
-          description: 'Wallets',
-          type: 'array',
-          items: {
-            type: 'string',
-          },
-          minItems: 1,
-        },
-      },
-      required: ['walletIds'],
-    };
+  static getSubcategories(subcategories: SubcategoryId[]) {
+    return subcategories.filter((walletId) => isEthereumAddress(walletId));
+  }
+
+  static getMetrics(): MetricId[] {
+    return [];
+  }
+
+  public static hasPreset(preset: PresetId): boolean {
+    return ([presets.tokenContents.id] as PresetId[]).includes(preset);
   }
 }

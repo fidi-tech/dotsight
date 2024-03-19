@@ -1,53 +1,123 @@
-import { Entity, Unit, UnitId } from '../entities/entity';
-import validator from '@rjsf/validator-ajv8';
+import {
+  MetricId,
+  Metrics,
+  Presets,
+  SubcategoryId,
+} from '../common/categories/abstract.category';
+import { ApiProperty } from '@nestjs/swagger';
 
 class DataSourceNameNotSpecifiedError extends Error {}
 class DataSourceDescriptionNotSpecifiedError extends Error {}
-class DataSourceEntityNotSpecifiedError extends Error {}
-class DatasourceConfigSchemaNotSpecifiedError extends Error {}
-class DatasourceParamsSchemaNotSpecifiedError extends Error {}
+class DataSourceCategoryNotSpecifiedError extends Error {}
+class DataSourceSubcategoriesNotSpecifiedError extends Error {}
+class DataSourceMetricsNotSpecifiedError extends Error {}
+class DataSourcePresetNotSpecifiedError extends Error {}
+
+export type UnitId = string;
+export class Unit {
+  @ApiProperty({
+    description: 'unit id',
+  })
+  id: UnitId;
+
+  @ApiProperty({
+    description: 'unit symbol',
+  })
+  symbol: string;
+
+  @ApiProperty({
+    description: 'unit icon',
+    nullable: true,
+  })
+  icon: string | null;
+
+  @ApiProperty({
+    description: 'unit name',
+  })
+  name: string;
+}
 
 export type Meta = {
   units: Record<UnitId, Unit>;
 };
 
+export const HISTORICAL_SCOPE = {
+  DAY: 'day',
+  MONTH: 'month',
+} as const;
+
+export type HistoricalScope =
+  (typeof HISTORICAL_SCOPE)[keyof typeof HISTORICAL_SCOPE];
+
+export type CommonParams = {
+  historicalScope?: HistoricalScope;
+};
+
+export type Params<Me> = CommonParams & {
+  subcategories: SubcategoryId[];
+  metrics?: Array<keyof Me>;
+  preset?: MetricId;
+};
+
+export type TimeSeries<T> = Array<{
+  timestamp: number;
+  value: T;
+}>;
+
+export type EntityId = string;
+
+export type Entity<M extends Metrics, P extends Presets> = {
+  id: EntityId;
+
+  name: string;
+  icon: string | null;
+
+  metrics: Partial<
+    Record<
+      keyof (M | P[string]['metrics']),
+      TimeSeries<number> | TimeSeries<Record<UnitId, number>>
+    >
+  >;
+};
+
 export abstract class AbstractDataSource<
   C,
-  P,
-  T extends Entity<any, any, any>,
-  M extends Meta,
+  Me extends Metrics,
+  P extends Presets,
+  Ma extends Meta,
 > {
-  constructor(protected readonly config: C) {
-    // @ts-expect-error getting schema from child class
-    const schema = this.constructor.getConfigSchema();
-    const { errors } = validator.rawValidation(schema, config);
-    if (errors?.length) {
-      throw new Error(errors[0].message);
-    }
-  }
+  protected constructor(protected readonly config: C) {}
 
-  abstract getItems(params: P): Promise<{
-    items: T[];
-    meta: M;
+  abstract getItems(params: Params<Me>): Promise<{
+    items: Entity<Me, P>[];
+    meta: Ma;
   }>;
 
   public static getName(): string {
     throw new DataSourceNameNotSpecifiedError();
   }
 
+  abstract getCopyright(): { id: string; name: string; icon: null | string };
+
   public static getDescription(): string {
     throw new DataSourceDescriptionNotSpecifiedError();
   }
 
-  public static getEntity(): string {
-    throw new DataSourceEntityNotSpecifiedError();
+  public static getCategory(): string {
+    throw new DataSourceCategoryNotSpecifiedError();
   }
 
-  public static getConfigSchema(): object {
-    throw new DatasourceConfigSchemaNotSpecifiedError();
+  public static getSubcategories(
+    subcategories: SubcategoryId[],
+  ): SubcategoryId[] {
+    throw new DataSourceSubcategoriesNotSpecifiedError();
   }
 
-  public static getParamsSchema(): object {
-    throw new DatasourceParamsSchemaNotSpecifiedError();
+  public static getMetrics(metrics: MetricId[]): MetricId[] {
+    throw new DataSourceMetricsNotSpecifiedError();
+  }
+
+  public static hasPreset(preset: MetricId): boolean {
+    throw new DataSourcePresetNotSpecifiedError();
   }
 }

@@ -1,4 +1,4 @@
-import { UnitId } from '../entities/entity';
+import { UnitId } from '../data-sources/abstract.data-source';
 
 export const add = (
   ...vals: Array<number | Record<UnitId, number>>
