@@ -67,7 +67,7 @@ describe('DappRadarDappDatasource', () => {
       data: {
         results: [
           {
-            timestamp: new Date().toISOString(),
+            timestamp: Math.floor(Date.now() / 1000),
             value: 100,
           },
         ],
