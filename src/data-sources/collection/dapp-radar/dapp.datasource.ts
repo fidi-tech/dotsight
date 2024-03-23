@@ -168,7 +168,7 @@ export class DappRadarDappDatasource extends AbstractNetworkDataSource<Config> {
     }
 
     items[dappId].metrics[METRIC_MAP[metric]] = data.results.map((item) => ({
-      timestamp: Math.floor(new Date(item.timestamp).getTime() / 1000),
+      timestamp: item.timestamp,
       value: item.value,
     }));
   }
