@@ -101,12 +101,6 @@ export const config = {
     name: 'Dogecoin',
     address: '0x2465CefD3b488BE410b941b1d4b2767088e2A028',
   },
-  DOT: {
-    id: 'DOT',
-    symbol: 'DOT',
-    name: 'Polkadot',
-    address: '0x1C07AFb8E2B827c5A4739C6d59Ae3A5035f28734',
-  },
   ENS: {
     id: 'ENS',
     symbol: 'ENS',

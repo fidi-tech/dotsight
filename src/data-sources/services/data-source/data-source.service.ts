@@ -42,10 +42,17 @@ export class DataSourceService {
         },
       },
       {
-        id: '1-chainlink-tokens',
-        type: 'chainlink-tokens',
+        id: '1-ethereum-chainlink-tokens',
+        type: 'ethereum-chainlink-tokens',
         config: {
           rpc: 'https://rpc.ankr.com/eth',
+        },
+      },
+      {
+        id: '1-moonbeam-chainlink-tokens',
+        type: 'moonbeam-chainlink-tokens',
+        config: {
+          rpc: 'https://rpc.ankr.com/moonbeam',
         },
       },
       process.env.DAPP_RADAR && {
