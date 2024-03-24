@@ -1,5 +1,4 @@
 import { AbstractTokenDataSource } from '../../abstract.token.data-source';
-import { config } from './config';
 import {
   Entity,
   HISTORICAL_SCOPE,
@@ -22,13 +21,19 @@ type Config = {
 };
 
 const fractionDigits = 4;
+class ChainlinkGetSubcategoriesNotSpecifiedError extends Error {}
 
 const HOUR = 60 * 60 * 1000;
 const DAY = 24 * HOUR;
 const MONTH = 30 * DAY;
 
-export class ChainlinkTokenDataSource extends AbstractTokenDataSource<Config> {
+export abstract class ChainlinkTokenDataSource extends AbstractTokenDataSource<Config> {
   private web3: Web3;
+
+  abstract getConfig(): Record<
+    string,
+    { id: string; symbol: string; name: string; address: string }
+  >;
 
   public getCopyright(): { id: string; name: string; icon: string | null } {
     return {
@@ -95,10 +100,13 @@ export class ChainlinkTokenDataSource extends AbstractTokenDataSource<Config> {
   }
 
   async getTokenData(
-    token: keyof typeof config,
+    token: string,
     historicalScope: HistoricalScope = HISTORICAL_SCOPE.MONTH,
   ) {
-    const contract = new this.web3.eth.Contract(abi, config[token].address);
+    const contract = new this.web3.eth.Contract(
+      abi,
+      this.getConfig()[token].address,
+    );
 
     const { decimals, lastRoundId, lastUpdatedAt, answer } =
       await this.getCurrentState(contract);
@@ -179,8 +187,8 @@ export class ChainlinkTokenDataSource extends AbstractTokenDataSource<Config> {
     }
 
     return {
-      id: config[token].id,
-      name: config[token].name,
+      id: this.getConfig()[token].id,
+      name: this.getConfig()[token].name,
       icon: null,
 
       metrics: {
@@ -195,20 +203,18 @@ export class ChainlinkTokenDataSource extends AbstractTokenDataSource<Config> {
   }
 
   async getItems({
-    subcategories: tokenIds,
+    subcategories,
     historicalScope,
   }: Params<typeof metrics>): Promise<{
     // eslint-disable-next-line
     items: Entity<typeof metrics, {}>[];
     meta: Meta;
   }> {
+    const tokenIds = (
+      this.constructor as typeof ChainlinkTokenDataSource
+    ).getSubcategories(subcategories);
     const data = await Promise.all(
-      tokenIds.map((tokenId) =>
-        this.getTokenData(
-          tokenId as any as keyof typeof config,
-          historicalScope,
-        ),
-      ),
+      tokenIds.map((tokenId) => this.getTokenData(tokenId, historicalScope)),
     );
 
     return {
@@ -221,8 +227,8 @@ export class ChainlinkTokenDataSource extends AbstractTokenDataSource<Config> {
     };
   }
 
-  static getSubcategories(subcategories: SubcategoryId[]) {
-    return subcategories.filter((tokenId) => config[tokenId]);
+  static getSubcategories(subcategories: SubcategoryId[]): SubcategoryId[] {
+    throw new ChainlinkGetSubcategoriesNotSpecifiedError();
   }
 
   static getMetrics(metrics: MetricId[]): MetricId[] {
