@@ -80,10 +80,10 @@ export class BigQueryPublicDataChainDatasource extends AbstractNetworkDataSource
     return rows.map(
       ({
         day,
-        average_block_time_sec: dailyAverageBlockTime,
+        f0_: dailyAverageBlockTime,
       }: {
         day: BigQueryTimestamp;
-        average_block_time_sec: number;
+        f0_: number;
       }) => ({
         timestamp: new Date(day.value),
         dailyAverageBlockTime,

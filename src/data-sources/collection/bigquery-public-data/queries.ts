@@ -39,7 +39,7 @@ export const BLOCK_PRODUCTION_RATE = (
 ) => `
   SELECT
     TIMESTAMP_TRUNC(block_timestamp, DAY) as day,
-    AVG(datetime_diff(block_timestamp, prev_block_timestamp, SECOND)) as average_block_time_sec
+    AVG(datetime_diff(block_timestamp, prev_block_timestamp, SECOND))
   FROM (
     SELECT
         *,
