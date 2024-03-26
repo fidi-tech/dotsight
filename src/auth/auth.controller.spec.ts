@@ -39,6 +39,10 @@ describe('AuthController', () => {
     authService = module.get<AuthService>(AuthService);
   });
 
+  beforeEach(() => {
+    jest.spyOn(authService, 'validateUser').mockResolvedValue(null);
+  });
+
   it('should be defined', () => {
     expect(controller).toBeDefined();
   });
