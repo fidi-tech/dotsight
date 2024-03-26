@@ -37,6 +37,16 @@ describe('BigQueryPublicDataChainDatasource', () => {
         {
           icon: null,
           metrics: {
+            dailyAverageBlockTime: [
+              {
+                timestamp: 1,
+                value: 123,
+              },
+              {
+                timestamp: 2,
+                value: 321,
+              },
+            ],
             dailyBlocksCount: [
               {
                 timestamp: 1,
@@ -64,6 +74,16 @@ describe('BigQueryPublicDataChainDatasource', () => {
         {
           icon: null,
           metrics: {
+            dailyAverageBlockTime: [
+              {
+                timestamp: 1,
+                value: 123,
+              },
+              {
+                timestamp: 2,
+                value: 321,
+              },
+            ],
             dailyBlocksCount: [
               {
                 timestamp: 1,

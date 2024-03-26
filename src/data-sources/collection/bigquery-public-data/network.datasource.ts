@@ -1,8 +1,11 @@
 import { Entity, Meta, Params } from '../../abstract.data-source';
-import { CHAINS, ChainType } from './const';
+import { CHAINS } from './const';
 import { BigQuery, BigQueryTimestamp } from '@google-cloud/bigquery';
-import { TRANSACTIONS_COUNT, BLOCKS_COUNT } from './queries';
-import { networks } from '../../../common/categories/collection/network/networks';
+import {
+  TRANSACTIONS_COUNT,
+  BLOCKS_COUNT,
+  BLOCK_PRODUCTION_RATE,
+} from './queries';
 import {
   MetricId,
   PresetId,
@@ -42,7 +45,7 @@ export class BigQueryPublicDataChainDatasource extends AbstractNetworkDataSource
     return `Consult https://cloud.google.com/blockchain-analytics/docs/supported-datasets for more info.`;
   }
 
-  private async getDailyTransactionsCount(chain: ChainType, daysAgo: number) {
+  private async getDailyTransactionsCount(chain: string, daysAgo: number) {
     const options = {
       query: TRANSACTIONS_COUNT(CHAINS[chain], daysAgo),
       location: CHAINS[chain].location,
@@ -65,7 +68,30 @@ export class BigQueryPublicDataChainDatasource extends AbstractNetworkDataSource
     );
   }
 
-  private async getDailyBlocksCount(chain: ChainType, daysAgo: number) {
+  private async getDailyAverageBlockTime(chain: string, daysAgo: number) {
+    const options = {
+      query: BLOCK_PRODUCTION_RATE(CHAINS[chain], daysAgo),
+      location: CHAINS[chain].location,
+    };
+
+    const [job] = await this.bigquery.createQueryJob(options);
+    const [rows] = await job.getQueryResults();
+
+    return rows.map(
+      ({
+        day,
+        f0_: dailyAverageBlockTime,
+      }: {
+        day: BigQueryTimestamp;
+        f0_: number;
+      }) => ({
+        timestamp: new Date(day.value),
+        dailyAverageBlockTime,
+      }),
+    );
+  }
+
+  private async getDailyBlocksCount(chain: string, daysAgo: number) {
     const options = {
       query: BLOCKS_COUNT(CHAINS[chain], daysAgo),
       location: CHAINS[chain].location,
@@ -96,25 +122,33 @@ export class BigQueryPublicDataChainDatasource extends AbstractNetworkDataSource
       BigQueryPublicDataChainDatasource.getSubcategories(subcategories);
     const datas = await Promise.all(
       networks.map(async (chain) => {
-        const [dailyTransactionsCountData, dailyBlocksCountData] =
-          await Promise.all([
-            // @ts-expect-error TODO fix this
-            this.getDailyTransactionsCount(chain, 30),
-            // @ts-expect-error TODO fix this
-            this.getDailyBlocksCount(chain, 30),
-          ]);
+        const [
+          dailyTransactionsCountData,
+          dailyBlocksCountData,
+          dailyAverageBlockTimeData,
+        ] = await Promise.all([
+          this.getDailyTransactionsCount(chain, 30),
+          this.getDailyBlocksCount(chain, 30),
+          this.getDailyAverageBlockTime(chain, 30),
+        ]);
 
         return {
           chain,
           dailyTransactionsCountData,
           dailyBlocksCountData,
+          dailyAverageBlockTimeData,
         };
       }),
     );
 
     return {
       items: datas.map(
-        ({ chain, dailyTransactionsCountData, dailyBlocksCountData }) => ({
+        ({
+          chain,
+          dailyTransactionsCountData,
+          dailyBlocksCountData,
+          dailyAverageBlockTimeData,
+        }) => ({
           id: CHAINS[chain].id,
           name: CHAINS[chain].name,
           icon: null,
@@ -130,6 +164,12 @@ export class BigQueryPublicDataChainDatasource extends AbstractNetworkDataSource
               ({ timestamp, dailyBlocksCount }) => ({
                 timestamp: Math.floor(timestamp.getTime() / 1000),
                 value: dailyBlocksCount,
+              }),
+            ),
+            dailyAverageBlockTime: dailyAverageBlockTimeData.map(
+              ({ timestamp, dailyAverageBlockTime }) => ({
+                timestamp: Math.floor(timestamp.getTime() / 1000),
+                value: dailyAverageBlockTime,
               }),
             ),
           },
@@ -148,9 +188,11 @@ export class BigQueryPublicDataChainDatasource extends AbstractNetworkDataSource
   }
 
   static getMetrics(metrics: MetricId[]): MetricId[] {
-    return ['dailyTransactionsCount', 'dailyBlocksCount'].filter((metricId) =>
-      metrics.includes(metricId),
-    );
+    return [
+      'dailyTransactionsCount',
+      'dailyBlocksCount',
+      'dailyAverageBlockTime',
+    ].filter((metricId) => metrics.includes(metricId));
   }
 
   public static hasPreset(preset: PresetId): boolean {

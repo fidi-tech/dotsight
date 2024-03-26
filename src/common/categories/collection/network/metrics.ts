@@ -9,6 +9,11 @@ export const metrics = {
     name: 'Daily produced blocks count',
     icon: null,
   },
+  dailyAverageBlockTime: {
+    id: 'dailyAverageBlockTime',
+    name: 'Daily average block time in seconds',
+    icon: null,
+  },
   dailyUaw: {
     id: 'dailyUaw',
     name: 'Daily unique Active Wallets',
