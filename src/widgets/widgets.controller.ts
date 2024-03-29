@@ -144,10 +144,17 @@ export class WidgetsController {
   async saveWidget(
     @AuthId() userId: UserId,
     @Param('widgetId') widgetId: WidgetId,
-    @Body() { name, view, viewParameters }: SaveWidgetDto,
+    @Body() { name, isPublic, view, viewParameters }: SaveWidgetDto,
   ) {
     await this.widgetAbilityService.claimModify(userId, widgetId);
-    await this.widgetService.save(userId, widgetId, name, view, viewParameters);
+    await this.widgetService.save(
+      userId,
+      widgetId,
+      name,
+      isPublic,
+      view,
+      viewParameters,
+    );
     return {
       widget: await this.widgetService.findById(widgetId, userId),
     };

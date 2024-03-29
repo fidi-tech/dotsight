@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsObject, IsOptional, IsString } from 'class-validator';
+import { IsBoolean, IsObject, IsOptional, IsString } from 'class-validator';
 
 export class SaveWidgetDto {
   @ApiProperty({
@@ -25,4 +25,12 @@ export class SaveWidgetDto {
   @IsObject()
   @IsOptional()
   readonly viewParameters?: object;
+
+  @ApiProperty({
+    description: "widget's visibility",
+    required: false,
+  })
+  @IsBoolean()
+  @IsOptional()
+  readonly isPublic?: boolean;
 }
