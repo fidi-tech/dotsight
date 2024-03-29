@@ -9,6 +9,7 @@ import { ParityUniqueAddressesNetworkDatasource } from './parity/unique-addresse
 import { ParityPolkadotTreasuryNetworkDatasource } from './parity/polkadot-treasury/network.datasource';
 import { EthereumChainlinkTokenDataSource } from './chainlink/ethereum/token.datasource';
 import { MoonbeamChainlinkTokenDataSource } from './chainlink/moonbeam/token.datasource';
+import { ParityAmountStackedNetworkDatasource } from './parity/amount-stacked/network.datasource';
 
 export const collection = {
   'dapp-radar-dapp': DappRadarDappDatasource,
@@ -21,5 +22,6 @@ export const collection = {
   'parity-active-addresses': ParityActiveAddressesNetworkDatasource,
   'parity-transactions': ParityTransactionsNetworkDatasource,
   'parity-unique-addresses': ParityUniqueAddressesNetworkDatasource,
+  'parity-amount-stacked': ParityAmountStackedNetworkDatasource,
   'polkadot-treasury': ParityPolkadotTreasuryNetworkDatasource,
 } as const;

@@ -44,4 +44,9 @@ export const metrics = {
     name: 'Monthly treasury balance',
     icon: null,
   },
+  monthlyAmountStacked: {
+    id: 'monthlyAmountStacked',
+    name: 'Total amount stacked',
+    icon: null,
+  },
 } as const;
