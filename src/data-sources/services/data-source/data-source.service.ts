@@ -78,6 +78,11 @@ export class DataSourceService {
         config: {},
       },
       {
+        id: '1-parity-amount-stacked',
+        type: 'parity-amount-stacked',
+        config: {},
+      },
+      {
         id: '1-polkadot-treasury',
         type: 'polkadot-treasury',
         config: {},
