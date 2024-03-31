@@ -8,6 +8,7 @@ import {
   CategoryId,
   MetricId,
   PresetId,
+  Subcategory,
   SubcategoryId,
 } from '../../../common/categories/abstract.category';
 import { CategoriesService } from '../../../categories/services/categories.service';
@@ -76,6 +77,7 @@ export class WidgetService {
       createdBy: { id: userId },
     });
     await this.getWidgetRepository(qr).save(widget);
+    this.widgetAbilityService.addAbilities(userId, widget);
     return widget;
   }
 
@@ -122,7 +124,16 @@ export class WidgetService {
         widget.subcategories || [],
       ),
     ]);
-    return [...selectedSubcategroies, ...subcategoriesByQuery]
+
+    const subcategories: Record<SubcategoryId, Subcategory> = {};
+    for (const subcategory of [
+      ...selectedSubcategroies,
+      ...subcategoriesByQuery,
+    ]) {
+      subcategories[subcategory.id] = subcategory;
+    }
+
+    return Object.values(subcategories)
       .sort(({ name: nameA }, { name: nameB }) => nameA.localeCompare(nameB))
       .map((subcategory) => ({
         id: subcategory.id,
