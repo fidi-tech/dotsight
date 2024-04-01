@@ -13,6 +13,7 @@ import {
 import { CategoriesService } from '../../../categories/services/categories.service';
 import { DataSourceService } from '../../../data-sources/services/data-source/data-source.service';
 import {
+  AbstractDataSource,
   CommonParams,
   Entity,
   EntityId,
