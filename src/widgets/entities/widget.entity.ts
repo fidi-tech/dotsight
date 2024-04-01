@@ -72,6 +72,9 @@ export class Widget {
   @CreateDateColumn()
   createdAt: Date;
 
+  @ApiProperty({
+    description: "widget's visibility",
+  })
   @Column({ default: false })
   isPublic: boolean;
 

@@ -153,6 +153,7 @@ describe('WidgetsController', () => {
         userId,
         widgetId,
         name,
+        undefined,
         view,
         viewParameters,
       );

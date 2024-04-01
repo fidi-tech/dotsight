@@ -89,6 +89,7 @@ export class WidgetService {
     userId: UserId,
     widgetId: WidgetId,
     name?: string,
+    isPublic?: boolean,
     view?: string,
     viewParameters?: object,
     qr?: QueryRunner,
@@ -96,6 +97,9 @@ export class WidgetService {
     const widget = await this.findById(widgetId, undefined, qr);
     if (name) {
       widget.name = name;
+    }
+    if (isPublic !== undefined) {
+      widget.isPublic = isPublic;
     }
     if (view) {
       widget.view = view;
