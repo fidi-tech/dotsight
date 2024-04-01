@@ -1,8 +1,80 @@
 export const config = {
+  // ATOM: {
+  //   id: 'ATOM',
+  //   symbol: 'ATOM',
+  //   name: 'Atom',
+  //   address: '0x4F152D143c97B5e8d2293bc5B2380600f274a5dd',
+  // },
+  // BNB: {
+  //   id: 'BNB',
+  //   symbol: 'BNB',
+  //   name: 'BNB',
+  //   address: '0x0147f2Ad7F1e2Bc51F998CC128a8355d5AE8C32D',
+  // },
+  // BTC: {
+  //   id: 'BTC',
+  //   symbol: 'BTC',
+  //   name: 'Bitcoin',
+  //   address: '0x8c4425e141979c66423A83bE2ee59135864487Eb',
+  // },
+  // CAKE: {
+  //   id: 'CAKE',
+  //   symbol: 'CAKE',
+  //   name: 'Pancakeswap',
+  //   address: '0x6dD5ccbDBbb77a4827209104615db2333304F008',
+  // },
+  // DAI: {
+  //   id: 'DAI',
+  //   symbol: 'DAI',
+  //   name: 'DAI',
+  //   address: '0x6063e1037B1afDA2bE5A3340757261E4d6a402ac',
+  // },
+  // ETH: {
+  //   id: 'ETH',
+  //   symbol: 'ETH',
+  //   name: 'Ethereum',
+  //   address: '0x9ce2388a1696e22F870341C3FC1E89710C7569B5',
+  // },
+  // FRAX: {
+  //   id: 'FRAX',
+  //   symbol: 'FRAX',
+  //   name: 'FRAX',
+  //   address: '0x05Ec3Fb5B7CB3bE9D7150FBA1Fb0749407e5Aa8a',
+  // },
   DOT: {
     id: 'DOT',
     symbol: 'DOT',
     name: 'Polkadot',
     address: '0x1466b4bD0C4B6B8e1164991909961e0EE6a66d8c',
   },
+  // GLMR: {
+  //   id: 'GLMR',
+  //   symbol: 'GLMR',
+  //   name: 'GLMR',
+  //   address: '0x05Ec3Fb5B7CB3bE9D7150FBA1Fb0749407e5Aa8a',
+  // },
+  // LINK: {
+  //   id: 'LINK',
+  //   symbol: 'LINK',
+  //   name: 'Chainlink',
+  //   address: '0xd61D7398B7734aBe7C4B143fE57dC666D2fe83aD',
+  // },
+  // USDC: {
+  //   id: 'USDC',
+  //   symbol: 'USDC',
+  //   name: 'Circle USD',
+  //   address: '0xA122591F60115D63421f66F752EF9f6e0bc73abC',
+  // },
+  // USDT: {
+  //   id: 'USDT',
+  //   symbol: 'USDT',
+  //   name: 'Tether USD',
+  //   address: '0xD925C5BF88Bd0ca09312625d429240F811b437c6',
+  // },
+  // WBTC: {
+  //   id: 'WBTC',
+  //   symbol: 'WBTC',
+  //   name: 'WBTC',
+  //   address: '0x8211B991d713ddAE32326Fd69E1E2510F4a653B0',
+  // },
 } as const;

@@ -154,10 +154,16 @@ export class ExecuteWidgetDto {
       ItemId,
       Record<
         MetricId,
-        Array<{
-          timestamp: number;
-          value: number | Record<UnitId, number>;
-        }>
+        Array<
+          | {
+              timestamp: number;
+              value: Record<UnitId, number>;
+            }
+          | {
+              timestamp: number;
+              value: number;
+            }
+        >
       >
     >;
   };

@@ -20,6 +20,17 @@ import {
   Meta,
 } from '../../../data-sources/abstract.data-source';
 
+class DataSourceError extends Error {
+  constructor(
+    datasource: AbstractDataSource<any, any, any, any>,
+    error: Error,
+  ) {
+    super(
+      `${datasource.constructor.name} threw an error [${error.name}]\n${error.stack}`,
+    );
+  }
+}
+
 @Injectable()
 export class ExecuteWidgetService {
   constructor(
@@ -92,6 +103,28 @@ export class ExecuteWidgetService {
             copyrights: { [chunk.copyright.id]: chunk.copyright },
           };
         } else {
+          items[item.id].metrics = {};
+
+          const metricsList = [
+            ...new Set(
+              ...Object.keys(items[item.id].metrics),
+              ...Object.keys(item.metrics),
+            ),
+          ];
+          for (const m of metricsList) {
+            if (items[item.id].metrics[m] && item.metrics[m]) {
+              // @ts-expect-error bad typing
+              items[item.id].metrics[m] = this.mergeMetrics(
+                items[item.id].metrics[m],
+                item.metrics[m],
+              );
+            } else if (item.metrics[m]) {
+              items[item.id].metrics[m] = item.metrics[m];
+            } else {
+              items[item.id].metrics[m] = items[item.id].metrics[m];
+            }
+          }
+
           items[item.id].metrics = {
             ...items[item.id].metrics,
             ...item.metrics,
@@ -116,22 +149,51 @@ export class ExecuteWidgetService {
 
     const responses = await Promise.all(
       datasources.map(async (datasource) => {
-        const items = await datasource.getItems({
-          ...params,
-          subcategories: widget.subcategories,
-          metrics: widget.metrics,
-          preset: widget.preset,
-        });
         const copyright = datasource.getCopyright();
-        return {
-          items: items.items,
-          meta: items.meta,
-          copyright,
-        };
+        try {
+          const items = await datasource.getItems({
+            ...params,
+            subcategories: widget.subcategories,
+            metrics: widget.metrics,
+            preset: widget.preset,
+          });
+
+          return {
+            items: items.items,
+            meta: items.meta,
+            copyright,
+          };
+        } catch (err) {
+          console.error(new DataSourceError(datasource, err));
+          return {
+            items: [],
+            meta: { units: {} },
+            copyright,
+          };
+        }
       }),
     );
 
     return this.mixRawDatasourceResponse(responses);
+  }
+
+  private mergeMetrics(
+    metricsA: ExecuteWidgetDto['data']['values'][string][string],
+    metricsB: ExecuteWidgetDto['data']['values'][string][string],
+  ): ExecuteWidgetDto['data']['values'][string][string] {
+    const result: Record<
+      number,
+      ExecuteWidgetDto['data']['values'][string][string][0]
+    > = {};
+
+    for (const metric of [...metricsA, ...metricsB]) {
+      result[metric.timestamp] = metric;
+    }
+
+    return Object.values(result).sort(
+      ({ timestamp: timestampA }, { timestamp: timestampB }) =>
+        timestampA - timestampB,
+    );
   }
 
   private async executeMetricsWidget(widget: Widget, params: CommonParams) {
