@@ -12,7 +12,7 @@ export class AuthControllerDev {
       user = await this.authService.createUser(issuer, subjectId);
     }
 
-    return await this.authService.signIn(response, user);
+    return await this.authService.signIn(response, user!);
   }
 
   @Get('/google')

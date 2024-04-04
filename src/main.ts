@@ -22,7 +22,7 @@ async function bootstrap() {
   app.use(cookieParser());
   app.use(
     session({
-      secret: applicationConfig.get<string>('SESSION_SECRET'),
+      secret: applicationConfig.get<string>('SESSION_SECRET')!,
       resave: false,
       saveUninitialized: false,
     }),
