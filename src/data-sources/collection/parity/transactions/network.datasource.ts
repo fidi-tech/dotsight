@@ -70,8 +70,8 @@ export class ParityTransactionsNetworkDatasource extends AbstractNetworkDataSour
 
         items.push({
           id: network,
-          name: networkMetadata.name ?? network,
-          icon: networkMetadata.icon ?? null,
+          name: networkMetadata?.name ?? network,
+          icon: networkMetadata?.icon ?? null,
           metrics: networkMetrics,
         });
       }

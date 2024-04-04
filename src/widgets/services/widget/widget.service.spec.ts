@@ -119,7 +119,7 @@ describe('WidgetService', () => {
       jest
         .spyOn(repository, 'create')
         .mockResolvedValue({ id: 'w1' } as any as never);
-      jest.spyOn(repository, 'save').mockResolvedValue(undefined);
+      jest.spyOn(repository, 'save').mockResolvedValue(undefined as any);
 
       await expect(service.create(userId, category, name)).resolves.toEqual({
         id: 'w1',
@@ -143,7 +143,7 @@ describe('WidgetService', () => {
     it('should delete the widget from the repository', async () => {
       const widgetId = '42';
 
-      jest.spyOn(repository, 'delete').mockResolvedValue(undefined);
+      jest.spyOn(repository, 'delete').mockResolvedValue(undefined as any);
 
       await expect(service.deleteWidget(widgetId)).resolves.toEqual(undefined);
 

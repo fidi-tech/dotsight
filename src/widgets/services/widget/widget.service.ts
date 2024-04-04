@@ -1,4 +1,8 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, Like, QueryRunner, Repository } from 'typeorm';
 import { Widget, WidgetId } from '../../entities/widget.entity';
@@ -54,12 +58,15 @@ export class WidgetService {
     return widgets;
   }
 
-  async findById(widgetId: WidgetId, userId?: UserId, qr?: QueryRunner) {
+  async findById(widgetId: WidgetId, userId?: UserId | null, qr?: QueryRunner) {
     const widget = await this.getWidgetRepository(qr).findOne({
       where: { id: widgetId },
       relations: ['createdBy'],
     });
-    if (userId) {
+    if (!widget) {
+      throw new NotFoundException(`Widget ${widgetId} not found`);
+    }
+    if (userId !== undefined) {
       this.widgetAbilityService.addAbilities(userId, widget);
     }
     return widget;
@@ -226,7 +233,7 @@ export class WidgetService {
         throw new BadRequestException(`Preset ${preset} is not found`);
       }
       widget.preset = preset;
-      widget.metrics = null;
+      widget.metrics = undefined;
     } else if (metrics) {
       const miss = metrics.find(
         (metricId) =>
@@ -238,7 +245,7 @@ export class WidgetService {
         throw new BadRequestException(`Metric ${miss} is not found`);
       }
       widget.metrics = [...new Set(metrics)];
-      widget.preset = null;
+      widget.preset = undefined;
     } else {
       // not reachable, exactly one should be specified
     }

@@ -33,7 +33,7 @@ export class UserService {
         user: true,
       },
     });
-    return credential?.user;
+    return credential?.user ?? null;
   }
 
   async create(issuer: string, subjectId: string) {

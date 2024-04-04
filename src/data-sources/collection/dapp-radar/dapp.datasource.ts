@@ -99,9 +99,9 @@ export class DappRadarDappDatasource extends AbstractNetworkDataSource<Config> {
         dateFrom = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
     }
 
-    const promises = [];
+    const promises: Promise<any>[] = [];
     for (const dappId of dappIds) {
-      for (const metric of metrics) {
+      for (const metric of metrics ?? []) {
         if (!REVERSE_METRIC_MAP[metric]) {
           continue;
         }

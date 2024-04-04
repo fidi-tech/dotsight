@@ -135,7 +135,7 @@ describe('WidgetsController', () => {
       const widgetId = '66';
 
       jest.spyOn(widgetAbilityService, 'claimModify').mockResolvedValue();
-      jest.spyOn(widgetService, 'save').mockResolvedValue(undefined);
+      jest.spyOn(widgetService, 'save').mockResolvedValue(undefined as any);
       const widget = 42 as any as Widget;
       jest.spyOn(widgetService, 'findById').mockResolvedValue(widget);
 

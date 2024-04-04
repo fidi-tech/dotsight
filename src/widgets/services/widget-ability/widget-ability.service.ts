@@ -15,27 +15,27 @@ export class WidgetAbilityService {
     private readonly widgetService: WidgetService,
   ) {}
 
-  private isOwner(userId: UserId, widget: Readonly<Widget>) {
-    return widget.createdBy.id === userId;
+  private isOwner(userId: UserId | null, widget: Readonly<Widget>) {
+    return userId !== undefined && widget.createdBy.id === userId;
   }
 
-  private isOwnerOrPublic(userId: UserId, widget: Readonly<Widget>) {
+  private isOwnerOrPublic(userId: UserId | null, widget: Readonly<Widget>) {
     return this.isOwner(userId, widget) || widget.isPublic;
   }
 
-  private canExecute(userId: UserId, widget: Readonly<Widget>) {
+  private canExecute(userId: UserId | null, widget: Readonly<Widget>) {
     return this.isOwnerOrPublic(userId, widget);
   }
 
-  private canModify(userId: UserId, widget: Readonly<Widget>) {
+  private canModify(userId: UserId | null, widget: Readonly<Widget>) {
     return this.isOwner(userId, widget);
   }
 
-  private canRead(userId: UserId, widget: Readonly<Widget>) {
+  private canRead(userId: UserId | null, widget: Readonly<Widget>) {
     return this.isOwnerOrPublic(userId, widget);
   }
 
-  private canDelete(userId: UserId, widget: Readonly<Widget>) {
+  private canDelete(userId: UserId | null, widget: Readonly<Widget>) {
     return this.isOwner(userId, widget);
   }
 
@@ -45,7 +45,7 @@ export class WidgetAbilityService {
     );
   }
 
-  async claimExecute(userId: UserId, widgetId: WidgetId) {
+  async claimExecute(userId: UserId | null, widgetId: WidgetId) {
     const widget = await this.widgetService.findById(widgetId);
 
     if (!this.canExecute(userId, widget)) {
@@ -53,7 +53,7 @@ export class WidgetAbilityService {
     }
   }
 
-  async claimRead(userId: UserId, widgetId: WidgetId) {
+  async claimRead(userId: UserId | null, widgetId: WidgetId) {
     const widget = await this.widgetService.findById(widgetId);
 
     if (!this.canRead(userId, widget)) {
@@ -61,7 +61,7 @@ export class WidgetAbilityService {
     }
   }
 
-  async claimModify(userId: UserId, widgetId: WidgetId) {
+  async claimModify(userId: UserId | null, widgetId: WidgetId) {
     const widget = await this.widgetService.findById(widgetId);
 
     if (!this.canModify(userId, widget)) {
@@ -69,7 +69,7 @@ export class WidgetAbilityService {
     }
   }
 
-  async claimDelete(userId: UserId, widgetId: WidgetId) {
+  async claimDelete(userId: UserId | null, widgetId: WidgetId) {
     const widget = await this.widgetService.findById(widgetId);
 
     if (!this.canDelete(userId, widget)) {
@@ -78,9 +78,9 @@ export class WidgetAbilityService {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-empty-function,@typescript-eslint/no-unused-vars
-  async claimCreate(userId: UserId) {}
+  async claimCreate(userId: UserId | null) {}
 
-  addAbilities(userId: UserId, widget: Widget) {
+  addAbilities(userId: UserId | null, widget: Widget) {
     widget.canExecute = this.canExecute(userId, widget);
     widget.canModify = this.canModify(userId, widget);
     widget.canDelete = this.canDelete(userId, widget);

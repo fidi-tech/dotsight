@@ -9,7 +9,7 @@ export const parse = (content: string): Array<Record<string, string>> => {
   const header = lines[0].split(separator);
   const body = lines.slice(1);
 
-  const result = [];
+  const result: Array<Record<string, string>> = [];
   for (const line of body) {
     const obj = {};
     const columns = line.split(separator);

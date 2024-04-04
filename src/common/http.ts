@@ -3,8 +3,8 @@ import * as AxiosLogger from 'axios-logger';
 
 export const addLogging = (prefixText: string, instance: AxiosInstance) => {
   instance.interceptors.request.use(
+    // @ts-expect-error bad typings
     (request) =>
-      // @ts-expect-error https://github.com/hg-pyun/axios-logger/issues/131
       AxiosLogger.requestLogger(request, {
         prefixText,
         data: false,

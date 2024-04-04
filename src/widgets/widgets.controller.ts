@@ -34,6 +34,7 @@ import { SetSubcategoriesDto } from './dto/set-subcategories.dto';
 import { SetMetricsDto } from './dto/set-metrics.dto';
 import { SaveWidgetDto } from './dto/save-widget.dto';
 import { ExecuteParamsDto } from './dto/execute-params.dto';
+import { JwtOrGuestGuard } from '../auth/guards/jwtOrGuest.guard';
 
 @Controller('widgets')
 @ApiExtraModels(Widget)
@@ -116,9 +117,9 @@ export class WidgetsController {
       required: ['widget'],
     },
   })
-  @UseGuards(JwtGuard)
+  @UseGuards(JwtOrGuestGuard)
   async getWidgetById(
-    @AuthId() userId: UserId,
+    @AuthId() userId: UserId | null,
     @Param('widgetId') widgetId: WidgetId,
   ) {
     await this.widgetAbilityService.claimRead(userId, widgetId);
@@ -343,9 +344,9 @@ export class WidgetsController {
       required: ['data'],
     },
   })
-  @UseGuards(JwtGuard)
+  @UseGuards(JwtOrGuestGuard)
   async getData(
-    @AuthId() userId: UserId,
+    @AuthId() userId: UserId | null,
     @Param('widgetId') widgetId: WidgetId,
     @Query() params: ExecuteParamsDto,
   ) {

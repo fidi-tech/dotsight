@@ -13,11 +13,15 @@ export class JwtGuard implements CanActivate {
     @Inject(ConfigService) private readonly configService: ConfigService,
   ) {}
 
+  protected handleUnauthorized(): boolean {
+    throw new UnauthorizedException();
+  }
+
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest();
     const token = request.cookies['access_token'];
     if (!token) {
-      throw new UnauthorizedException();
+      return this.handleUnauthorized();
     }
     try {
       const jwt = await this.jwtService.verifyAsync(token, {
@@ -25,7 +29,7 @@ export class JwtGuard implements CanActivate {
       });
       request.userId = jwt.sub;
     } catch (err) {
-      throw new UnauthorizedException();
+      return this.handleUnauthorized();
     }
     return true;
   }

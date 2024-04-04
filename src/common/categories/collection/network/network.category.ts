@@ -51,8 +51,9 @@ export class NetworkCategory extends AbstractCategory<Metrics, Presets> {
     subcategoryId: SubcategoryId,
   ): Promise<Subcategory | null> {
     const subcategories = await this.getSubcategories();
-    return subcategories.find(
-      (subcategory) => subcategory.id === subcategoryId,
+    return (
+      subcategories.find((subcategory) => subcategory.id === subcategoryId) ??
+      null
     );
   }
 
