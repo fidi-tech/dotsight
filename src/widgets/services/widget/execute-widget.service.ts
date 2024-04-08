@@ -115,8 +115,8 @@ export class ExecuteWidgetService {
             if (items[item.id].metrics[m] && item.metrics[m]) {
               // @ts-expect-error bad typing
               items[item.id].metrics[m] = this.mergeMetrics(
-                items[item.id].metrics[m],
-                item.metrics[m],
+                items[item.id].metrics[m]!,
+                item.metrics[m]!,
               );
             } else if (item.metrics[m]) {
               items[item.id].metrics[m] = item.metrics[m];
@@ -204,7 +204,7 @@ export class ExecuteWidgetService {
 
     const result: ExecuteWidgetDto['data'] = {
       items: [],
-      metrics: widget.metrics,
+      metrics: widget.metrics!,
       values: {},
       copyrights: {},
     };
@@ -212,8 +212,8 @@ export class ExecuteWidgetService {
       result.items.push(item.id);
       result.values[item.id] = {};
       result.copyrights[item.id] = item.copyrights;
-      for (const metric of widget.metrics) {
-        result.values[item.id][metric] = item.metrics[metric];
+      for (const metric of widget.metrics!) {
+        result.values[item.id][metric] = item.metrics[metric]!;
       }
     }
 
@@ -227,7 +227,7 @@ export class ExecuteWidgetService {
 
   private getPresetMetrics(widget: Widget) {
     const category = this.categoriesService.findCategory(widget.category);
-    return category.getMetricsByPreset(widget.preset);
+    return category.getMetricsByPreset(widget.preset!);
   }
 
   private async executePresetWidget(widget: Widget, params: CommonParams) {
@@ -251,8 +251,8 @@ export class ExecuteWidgetService {
       result.items.push(item.id);
       result.values[item.id] = {};
       result.copyrights[item.id] = item.copyrights;
-      for (const metric of Object.keys(metrics)) {
-        result.values[item.id][metric] = item.metrics[metric];
+      for (const metric of Object.keys(item.metrics)) {
+        result.values[item.id][metric] = item.metrics[metric]!;
       }
     }
 
@@ -265,7 +265,7 @@ export class ExecuteWidgetService {
   }
 
   async executeWidget(
-    userId: UserId,
+    userId: UserId | null,
     widgetId: WidgetId,
     params: CommonParams,
     qr?: QueryRunner,
@@ -281,6 +281,8 @@ export class ExecuteWidgetService {
       return await this.executePresetWidget(widget, params);
     } else {
       // impossible, either metrics or preset are specified
+      // jst for typing
+      return undefined as any as ExecuteWidgetDto;
     }
   }
 }

@@ -39,7 +39,7 @@ export class WalletCategory extends AbstractCategory<Metrics, Presets> {
   }
 
   async getSubcategoriesByQuery(query?: string): Promise<Subcategory[]> {
-    const subcategory = await this.validateSubcategory(query);
+    const subcategory = query ? await this.validateSubcategory(query) : null;
     return subcategory ? [subcategory] : [];
   }
 

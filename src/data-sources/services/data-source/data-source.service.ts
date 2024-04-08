@@ -87,7 +87,7 @@ export class DataSourceService {
         type: 'polkadot-treasury',
         config: {},
       },
-    ].filter(Boolean);
+    ].filter(Boolean) as DataSource[];
   }
 
   async getDatasources(

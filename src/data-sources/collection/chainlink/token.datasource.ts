@@ -121,9 +121,9 @@ export abstract class ChainlinkTokenDataSource extends AbstractTokenDataSource<C
     ]);
 
     let aggregatorRoundId = lastAggregatorRoundId - 1n;
-    let step = null;
+    let step: bigint | null = null;
     let shouldRequestMore = Boolean(historicalScope);
-    let previousUpdatedAt = null;
+    let previousUpdatedAt: null | number = null;
 
     while (shouldRequestMore) {
       const roundId = this.fromAggregatorRoundIfToRoundId(
@@ -165,19 +165,19 @@ export abstract class ChainlinkTokenDataSource extends AbstractTokenDataSource<C
         if (needRewind) {
           // rewinding back
           // we go back to previous round, and take smaller steps from now on
-          if ((step * 4n) / 5n !== 0n) {
-            aggregatorRoundId += step;
-            step = (step * 4n) / 5n;
+          if ((step! * 4n) / 5n !== 0n) {
+            aggregatorRoundId += step!;
+            step = (step! * 4n) / 5n;
           }
         } else {
           // if everything is ok, we can go faster, and take bigger steps
           // without this, we might go too slow after several rewinds
-          step = (step * 4n) / 3n;
+          step = (step! * 4n) / 3n;
           previousUpdatedAt = timestamp;
         }
       }
 
-      aggregatorRoundId -= step;
+      aggregatorRoundId -= step!;
 
       if (historicalScope === HISTORICAL_SCOPE.DAY) {
         shouldRequestMore = lastUpdatedAt.getTime() - timestamp < DAY;

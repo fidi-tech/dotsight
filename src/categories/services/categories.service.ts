@@ -2,6 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { CategoryDto } from '../dto/category.dto';
 import {
   CategoryId,
+  Subcategory,
   SubcategoryId,
 } from '../../common/categories/abstract.category';
 import { categories } from '../../common/categories/collection';
@@ -39,7 +40,7 @@ export class CategoriesService {
         category.validateSubcategory(subcategoryId),
       ),
     );
-    return searchResults.filter(Boolean);
+    return searchResults.filter(Boolean) as Subcategory[];
   }
 
   async findMetrics(categoryId: CategoryId, query?: string) {
