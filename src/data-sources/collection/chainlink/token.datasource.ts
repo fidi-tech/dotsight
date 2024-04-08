@@ -51,8 +51,8 @@ export abstract class ChainlinkTokenDataSource extends AbstractTokenDataSource<C
     return `Data source powered by Chainlink API that returns the price for the token. Consult https://docs.chain.link/data-feeds/price-feeds/addresses?network=ethereum&categories=verified for more info.`;
   }
 
-  constructor(c: Config) {
-    super(c);
+  constructor(id, c: Config) {
+    super(id, c);
 
     this.web3 = new Web3(c.rpc);
   }

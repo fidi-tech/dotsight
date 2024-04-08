@@ -64,8 +64,8 @@ export class DappRadarDappDatasource extends AbstractNetworkDataSource<Config> {
     return `Data source powered by DappRadar API that returns users, transactions, volume, balance for a specific DApp, powered by DappRadar API. Consult https://api-docs.dappradar.com/#operation/getDappItem for more info.`;
   }
 
-  constructor(config: Config) {
-    super(config);
+  constructor(id, config: Config) {
+    super(id, config);
 
     this.httpClient = axios.create({
       baseURL: 'https://apis.dappradar.com/v2',

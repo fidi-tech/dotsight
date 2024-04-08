@@ -23,8 +23,8 @@ type Config = Record<string, never>;
 export class BigQueryPublicDataChainDatasource extends AbstractNetworkDataSource<Config> {
   private bigquery: BigQuery;
 
-  constructor(props) {
-    super(props);
+  constructor(id, props) {
+    super(id, props);
 
     this.bigquery = new BigQuery();
   }

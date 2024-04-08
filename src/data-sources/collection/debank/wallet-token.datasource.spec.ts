@@ -15,7 +15,7 @@ describe('DebankWalletTokenDatasource', () => {
     axiosCreate = jest.spyOn(axios, 'create');
     axiosCreate.mockImplementation(() => mockAxios as any as AxiosInstance);
 
-    dataSource = new DebankWalletTokenDatasource({
+    dataSource = new DebankWalletTokenDatasource(1, {
       key: '66',
     });
   });

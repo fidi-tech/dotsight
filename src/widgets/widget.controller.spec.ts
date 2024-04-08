@@ -14,6 +14,9 @@ import { SubcategoryDto } from './dto/subcategory.dto';
 import { MetricDto } from './dto/metric.dto';
 import { ExecuteWidgetDto } from './dto/execute-widget.dto';
 import { ExecuteParamsDto } from './dto/execute-params.dto';
+import { TraceService } from '../trace/services/trace.service';
+import { Trace } from '../trace/entities/trace.entity';
+import { TracePiece } from '../trace/entities/trace-piece.entity';
 
 describe('WidgetsController', () => {
   let controller: WidgetsController;
@@ -21,12 +24,13 @@ describe('WidgetsController', () => {
   let widgetService: WidgetService;
   let widgetAbilityService: WidgetAbilityService;
   let executeWidgetService: ExecuteWidgetService;
+  let traceService: TraceService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       imports: [
         TestDbModule,
-        TypeOrmModule.forFeature([Widget]),
+        TypeOrmModule.forFeature([Widget, Trace, TracePiece]),
         JwtModule,
         ConfigModule,
       ],
@@ -37,6 +41,7 @@ describe('WidgetsController', () => {
         CategoriesService,
         DataSourceService,
         ExecuteWidgetService,
+        TraceService,
       ],
     }).compile();
 
@@ -47,6 +52,12 @@ describe('WidgetsController', () => {
       module.get<WidgetAbilityService>(WidgetAbilityService);
     executeWidgetService =
       module.get<ExecuteWidgetService>(ExecuteWidgetService);
+    traceService = module.get<TraceService>(TraceService);
+  });
+
+  beforeEach(() => {
+    jest.spyOn(traceService, 'addPiece').mockResolvedValue(undefined as any);
+    jest.spyOn(traceService, 'create').mockResolvedValue(undefined as any);
   });
 
   it('should be defined', () => {

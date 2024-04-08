@@ -26,6 +26,7 @@ export class Item {
 @ApiExtraModels(Metric)
 @ApiExtraModels(Unit)
 export class ExecuteWidgetDto {
+  traceId: string;
   @ApiProperty({
     description: 'items for which metrics were calculated',
     type: 'object',

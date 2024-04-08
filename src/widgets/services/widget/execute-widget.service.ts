@@ -19,6 +19,8 @@ import {
   EntityId,
   Meta,
 } from '../../../data-sources/abstract.data-source';
+import { TraceService } from '../../../trace/services/trace.service';
+import { TraceId } from '../../../trace/entities/trace.entity';
 
 class DataSourceError extends Error {
   constructor(
@@ -31,12 +33,19 @@ class DataSourceError extends Error {
   }
 }
 
+class TracingError extends Error {
+  constructor(error: Error) {
+    super(`Error while saving trace [${error.name}] ${error.message}`);
+  }
+}
+
 @Injectable()
 export class ExecuteWidgetService {
   constructor(
     private readonly widgetService: WidgetService,
     private readonly categoriesService: CategoriesService,
     private readonly datasourceService: DataSourceService,
+    private readonly traceService: TraceService,
   ) {}
 
   private canExecute(widget: Widget) {
@@ -139,7 +148,11 @@ export class ExecuteWidgetService {
     };
   }
 
-  private async getData(widget: Widget, params: CommonParams) {
+  private async getData(
+    traceId: TraceId,
+    widget: Widget,
+    params: CommonParams,
+  ) {
     const datasources = await this.datasourceService.getDatasources(
       widget.category,
       widget.subcategories,
@@ -150,6 +163,7 @@ export class ExecuteWidgetService {
     const responses = await Promise.all(
       datasources.map(async (datasource) => {
         const copyright = datasource.getCopyright();
+        const startTime = Date.now();
         try {
           const items = await datasource.getItems({
             ...params,
@@ -158,6 +172,17 @@ export class ExecuteWidgetService {
             preset: widget.preset,
           });
 
+          this.traceService
+            .addPiece(
+              traceId,
+              datasource.getId(),
+              Date.now() - startTime,
+              false,
+            )
+            .catch((error) => {
+              console.error(new TracingError(error));
+            });
+
           return {
             items: items.items,
             meta: items.meta,
@@ -165,6 +190,11 @@ export class ExecuteWidgetService {
           };
         } catch (err) {
           console.error(new DataSourceError(datasource, err));
+          this.traceService
+            .addPiece(traceId, datasource.getId(), Date.now() - startTime, true)
+            .catch((error) => {
+              console.error(new TracingError(error));
+            });
           return {
             items: [],
             meta: { units: {} },
@@ -196,11 +226,15 @@ export class ExecuteWidgetService {
     );
   }
 
-  private async executeMetricsWidget(widget: Widget, params: CommonParams) {
+  private async executeMetricsWidget(
+    traceId: TraceId,
+    widget: Widget,
+    params: CommonParams,
+  ) {
     const itemsPromise = this.getItems(widget);
     const metricsPromise = this.getMetrics(widget);
 
-    const data = await this.getData(widget, params);
+    const data = await this.getData(traceId, widget, params);
 
     const result: ExecuteWidgetDto['data'] = {
       items: [],
@@ -218,6 +252,7 @@ export class ExecuteWidgetService {
     }
 
     return {
+      traceId,
       items: await itemsPromise,
       metrics: await metricsPromise,
       units: data.meta.units,
@@ -230,8 +265,12 @@ export class ExecuteWidgetService {
     return category.getMetricsByPreset(widget.preset!);
   }
 
-  private async executePresetWidget(widget: Widget, params: CommonParams) {
-    const data = await this.getData(widget, params);
+  private async executePresetWidget(
+    traceId: TraceId,
+    widget: Widget,
+    params: CommonParams,
+  ) {
+    const data = await this.getData(traceId, widget, params);
 
     const items: ExecuteWidgetDto['items'] = {};
     const metrics: ExecuteWidgetDto['metrics'] = this.getPresetMetrics(widget);
@@ -257,6 +296,7 @@ export class ExecuteWidgetService {
     }
 
     return {
+      traceId,
       items,
       metrics,
       units: data.meta.units,
@@ -275,10 +315,16 @@ export class ExecuteWidgetService {
       throw new BadRequestException(`Widget ${widgetId} is not configured yet`);
     }
 
+    const { id: traceId } = await this.traceService.create(
+      widget.subcategories,
+      widget.metrics,
+      widget.preset,
+    );
+
     if (widget.metrics && widget.metrics.length > 0) {
-      return await this.executeMetricsWidget(widget, params);
+      return await this.executeMetricsWidget(traceId, widget, params);
     } else if (widget.preset) {
-      return await this.executePresetWidget(widget, params);
+      return await this.executePresetWidget(traceId, widget, params);
     } else {
       // impossible, either metrics or preset are specified
       // jst for typing

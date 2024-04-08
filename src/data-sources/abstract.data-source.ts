@@ -5,6 +5,7 @@ import {
   SubcategoryId,
 } from '../common/categories/abstract.category';
 import { ApiProperty } from '@nestjs/swagger';
+import { DataSourceId } from './entities/data-source.entity';
 
 class DataSourceNameNotSpecifiedError extends Error {}
 class DataSourceDescriptionNotSpecifiedError extends Error {}
@@ -86,12 +87,19 @@ export abstract class AbstractDataSource<
   P extends Presets,
   Ma extends Meta,
 > {
-  protected constructor(protected readonly config: C) {}
+  protected constructor(
+    protected readonly id: DataSourceId,
+    protected readonly config: C,
+  ) {}
 
   abstract getItems(params: Params<Me>): Promise<{
     items: Entity<Me, P>[];
     meta: Ma;
   }>;
+
+  public getId() {
+    return this.id;
+  }
 
   public static getName(): string {
     throw new DataSourceNameNotSpecifiedError();
