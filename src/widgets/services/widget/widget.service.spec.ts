@@ -5,7 +5,7 @@ import { getRepositoryToken, TypeOrmModule } from '@nestjs/typeorm';
 import { Widget } from '../../entities/widget.entity';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule } from '@nestjs/config';
-import { Like, Repository } from 'typeorm';
+import { DataSource, Like, QueryRunner, Repository } from 'typeorm';
 import { WidgetAbilityService } from '../widget-ability/widget-ability.service';
 import { CategoriesService } from '../../../categories/services/categories.service';
 import { DataSourceService } from '../../../data-sources/services/data-source/data-source.service';
@@ -15,6 +15,7 @@ describe('WidgetService', () => {
   let widgetAbilityService: WidgetAbilityService;
   let categoriesService: CategoriesService;
   let repository: Repository<Widget>;
+  let qr: QueryRunner;
 
   beforeEach(async () => {
     repository = {
@@ -24,6 +25,15 @@ describe('WidgetService', () => {
       save: jest.fn(),
       delete: jest.fn(),
     } as any as Repository<Widget>;
+    qr = {
+      connect: jest.fn(),
+      startTransaction: jest.fn(),
+      rollbackTransaction: jest.fn(),
+      release: jest.fn(),
+      connection: {
+        getRepository: jest.fn(() => repository),
+      },
+    } as any as QueryRunner;
 
     const module: TestingModule = await Test.createTestingModule({
       imports: [
@@ -42,6 +52,10 @@ describe('WidgetService', () => {
     })
       .overrideProvider(getRepositoryToken(Widget))
       .useValue(repository)
+      .overrideProvider(DataSource)
+      .useValue({
+        createQueryRunner: () => qr,
+      })
       .compile();
 
     service = module.get<WidgetService>(WidgetService);
@@ -212,6 +226,29 @@ describe('WidgetService', () => {
           name: 'cc3',
         },
       ]);
+    });
+  });
+
+  describe('setMetrics', () => {
+    it('should clear both preset and metrics if both were not specified', async () => {
+      const userId = '42';
+      const widgetId = '101';
+
+      const widget = {
+        id: widgetId,
+        preset: 'smth',
+        metrics: ['smth1', 'smth2'],
+      } as any as Widget;
+      jest.spyOn(repository, 'findOne').mockResolvedValue(widget);
+
+      await service.setMetrics(userId, widgetId);
+
+      expect(repository.save).toHaveBeenCalledTimes(1);
+      expect(repository.save).toHaveBeenCalledWith({
+        id: widgetId,
+        metrics: null,
+        preset: null,
+      });
     });
   });
 });
