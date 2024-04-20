@@ -200,9 +200,9 @@ export class WidgetService {
     preset?: PresetId,
     qr?: QueryRunner,
   ) {
-    if ((metrics && preset) || (!metrics && !preset)) {
+    if (metrics && preset) {
       throw new BadRequestException(
-        'You should specify exactly one of [metrics,preset]',
+        'You should either specify exactly one of [metrics,preset], or not specify both',
       );
     }
 
@@ -221,33 +221,40 @@ export class WidgetService {
       }
     }
 
-    const [widget, suggested] = await Promise.all([
-      this.findById(widgetId, null, qr),
-      this.queryMetrics(userId, widgetId, undefined, qr),
-    ]);
-    if (preset) {
-      const presetExists = suggested.presets.find(
-        (suggested) => suggested.id === preset,
-      );
-      if (!presetExists) {
-        throw new BadRequestException(`Preset ${preset} is not found`);
-      }
-      widget.preset = preset;
-      widget.metrics = undefined;
-    } else if (metrics) {
-      const miss = metrics.find(
-        (metricId) =>
-          !suggested.metrics.find(
-            (suggest) => suggest.id === metricId && suggest.isAvailable,
-          ),
-      );
-      if (miss) {
-        throw new BadRequestException(`Metric ${miss} is not found`);
-      }
-      widget.metrics = [...new Set(metrics)];
-      widget.preset = undefined;
+    const widgetPromise = this.findById(widgetId, undefined, qr);
+    let widget;
+    if (!preset && !metrics) {
+      widget = await widgetPromise;
+      widget.metrics = null;
+      widget.preset = null;
     } else {
-      // not reachable, exactly one should be specified
+      let suggested;
+      [widget, suggested] = await Promise.all([
+        widgetPromise,
+        this.queryMetrics(userId, widgetId, undefined, qr),
+      ]);
+      if (preset) {
+        const presetExists = suggested.presets.find(
+          (suggested) => suggested.id === preset,
+        );
+        if (!presetExists) {
+          throw new BadRequestException(`Preset ${preset} is not found`);
+        }
+        widget.preset = preset;
+        widget.metrics = null;
+      } else {
+        const miss = metrics!.find(
+          (metricId) =>
+            !suggested.metrics.find(
+              (suggest) => suggest.id === metricId && suggest.isAvailable,
+            ),
+        );
+        if (miss) {
+          throw new BadRequestException(`Metric ${miss} is not found`);
+        }
+        widget.metrics = [...new Set(metrics)];
+        widget.preset = null;
+      }
     }
 
     return await this.getWidgetRepository(qr).save(widget);

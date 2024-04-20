@@ -4,6 +4,7 @@ import {
   Entity,
   ManyToOne,
   PrimaryGeneratedColumn,
+  Check,
 } from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
 import { User } from '../../users/entities/user.entity';
@@ -11,6 +12,7 @@ import { User } from '../../users/entities/user.entity';
 export type WidgetId = string;
 
 @Entity('widget')
+@Check('"preset" IS NULL OR "metrics" IS NULL')
 export class Widget {
   @ApiProperty({
     description: "widget's uuid",
