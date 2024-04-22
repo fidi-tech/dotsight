@@ -103,13 +103,13 @@ export class ExecuteWidgetService {
             copyrights: { [chunk.copyright.id]: chunk.copyright },
           };
         } else {
-          items[item.id].metrics = {};
+          items[item.id].metrics = { ...items[item.id].metrics };
 
           const metricsList = [
-            ...new Set(
+            ...new Set([
               ...Object.keys(items[item.id].metrics),
               ...Object.keys(item.metrics),
-            ),
+            ]),
           ];
           for (const m of metricsList) {
             if (items[item.id].metrics[m] && item.metrics[m]) {
@@ -125,10 +125,6 @@ export class ExecuteWidgetService {
             }
           }
 
-          items[item.id].metrics = {
-            ...items[item.id].metrics,
-            ...item.metrics,
-          };
           items[item.id].copyrights[chunk.copyright.id] = chunk.copyright;
         }
       }
