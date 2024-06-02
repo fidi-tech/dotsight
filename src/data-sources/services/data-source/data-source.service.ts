@@ -100,6 +100,7 @@ export class DataSourceService {
     return (
       datasources
         .map((datasource) => ({
+          id: datasource.id,
           type: collection[
             datasource.type
           ] as (typeof collection)[keyof typeof collection],
@@ -115,7 +116,7 @@ export class DataSourceService {
         })
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore smth weird
-        .map(({ type, config }) => new type(config as any))
+        .map(({ id, type, config }) => new type(id, config as any))
     );
   }
 

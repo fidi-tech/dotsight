@@ -17,7 +17,7 @@ describe('DappRadarDappDatasource', () => {
     axiosCreate = jest.spyOn(axios, 'create');
     axiosCreate.mockImplementation(() => mockAxios as any as AxiosInstance);
 
-    dataSource = new DappRadarDappDatasource({
+    dataSource = new DappRadarDappDatasource(1, {
       key: '66',
       endpoint: 'https://some-valid-url.com',
     });

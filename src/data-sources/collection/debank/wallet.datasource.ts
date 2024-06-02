@@ -34,8 +34,8 @@ export class DebankWalletDatasource extends AbstractWalletDataSource<Config> {
     return `Data source powered by DeBank Cloud API that returns wallets' net worth. Consult https://docs.cloud.debank.com for more info.`;
   }
 
-  constructor(props) {
-    super(props);
+  constructor(id, props) {
+    super(id, props);
 
     this.httpClient = axios.create({
       baseURL: 'https://pro-openapi.debank.com/v1',

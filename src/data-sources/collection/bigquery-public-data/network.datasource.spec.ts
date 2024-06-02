@@ -9,7 +9,7 @@ jest.mock('@google-cloud/bigquery', () => ({
 
 describe('BigQueryPublicDataChainDatasource', () => {
   const datasource: BigQueryPublicDataChainDatasource =
-    new BigQueryPublicDataChainDatasource({} as any);
+    new BigQueryPublicDataChainDatasource(1, {} as any);
 
   it('should return correct data', async () => {
     createQueryJob.mockImplementation(() => [

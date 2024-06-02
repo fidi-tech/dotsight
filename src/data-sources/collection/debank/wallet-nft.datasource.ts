@@ -37,8 +37,8 @@ export class DebankWalletNFTDatasource extends AbstractWalletDataSource<Config> 
     return `Data source powered by DeBank Cloud API that returns all of the NFT for the specified wallet. Consult https://docs.cloud.debank.com for more info.`;
   }
 
-  constructor(props) {
-    super(props);
+  constructor(id, props) {
+    super(id, props);
 
     this.httpClient = axios.create({
       baseURL: 'https://pro-openapi.debank.com/v1',
